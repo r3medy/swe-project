@@ -29,4 +29,15 @@ class Database {
         }
         return self::$conn;
     }
+
+    public static function runQuery(string $query, array $params = []): PDOStatement {
+        // Prepare and execute the query
+        // Example usage: SELECT * FROM users WHRERE id=?;
+        $qry = self::getConnection()->prepare($query);
+        // Replace placeholders with actual values
+        // Output: SELECT * FROM users WHERE id=1;
+        $qry->execute($params);
+        // Return Results
+        return $qry;
+    }
 }
