@@ -2,4 +2,107 @@
   background-color: #08090b;
   width: 100%;
   height: 100vh;
+  position: relative;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  /* width: 29.1875rem; */
+  gap: 1rem;
+  text-align: center;
+}
+
+.hero-text-primary {
+  color: #eef1f9;
+  font-family: "Playfair Display Regular", serif;
+  font-size: 4rem;
+  font-weight: 400;
+}
+
+.hero-text-secondary {
+  color: #eef1f9;
+  font-family: "Playfair Display Italic", serif;
+  font-size: 4rem;
+  font-weight: 400;
+}
+
+.hero-sub-text {
+  color: rgba(238, 241, 249, 0.75);
+  font-family: "Geist", sans-serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 1rem;
+}
+
+.home-page .custom-rays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  transition: color 0.2s ease;
+}
+
+.hero-search span {
+  color: rgba(238, 241, 249, 0.75);
+  font-family: "Geist", sans-serif;
+  font-weight: 200;
+}
+
+.hero-search a {
+  transition: color 0.2s ease;
+}
+
+.hero-search a:link,
+.hero-search a:visited,
+.hero-search a:active {
+  color: rgba(238, 241, 249, 0.75);
+}
+
+.hero-search a:hover {
+  color: #eef1f9;
+}
+
+.hero-currency-box {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .hero-text-primary,
+  .hero-text-secondary {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
+
+  .hero-sub-text {
+    font-size: 0.9rem;
+    padding: 0 1rem;
+  }
+
+  .hero-currency-box {
+    gap: 0.25rem;
+  }
 }

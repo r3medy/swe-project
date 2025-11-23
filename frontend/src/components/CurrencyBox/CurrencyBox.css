@@ -1,0 +1,20 @@
+.currency-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #eef1f9;
+  border-radius: 1rem;
+  color: #eef1f9;
+  font-family: "Geist", serif;
+  font-weight: 300;
+  font-size: 2rem;
+  padding: 0.5rem 1.15rem;
+}
+
+@media (max-width: 768px) {
+  .currency-box {
+    font-size: 1.5rem;
+    padding: 0.4rem 0.8rem;
+    border-width: 1.5px;
+  }
+}

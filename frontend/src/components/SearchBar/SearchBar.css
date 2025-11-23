@@ -1,0 +1,51 @@
+.searchbar {
+  display: flex;
+  align-items: center;
+  width: 28rem;
+  height: 2.75rem;
+  border-radius: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  gap: 1rem;
+  font-family: "Geist", sans-serif;
+  color: rgba(238, 241, 249, 0.75);
+  letter-spacing: 0.025rem;
+  border: 1px solid rgba(238, 241, 249, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(4px);
+}
+
+.searchbar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.95rem;
+  letter-spacing: inherit;
+}
+
+.searchbar input::placeholder {
+  color: rgba(238, 241, 249, 0.4);
+}
+
+.searchbar svg {
+  font-size: 1.25rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.searchbar svg:hover {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .searchbar {
+    width: 100%;
+    max-width: 28rem;
+    height: 2.5rem;
+    font-size: 0.9rem;
+  }
+}
