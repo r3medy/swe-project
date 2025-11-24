@@ -2,9 +2,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #eef1f9;
+  border: 2px solid var(--foreground);
   border-radius: 1rem;
-  color: #eef1f9;
+  color: var(--foreground);
   font-family: "Geist", serif;
   font-weight: 300;
   font-size: 2rem;

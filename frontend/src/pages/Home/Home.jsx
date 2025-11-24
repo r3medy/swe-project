@@ -3,22 +3,22 @@ import LightRays from "@/components/LightRays/LightRays.jsx";
 import SearchBar from "@/components/SearchBar/SearchBar.jsx";
 import CurrencyBox from "@/components/CurrencyBox/CurrencyBox.jsx";
 import Navigation from "@/components/Navigation/Navigation.jsx";
-
-import Button from "@/components/Button/Button";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Home() {
+  const { theme } = useTheme();
   return (
     <div className="home-page">
       <LightRays
         raysOrigin="top-center"
-        raysColor="#EEF1F9"
+        raysColor="#FF6B53"
         raysSpeed={1.5}
-        lightSpread={0.8}
-        rayLength={1.2}
+        lightSpread={1}
+        rayLength={1}
         followMouse={true}
         mouseInfluence={0.1}
         noiseAmount={0.1}
-        distortion={0.05}
+        distortion={0.1}
         className="custom-rays"
       />
       <Navigation />

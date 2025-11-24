@@ -14,8 +14,8 @@ button {
 }
 
 .button-regular {
-  background-color: #08090b;
-  color: #eef1f9;
+  background-color: var(--background);
+  color: var(--foreground);
   border: 1px solid rgba(238, 241, 249, 0.2);
 }
 
@@ -25,21 +25,37 @@ button {
 }
 
 .button-destructive {
-  background-color: #ff6b53;
-  color: #eef1f9;
+  background-color: var(--accent);
+  color: var(--background);
 }
 
 .button-destructive:hover {
-  background-color: #ff5238;
+  filter: brightness(1.1);
 }
 
 .button-text {
   background-color: transparent;
-  color: rgba(238, 241, 249, 0.6);
+  color: var(--foreground);
+  opacity: 0.6;
   padding: 0.6rem 1rem;
 }
 
 .button-text:hover {
-  color: #eef1f9;
+  opacity: 1;
   background-color: rgba(238, 241, 249, 0.05);
+}
+
+.button-icon-only {
+  background-color: transparent;
+  color: var(--foreground);
+  border: none;
+  padding: 0.75rem;
+  line-height: 0;
+  opacity: 0.6;
+}
+
+.button-icon-only:hover {
+  background-color: transparent;
+  border: none;
+  opacity: 1;
 }

@@ -24,7 +24,16 @@ function Text({ children, ...props }) {
   );
 }
 
+function Icon({ children, ...props }) {
+  return (
+    <button className="button-icon-only" {...props}>
+      {children}
+    </button>
+  );
+}
+
 Button.Destructive = Destructive;
 Button.Text = Text;
+Button.Icon = Icon;
 
 export default Button;

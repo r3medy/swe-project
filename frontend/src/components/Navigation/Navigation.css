@@ -14,27 +14,37 @@
   padding: 0.75rem 1.25rem 0.75rem 1.25rem; /* top right bottom left */
   font-family: "Geist", sans-serif;
   backdrop-filter: blur(4rem);
-  color: #eef1f9;
+  color: var(--foreground);
 }
 
 .navigation-links,
 .navigation-buttons {
   display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 1rem;
 }
 
-.navigation-links,
 .navigation-buttons {
-  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.navigation-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .navigation-links a {
   text-decoration: none;
-  color: rgba(238, 241, 249, 0.4);
+  color: var(--foreground);
+  opacity: 0.4;
   transition: all 0.2s ease;
 }
 
 .navigation-links a:hover {
-  color: #eef1f9;
+  opacity: 1;
+  color: var(--foreground);
 }
 
 @media (max-width: 900px) {
@@ -57,5 +67,18 @@
 
   .navigation-logo {
     margin-right: auto;
+  }
+}
+
+.theme-icon {
+  animation: theme-rotate 0.2s ease;
+}
+
+@keyframes theme-rotate {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
