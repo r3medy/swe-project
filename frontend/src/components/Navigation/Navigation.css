@@ -58,15 +58,11 @@
   .navigation {
     width: 90%;
     top: 1.5rem;
-    padding: 0.5rem;
-  }
-
-  .navigation-links {
-    display: none; /* Hide links on very small screens for now, or use a hamburger menu */
-  }
-
-  .navigation-logo {
-    margin-right: auto;
+    padding: 1rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
   }
 }
 

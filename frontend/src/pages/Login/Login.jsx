@@ -69,7 +69,7 @@ function Login() {
             <div className="input-wrapper">
               <input
                 type={isHidden ? "password" : "text"}
-                placeholder="Make it secure!"
+                placeholder="Type your password"
                 required
                 value={credentials.password}
                 onChange={(e) =>
