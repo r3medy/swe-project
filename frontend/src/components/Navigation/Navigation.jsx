@@ -2,6 +2,7 @@ import "@/components/Navigation/Navigation.css";
 import Button from "@/components/Button/Button";
 import { LuFlower, LuSunMedium, LuMoon } from "react-icons/lu";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Link } from "react-router";
 
 function Navigation() {
   const { theme, toggleTheme } = useTheme();
@@ -9,8 +10,8 @@ function Navigation() {
   return (
     <div className="navigation">
       <div className="navigation-links">
-        <a href="#">About</a>
-        <a href="#">The Wall</a>
+        <Link to="#">About</Link>
+        <Link to="#">The Wall</Link>
       </div>
       <div className="navigation-logo">
         <LuFlower size={32} />
@@ -23,8 +24,12 @@ function Navigation() {
             <LuMoon size={20} className="theme-icon" />
           )}
         </Button.Icon>
-        <Button.Text href="#">Login</Button.Text>
-        <Button href="#">Join</Button>
+        <Button.Text>
+          <Link to="/login">Login</Link>
+        </Button.Text>
+        <Button>
+          <Link to="/register">Join</Link>
+        </Button>
       </div>
     </div>
   );

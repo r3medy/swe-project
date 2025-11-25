@@ -1,0 +1,168 @@
+.register-container {
+  font-family: "Geist", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  gap: 1rem;
+}
+
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--foreground);
+  width: 100%;
+  max-width: 22rem;
+}
+
+.register-header p {
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.register-form {
+  width: 100%;
+  max-width: 22rem;
+}
+
+.register-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.register-form .input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.register-form .input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.register-form label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.9;
+}
+
+.register-form input {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 80%);
+  background: color-mix(in srgb, var(--foreground), transparent 98%);
+  backdrop-filter: blur(4px);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.register-form .input:has(button) input {
+  padding-right: 3rem;
+}
+
+.register-form .input button {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--foreground);
+}
+
+.register-form .input button:hover {
+  opacity: 1;
+}
+
+.register-form input::placeholder {
+  color: color-mix(in srgb, var(--foreground), transparent 50%);
+}
+
+.register-form input:focus {
+  border-color: color-mix(in srgb, var(--foreground), transparent 60%);
+  background: color-mix(in srgb, var(--foreground), transparent 95%);
+}
+
+.register-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 22rem;
+  color: var(--foreground);
+}
+
+.divider {
+  width: 75%;
+  border: 1px solid var(--foreground);
+  opacity: 0.1;
+}
+
+/* Responsive Design */
+@media (max-width: 48rem) {
+  .register-container {
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+
+  .register-header,
+  .register-form,
+  .register-footer {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+
+  .register-header p {
+    font-size: 1.5rem;
+  }
+}
+
+.error-border {
+  border-color: #ef4444;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 30rem) {
+  .register-container {
+    gap: 1.25rem;
+  }
+
+  .register-header p {
+    font-size: 1.25rem;
+  }
+
+  .register-form input {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .register-form .input:has(button) input {
+    padding-right: 2.5rem;
+  }
+
+  .register-form .input button {
+    right: 0.5rem;
+  }
+}

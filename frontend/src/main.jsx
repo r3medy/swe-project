@@ -4,7 +4,12 @@ import { BrowserRouter, Routes, Route } from "react-router";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Home from "@/pages/Home/Home";
+import Login from "@/pages/Login/Login";
+import Register from "@/pages/Register/Register";
 import "./global.css";
+
+// TODO: Add useFetch hook
+// TODO: Make Navigation show vertically on phone since left side doesn't show
 
 // Color Scheme
 const colorScheme = {
@@ -19,6 +24,8 @@ createRoot(document.getElementById("root")).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" index element={<Home />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

@@ -8,7 +8,7 @@ use DI\Container;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/vendor/autoload.php';
-require './src/core/DatabaseConfig.php'; // Database Configuration
+require __DIR__ . '/src/core/DatabaseConfig.php'; // Database Configuration
 
 $container  = new Container();
 $container->set('db', function () use ($host, $db_name, $username, $password, $opts) {

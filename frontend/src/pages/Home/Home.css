@@ -57,29 +57,6 @@
   transition: color 0.2s ease;
 }
 
-.hero-search span {
-  color: var(--foreground);
-  opacity: 0.75;
-  font-family: "Geist", sans-serif;
-  font-weight: 200;
-}
-
-.hero-search a {
-  transition: color 0.2s ease;
-}
-
-.hero-search a:link,
-.hero-search a:visited,
-.hero-search a:active {
-  color: var(--foreground);
-  opacity: 0.75;
-}
-
-.hero-search a:hover {
-  color: var(--foreground);
-  opacity: 1;
-}
-
 .hero-currency-box {
   display: flex;
   flex-direction: row;

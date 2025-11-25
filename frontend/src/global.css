@@ -22,6 +22,26 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a {
+  transition: color 0.2s ease;
+}
+
+a:link,
+a:visited,
+a:active {
+  color: var(--foreground);
+  opacity: 0.75;
+}
+a:hover {
+  color: var(--foreground);
+  opacity: 1;
+}
+
 @font-face {
   font-family: "Playfair Display Italic";
   src: url("./assets/fonts/PlayfairDisplay\ Variable\ Italic.ttf");

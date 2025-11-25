@@ -1,9 +1,11 @@
 import "@/pages/Home/Home.css";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Link } from "react-router";
 import LightRays from "@/components/LightRays/LightRays.jsx";
 import SearchBar from "@/components/SearchBar/SearchBar.jsx";
 import CurrencyBox from "@/components/CurrencyBox/CurrencyBox.jsx";
 import Navigation from "@/components/Navigation/Navigation.jsx";
-import { useTheme } from "@/contexts/ThemeContext";
+import SmallText from "@/components/SmallText/SmallText";
 
 export default function Home() {
   const { theme } = useTheme();
@@ -42,12 +44,12 @@ export default function Home() {
         </h1>
         <div className="hero-search">
           <SearchBar />
-          <span>
-            Do you prefer to work as a freelancer? <a href="#">Start now!</a>
-          </span>
-          <span>
-            Are you an existing user? <a href="#">Login!</a>
-          </span>
+          <SmallText text="Do you prefer to work as a freelancer?">
+            <Link to="/register">Start now!</Link>
+          </SmallText>
+          <SmallText text="Are you an existing user?">
+            <Link to="/login">Login!</Link>
+          </SmallText>
         </div>
       </div>
     </div>

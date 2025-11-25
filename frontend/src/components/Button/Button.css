@@ -13,15 +13,20 @@ button {
   border: none;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .button-regular {
   background-color: var(--background);
   color: var(--foreground);
-  border: 1px solid rgba(238, 241, 249, 0.2);
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 80%);
 }
 
-.button-regular:hover {
-  background-color: rgba(238, 241, 249, 0.1);
-  border-color: rgba(238, 241, 249, 0.4);
+.button-regular:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground), transparent 90%);
+  border-color: color-mix(in srgb, var(--foreground), transparent 60%);
 }
 
 .button-destructive {
@@ -29,7 +34,7 @@ button {
   color: var(--background);
 }
 
-.button-destructive:hover {
+.button-destructive:not(:disabled):hover {
   filter: brightness(1.1);
 }
 
@@ -40,9 +45,9 @@ button {
   padding: 0.6rem 1rem;
 }
 
-.button-text:hover {
+.button-text:not(:disabled):hover {
   opacity: 1;
-  background-color: rgba(238, 241, 249, 0.05);
+  background-color: color-mix(in srgb, var(--foreground), transparent 95%);
 }
 
 .button-icon-only {
@@ -54,7 +59,7 @@ button {
   opacity: 0.6;
 }
 
-.button-icon-only:hover {
+.button-icon-only:not(:disabled):hover {
   background-color: transparent;
   border: none;
   opacity: 1;
