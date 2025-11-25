@@ -36,6 +36,9 @@ function Login() {
       <div className="login-header">
         <LuFlower size={40} />
         <p>Welcome back!</p>
+        <SmallText text="Don't have an account?">
+          <Link to="/register">Sign up!</Link>
+        </SmallText>
       </div>
       <div className="login-form">
         <form onSubmit={handleLogin}>
@@ -98,8 +101,8 @@ function Login() {
       </div>
       <div className="login-footer">
         <div className="divider" />
-        <SmallText text="Don't have an account?">
-          <Link to="/register">Sign up!</Link>
+        <SmallText text="By using our platform, you agree to our ">
+          <Link to="#">Terms of Service</Link>
         </SmallText>
       </div>
     </div>

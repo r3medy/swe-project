@@ -39,6 +39,9 @@ function Register() {
       <div className="register-header">
         <LuFlower size={40} />
         <p>Welcome abroad!</p>
+        <SmallText text="Already an existing member?">
+          <Link to="/login">Login</Link>
+        </SmallText>
       </div>
       <div className="register-form">
         <form onSubmit={handleRegister}>
@@ -159,8 +162,8 @@ function Register() {
       </div>
       <div className="register-footer">
         <div className="divider" />
-        <SmallText text="Already an existing member?">
-          <Link to="/login">Login</Link>
+        <SmallText text="By creating an account, you agree to our ">
+          <Link to="#">Terms of Service</Link>
         </SmallText>
       </div>
     </div>
