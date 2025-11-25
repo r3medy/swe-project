@@ -9,7 +9,6 @@ import Register from "@/pages/Register/Register";
 import "./global.css";
 
 // TODO: Add useFetch hook
-// TODO: Make Navigation show vertically on phone since left side doesn't show
 
 // Color Scheme
 const colorScheme = {

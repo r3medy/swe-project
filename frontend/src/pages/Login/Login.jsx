@@ -37,7 +37,7 @@ function Login() {
         <LuFlower size={40} />
         <p>Welcome back!</p>
         <SmallText text="Don't have an account?">
-          <Link to="/register">Sign up!</Link>
+          <Link to="/register">Sign up</Link>
         </SmallText>
       </div>
       <div className="login-form">

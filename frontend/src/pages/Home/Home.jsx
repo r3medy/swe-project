@@ -45,10 +45,10 @@ export default function Home() {
         <div className="hero-search">
           <SearchBar />
           <SmallText text="Do you prefer to work as a freelancer?">
-            <Link to="/register">Start now!</Link>
+            <Link to="/register">Start now</Link>
           </SmallText>
           <SmallText text="Are you an existing user?">
-            <Link to="/login">Login!</Link>
+            <Link to="/login">Login</Link>
           </SmallText>
         </div>
       </div>
