@@ -1,10 +1,11 @@
 import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
+import { registerSchema } from "@/models/register.zod";
+import useFetch from "@/hooks/useFetch";
 import "@/pages/Register/Register.css";
 import Button from "@/components/Button/Button";
 import SmallText from "@/components/SmallText/SmallText";
-import { registerSchema } from "@/models/register.zod";
 
 function Register() {
   const [isHidden, setIsHidden] = useState(true);

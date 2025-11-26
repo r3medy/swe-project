@@ -12,9 +12,14 @@ class AuthController {
     public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
     }
-
+    
     public function register(Request $request, Response $response) {
-        
+        // 1. Validate the request
+        // 2. Check if username exists
+        // 3. Check if email exists
+        // 4. Hash the password
+        // 5. Create the user
+        // 6. Return the user
     }
 
     public function login(Request $request, Response $response) {

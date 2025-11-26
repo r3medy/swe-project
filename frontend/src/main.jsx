@@ -10,6 +10,23 @@ import "./global.css";
 
 // TODO: Add useFetch hook
 
+/*
+  ? Login & Signup
+  ? Home
+  ! About
+  ! Terms & Conditions
+  * Profile ( Client / Admin / Freelancer )
+  * Contact
+  * Chat
+  * Pending posts ( Admin )
+  * The wall
+  * Onboarding
+  
+  * Job information
+  * Notifications
+  * Tell user about the contract
+*/
+
 // Color Scheme
 const colorScheme = {
   background: "#08090B", // Black

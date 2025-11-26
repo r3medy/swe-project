@@ -12,4 +12,8 @@ class AdminController {
     public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
     }
+    
+    public function getAllPosts(Request $request, Response $response) {
+        
+    }
 }
