@@ -3,7 +3,7 @@
 $host     = '127.0.0.1';
 $db_name  = 'swe_project';
 $username = 'root';
-$password = 'yousef20055_';
+$password = '';
 
 // Database options
 $opts = [
