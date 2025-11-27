@@ -110,12 +110,6 @@
   color: var(--foreground);
 }
 
-.divider {
-  width: 75%;
-  border: 1px solid var(--foreground);
-  opacity: 0.1;
-}
-
 /* Responsive Design */
 @media (max-width: 48rem) {
   .login-container {

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import Home from "@/pages/Home/Home";
 import Login from "@/pages/Login/Login";
 import Register from "@/pages/Register/Register";
+import About from "@/pages/About/About";
 import "./global.css";
 
 // TODO: Add useFetch hook
@@ -42,6 +43,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/" index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="about" element={<About />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

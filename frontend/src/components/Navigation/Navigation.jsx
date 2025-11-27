@@ -10,11 +10,15 @@ function Navigation() {
   return (
     <div className="navigation">
       <div className="navigation-links">
-        <Link to="#">About</Link>
+        <Link to="/about">About</Link>
         <Link to="#">The Wall</Link>
       </div>
       <div className="navigation-logo">
-        <LuFlower size={32} />
+        <Link to="/">
+          <Button.Icon style={{ cursor: "pointer", padding: 0 }}>
+            <LuFlower size={32} />
+          </Button.Icon>
+        </Link>
       </div>
       <div className="navigation-buttons">
         <Button.Icon onClick={toggleTheme}>

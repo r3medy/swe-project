@@ -7,7 +7,7 @@ import CurrencyBox from "@/components/CurrencyBox/CurrencyBox.jsx";
 import Navigation from "@/components/Navigation/Navigation.jsx";
 import SmallText from "@/components/SmallText/SmallText";
 
-export default function Home() {
+function Home() {
   const { theme } = useTheme();
   return (
     <div className="home-page">
@@ -55,3 +55,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;
