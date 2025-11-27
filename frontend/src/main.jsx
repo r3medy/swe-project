@@ -14,7 +14,7 @@ import "./global.css";
 /*
   ? Login & Signup
   ? Home
-  ! About
+  ? About
   ! Terms & Conditions
   * Profile ( Client / Admin / Freelancer )
   * Contact

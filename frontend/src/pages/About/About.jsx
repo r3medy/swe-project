@@ -5,6 +5,7 @@ import aboutImage3 from "@/assets/images/about-3.jpg";
 import aboutImage4 from "@/assets/images/about-4.jpg";
 import Navigation from "@/components/Navigation/Navigation";
 import SmallText from "@/components/SmallText/SmallText";
+import Button from "@/components/Button/Button";
 import "@/pages/About/About.css";
 
 function About() {
@@ -51,9 +52,10 @@ function About() {
         <div className="about-footer">
           <div className="divider" />
           <h1>Our Message to You</h1>
-          <SmallText text="We’re more than just a platform—we’re your partner in turning ideas into reality. Let’s build something great together,">
-            <Link to="/register">Join us now!</Link>
-          </SmallText>
+          <SmallText text="We’re more than just a platform—we’re your partner in turning ideas into reality. Let’s build something great together," />
+          <Button>
+            <Link to="/register">Join Us</Link>
+          </Button>
         </div>
       </div>
     </>
