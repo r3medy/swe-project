@@ -10,12 +10,12 @@ import { useNavigate } from "react-router";
 function Login() {
   const [isHidden, setIsHidden] = useState(true);
   const [credentials, setCredentials] = useState({
-    email: "",
+    usernameoremail: "",
     password: "",
   });
   const [formErrors, setFormErrors] = useState({
     success: false,
-    email: "",
+    usernameoremail: "",
     password: "",
   });
 
@@ -27,7 +27,8 @@ function Login() {
     if (!success) setFormErrors({ ...error.flatten().fieldErrors, success });
     else {
       setFormErrors({ ...formErrors, success });
-      navigate("/");
+      // navigate("/");
+      console.log(credentials);
     }
   };
 
@@ -43,22 +44,26 @@ function Login() {
       <div className="login-form">
         <form onSubmit={handleLogin}>
           <div className="input">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="usernameoremail">Username or Email</label>
             <div className="input-wrapper">
               <input
-                type="email"
-                placeholder="patrickjane@domain.com"
+                type="text"
+                placeholder="patrickjane or patrickjane@domain.com"
                 required
-                value={credentials.email}
+                value={credentials.usernameoremail}
                 onChange={(e) =>
-                  setCredentials({ ...credentials, email: e.target.value })
+                  setCredentials({
+                    ...credentials,
+                    usernameoremail: e.target.value,
+                  })
                 }
                 style={{
-                  borderColor: formErrors?.email?.length > 0 ? "#ef4444" : "",
+                  borderColor:
+                    formErrors?.usernameoremail?.length > 0 ? "#ef4444" : "",
                 }}
               />
-              {formErrors?.email?.length > 0 &&
-                formErrors.email.map((err, idx) => {
+              {formErrors?.usernameoremail?.length > 0 &&
+                formErrors.usernameoremail.map((err, idx) => {
                   return (
                     <p key={idx} className="error-text">
                       {err}
@@ -102,7 +107,7 @@ function Login() {
       <div className="login-footer">
         <div className="divider" />
         <SmallText text="By using our platform, you agree to our ">
-          <Link to="#">Terms of Service</Link>
+          <Link to="/terms-and-conditions">Terms of Service</Link>
         </SmallText>
       </div>
     </div>

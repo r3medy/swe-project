@@ -1,5 +1,5 @@
 import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { registerSchema } from "@/models/register.zod";
 import "@/pages/Register/Register.css";
@@ -32,6 +32,19 @@ function Register() {
     if (!success) setFormErrors({ ...error.flatten().fieldErrors, success });
     else {
       setFormErrors({ ...formErrors, success });
+      // Check user localhost:8000/auth/checkUser
+      const { data, loading, error } = useFetch(
+        "http://localhost:8000/auth/checkUser",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(credentials),
+        }
+      );
+      console.log({ data, loading, error });
+      // if valid navigate to /onboarding with data
       navigate("/");
     }
   };
@@ -165,7 +178,7 @@ function Register() {
       <div className="register-footer">
         <div className="divider" />
         <SmallText text="By creating an account, you agree to our ">
-          <Link to="#">Terms of Service</Link>
+          <Link to="/terms-and-conditions">Terms of Service</Link>
         </SmallText>
       </div>
     </div>

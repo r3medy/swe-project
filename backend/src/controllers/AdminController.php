@@ -14,6 +14,5 @@ class AdminController {
     }
     
     public function getAllPosts(Request $request, Response $response) {
-        
     }
 }

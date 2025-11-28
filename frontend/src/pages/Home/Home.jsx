@@ -1,5 +1,4 @@
 import "@/pages/Home/Home.css";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Link } from "react-router";
 import LightRays from "@/components/LightRays/LightRays.jsx";
 import SearchBar from "@/components/SearchBar/SearchBar.jsx";
@@ -8,7 +7,6 @@ import Navigation from "@/components/Navigation/Navigation.jsx";
 import SmallText from "@/components/SmallText/SmallText";
 
 function Home() {
-  const { theme } = useTheme();
   return (
     <div className="home-page">
       <LightRays

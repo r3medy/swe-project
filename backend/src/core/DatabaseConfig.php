@@ -1,6 +1,6 @@
 <?php
 // Database configuration
-$host     = '127.0.0.1';
+$host     = 'localhost:3308';
 $db_name  = 'swe_project';
 $username = 'root';
 $password = '';

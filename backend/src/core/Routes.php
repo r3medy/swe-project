@@ -15,15 +15,30 @@ use src\Controllers\PostController;
 use src\Controllers\ProposalController;
 
 return function(App $app) {
+    // Cookies
+    session_set_cookie_params([
+        'lifetime' => 60 * 60 * 24 * 7, // 7 days
+        'path' => '/',
+        'domain' => 'localhost',
+        'secure' => false,
+        'httponly' => false, // TRUE IN PRODUCTION
+        'samesite' => 'Strict'
+    ]);
+
+    if(session_status() === PHP_SESSION_NONE) session_start();
+
     // Default route
-    $app->get('/', function(Request $request, Response $response) {
-        $response->getBody()->write(json_encode(['message' => 'Freelancing platform server is running']));
+    $app->post('/', function(Request $request, Response $response) {
+        $response->getBody()->write(json_encode($request->getParsedBody()));
         return $response;
     });
 
     // Authentication routes
     $app->group('/auth', function (RouteCollectorProxy $group) {
+        $group->post('/checkUser', [AuthController::class, 'checkUser']);
         $group->post('/register', [AuthController::class, 'register']);
+        $group->post('/login', [AuthController::class, 'login']);
+        $group->post('/logout', [AuthController::class, 'logout']);
     });
 
     // Posts routes

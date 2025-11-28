@@ -7,25 +7,28 @@ import Home from "@/pages/Home/Home";
 import Login from "@/pages/Login/Login";
 import Register from "@/pages/Register/Register";
 import About from "@/pages/About/About";
+import TermsandConditions from "@/pages/TermsandConditions/TermsandConditions";
 import "./global.css";
 
-// TODO: Add useFetch hook
-
 /*
+  TODO: Add useFetch hook
+
   ? Login & Signup
   ? Home
   ? About
-  ! Terms & Conditions
+  ? Terms & Conditions
   * Profile ( Client / Admin / Freelancer )
-  * Contact
   * Chat
   * Pending posts ( Admin )
   * The wall
   * Onboarding
-  
+  * Proposals
+
+  -- Modals
   * Job information
   * Notifications
   * Tell user about the contract
+  * Create job post
 */
 
 // Color Scheme
@@ -44,6 +47,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="about" element={<About />} />
+          <Route path="terms-and-conditions" element={<TermsandConditions />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

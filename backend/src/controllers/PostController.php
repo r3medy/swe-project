@@ -14,7 +14,6 @@ class PostController {
     }
 
     public function createPost(Request $request, Response $response) {
-        
     }
 
     public function getApprovedPosts(Request $request, Response $response) {
@@ -26,6 +25,10 @@ class PostController {
     }
 
     public function getPostById(Request $request, Response $response) {
+        
+    }
+
+    public function getAllPosts(Request $request, Response $response) {
         
     }
 }
