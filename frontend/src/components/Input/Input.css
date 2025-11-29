@@ -1,0 +1,99 @@
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.9;
+}
+
+.input input,
+.input textarea {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 80%);
+  background: color-mix(in srgb, var(--foreground), transparent 98%);
+  backdrop-filter: blur(4px);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  transition: all 0.3s ease;
+  width: 100%;
+  font-family: inherit;
+}
+
+.input textarea {
+  resize: none;
+  height: 8rem;
+}
+
+.input:has(button) input {
+  padding-right: 3rem;
+}
+
+.input button {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--foreground);
+}
+
+.input button:hover {
+  opacity: 1;
+}
+
+.input input::placeholder,
+.input textarea::placeholder {
+  color: color-mix(in srgb, var(--foreground), transparent 50%);
+}
+
+.input input:focus,
+.input textarea:focus {
+  border-color: color-mix(in srgb, var(--foreground), transparent 60%);
+  background: color-mix(in srgb, var(--foreground), transparent 95%);
+  outline: none;
+}
+
+.error-border {
+  border-color: #ef4444;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+@media (max-width: 30rem) {
+  .input input,
+  .input textarea {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .input:has(button) input {
+    padding-right: 2.5rem;
+  }
+
+  .input button {
+    right: 0.5rem;
+  }
+}

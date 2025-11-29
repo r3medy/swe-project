@@ -1,5 +1,7 @@
 import "@/pages/Login/Login.css";
+import "@/components/Input/Input.css";
 import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
+import Input from "@/components/Input/Input";
 import toast, { Toaster } from "react-hot-toast";
 import Button from "@/components/Button/Button";
 import SmallText from "@/components/SmallText/SmallText";
@@ -66,7 +68,11 @@ function Login() {
     <div className="login-container">
       <Toaster />
       <div className="login-header">
-        <LuFlower size={40} />
+        <Link to="/">
+          <Button.Icon>
+            <LuFlower size={40} />
+          </Button.Icon>
+        </Link>
         <p>Welcome back!</p>
         <SmallText text="Don't have an account?">
           <Link to="/register">Sign up</Link>
@@ -74,68 +80,48 @@ function Login() {
       </div>
       <div className="login-form">
         <form onSubmit={handleLogin}>
-          <div className="input">
-            <label htmlFor="usernameoremail">Username or Email</label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                placeholder="patrickjane or patrickjane@domain.com"
-                required
-                value={credentials.usernameoremail}
-                onChange={(e) =>
-                  setCredentials({
-                    ...credentials,
-                    usernameoremail: e.target.value,
-                  })
-                }
-                style={{
-                  borderColor:
-                    formErrors?.usernameoremail?.length > 0 ? "#ef4444" : "",
-                }}
-              />
-              {formErrors?.usernameoremail?.length > 0 &&
-                formErrors.usernameoremail.map((err, idx) => {
-                  return (
-                    <p key={idx} className="error-text">
-                      {err}
-                    </p>
-                  );
-                })}
-            </div>
-          </div>
-          <div className="input">
-            <label htmlFor="password">Password</label>
-            <div className="input-wrapper">
-              <input
-                type={isHidden ? "password" : "text"}
-                placeholder="Type your password"
-                required
-                value={credentials.password}
-                onChange={(e) =>
-                  setCredentials({ ...credentials, password: e.target.value })
-                }
-                style={{
-                  borderColor:
-                    formErrors?.password?.length > 0 ? "#ef4444" : "",
-                }}
-              />
-              {formErrors?.password?.length > 0 &&
-                formErrors.password.map((err, idx) => {
-                  return (
-                    <p key={idx} className="error-text">
-                      {err}
-                    </p>
-                  );
-                })}
-              <Button.Icon
-                type="button"
-                onClick={() => setIsHidden(!isHidden)}
-                disabled={status === "LOADING"}
-              >
-                {isHidden ? <LuEye /> : <LuEyeClosed />}
-              </Button.Icon>
-            </div>
-          </div>
+          <Input
+            type="text"
+            name="usernameoremail"
+            label="Username or Email"
+            placeholder="patrickjane or patrickjane@domain.com"
+            required
+            value={credentials.usernameoremail}
+            onChange={(e) =>
+              setCredentials({
+                ...credentials,
+                usernameoremail: e.target.value,
+              })
+            }
+            style={{
+              borderColor:
+                formErrors?.usernameoremail?.length > 0 ? "#ef4444" : "",
+            }}
+            errors={formErrors?.usernameoremail}
+          />
+
+          <Input
+            type={isHidden ? "password" : "text"}
+            name="password"
+            label="Password"
+            placeholder="Type your password"
+            required
+            value={credentials.password}
+            onChange={(e) =>
+              setCredentials({
+                ...credentials,
+                password: e.target.value,
+              })
+            }
+            style={{
+              borderColor: formErrors?.password?.length > 0 ? "#ef4444" : "",
+            }}
+            errors={formErrors?.password}
+          >
+            <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
+              {isHidden ? <LuEye /> : <LuEyeClosed />}
+            </Button.Icon>
+          </Input>
           <Button type="submit" disabled={isLoading}>
             Login
           </Button>

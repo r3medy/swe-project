@@ -22,6 +22,13 @@ $container->set('db', function () use ($host, $db_name, $username, $password, $o
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
+// Middlewares
+// Allow JSON inputs
+$app->addBodyParsingMiddleware();
+// Error handler
+// displayErrorDetails=true, logErrors=true, logErrorDetails=true
+$app->addErrorMiddleware(true, true, true);
+
 $app->add(function (Request $request, RequestHandler $handler) {
     $response = $handler->handle($request);
     $origin   = $request->getHeaderLine('Origin');
@@ -37,20 +44,13 @@ $app->add(function (Request $request, RequestHandler $handler) {
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization');
 });
 
-// Middlewares
-// Allow JSON inputs
-$app->addBodyParsingMiddleware();
-// Error handler
-// displayErrorDetails=true, logErrors=true, logErrorDetails=true
-$app->addErrorMiddleware(true, true, true);
-
 // Routes
 $routes = require __DIR__ . '/src/core/Routes.php';
 $routes($app);
 
 // Pre-flight requests
 $app->options('/{routes:.+}', function (Request $request, Response $response, $args) {
-    return $response;
+    return $response->withStatus(200);
 });
 
 // Run the server

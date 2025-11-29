@@ -1,0 +1,60 @@
+.select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.select label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.9;
+}
+
+.select select {
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 80%);
+  background: color-mix(in srgb, var(--foreground), transparent 98%);
+  backdrop-filter: blur(4px);
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  transition: all 0.3s ease;
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+}
+
+.select select option,
+.select select optgroup {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.select select:focus {
+  border-color: color-mix(in srgb, var(--foreground), transparent 60%);
+  background-color: color-mix(in srgb, var(--foreground), transparent 95%);
+  outline: none;
+}
+
+.error-border {
+  border-color: #ef4444;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+@media (max-width: 30rem) {
+  .select select {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}

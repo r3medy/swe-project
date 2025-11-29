@@ -1,0 +1,80 @@
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  gap: 2rem;
+  padding: 2rem;
+  font-family: "Geist", sans-serif;
+}
+
+.onboarding-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  width: 100%;
+}
+
+.onboarding-stepper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.onboarding-illustration {
+  width: 25rem;
+  height: 25rem;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}
+
+.vertical-divider {
+  height: 30rem;
+  width: 1px;
+  background-color: var(--foreground);
+  opacity: 0.1;
+}
+
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.onboarding-form h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.onboarding-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .onboarding-content {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .onboarding {
+    padding: 1rem;
+  }
+
+  .onboarding-illustration {
+    width: 15rem;
+    height: 15rem;
+  }
+}

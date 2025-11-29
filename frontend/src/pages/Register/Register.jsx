@@ -1,13 +1,13 @@
 import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
+import { Link, useNavigate } from "react-router";
 import { registerSchema } from "@/models/register.zod";
 import "@/pages/Register/Register.css";
+import "@/components/Input/Input.css";
 import Button from "@/components/Button/Button";
 import SmallText from "@/components/SmallText/SmallText";
-
-// TODO: Remove navigate() and replace with backend requests
+import Input from "@/components/Input/Input";
 
 function Register() {
   const [isHidden, setIsHidden] = useState(true);
@@ -70,7 +70,11 @@ function Register() {
     <div className="register-container">
       <Toaster />
       <div className="register-header">
-        <LuFlower size={40} />
+        <Link to="/">
+          <Button.Icon>
+            <LuFlower size={40} />
+          </Button.Icon>
+        </Link>
         <p>Welcome abroad!</p>
         <SmallText text="Already an existing member?">
           <Link to="/login">Login</Link>
@@ -78,118 +82,83 @@ function Register() {
       </div>
       <div className="register-form">
         <form onSubmit={handleRegister}>
-          <div className="input">
-            <label htmlFor="username">Username</label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                placeholder="patrickjane"
-                required
-                value={credentials.username}
-                onChange={(e) =>
-                  setCredentials({ ...credentials, username: e.target.value })
-                }
-                style={{
-                  borderColor:
-                    formErrors?.username?.length > 0 ? "#ef4444" : "",
-                }}
-              />
-              {formErrors?.username?.length > 0 &&
-                formErrors.username.map((err, idx) => {
-                  return (
-                    <p key={idx} className="error-text">
-                      {err}
-                    </p>
-                  );
-                })}
-            </div>
-          </div>
-          <div className="input">
-            <label htmlFor="email">Email</label>
-            <div className="input-wrapper">
-              <input
-                type="email"
-                placeholder="patrickjane@domain.com"
-                required
-                value={credentials.email}
-                onChange={(e) =>
-                  setCredentials({ ...credentials, email: e.target.value })
-                }
-                style={{
-                  borderColor: formErrors?.email?.length > 0 ? "#ef4444" : "",
-                }}
-              />
-              {formErrors?.email?.length > 0 &&
-                formErrors.email.map((err, idx) => {
-                  return (
-                    <p key={idx} className="error-text">
-                      {err}
-                    </p>
-                  );
-                })}
-            </div>
-          </div>
-          <div className="input">
-            <label htmlFor="password">Password</label>
-            <div className="input-wrapper">
-              <input
-                type={isHidden ? "password" : "text"}
-                placeholder="Type your password"
-                required
-                value={credentials.password}
-                onChange={(e) =>
-                  setCredentials({ ...credentials, password: e.target.value })
-                }
-                style={{
-                  borderColor:
-                    formErrors?.password?.length > 0 ? "#ef4444" : "",
-                }}
-              />
-              {formErrors?.password?.length > 0 &&
-                formErrors.password.map((err, idx) => {
-                  return (
-                    <p key={idx} className="error-text">
-                      {err}
-                    </p>
-                  );
-                })}
-              <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
-                {isHidden ? <LuEye /> : <LuEyeClosed />}
-              </Button.Icon>
-            </div>
-          </div>
-          <div className="input">
-            <label htmlFor="confirm-password">Confirm Password</label>
-            <div className="input-wrapper">
-              <input
-                type={isHidden ? "password" : "text"}
-                placeholder="Retype your password"
-                required
-                value={credentials.confirmPassword}
-                onChange={(e) =>
-                  setCredentials({
-                    ...credentials,
-                    confirmPassword: e.target.value,
-                  })
-                }
-                style={{
-                  borderColor:
-                    formErrors?.confirmPassword?.length > 0 ? "#ef4444" : "",
-                }}
-              />
-              {formErrors?.confirmPassword?.length > 0 &&
-                formErrors.confirmPassword.map((err, idx) => {
-                  return (
-                    <p key={idx} className="error-text">
-                      {err}
-                    </p>
-                  );
-                })}
-              <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
-                {isHidden ? <LuEye /> : <LuEyeClosed />}
-              </Button.Icon>
-            </div>
-          </div>
+          <Input
+            type="text"
+            label="Username"
+            name="username"
+            placeholder="patrickjane"
+            value={credentials.username}
+            onChange={(e) =>
+              setCredentials({ ...credentials, username: e.target.value })
+            }
+            style={{
+              borderColor: formErrors?.username?.length > 0 ? "#ef4444" : "",
+            }}
+            errors={formErrors?.username}
+          />
+
+          <Input
+            type="email"
+            label="Email"
+            name="email"
+            placeholder="patrickjane@domain.com"
+            value={credentials.email}
+            onChange={(e) =>
+              setCredentials({ ...credentials, email: e.target.value })
+            }
+            style={{
+              borderColor: formErrors?.email?.length > 0 ? "#ef4444" : "",
+            }}
+            errors={formErrors?.email}
+          />
+
+          <Input
+            type={isHidden ? "password" : "text"}
+            name="password"
+            label="Password"
+            placeholder="Type your password"
+            required
+            value={credentials.password}
+            onChange={(e) =>
+              setCredentials({
+                ...credentials,
+                password: e.target.value,
+              })
+            }
+            style={{
+              borderColor: formErrors?.password?.length > 0 ? "#ef4444" : "",
+            }}
+            errors={formErrors?.password}
+          >
+            <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
+              {isHidden ? <LuEye /> : <LuEyeClosed />}
+            </Button.Icon>
+          </Input>
+
+          <Input
+            type={isHidden ? "password" : "text"}
+            name="confirmPassword"
+            label="Confirm Password"
+            placeholder="Retype your password"
+            required
+            value={credentials.confirmPassword}
+            onChange={(e) =>
+              setCredentials({
+                ...credentials,
+                confirmPassword: e.target.value,
+              })
+            }
+            style={{
+              borderColor:
+                formErrors?.confirmPassword?.length > 0 ? "#ef4444" : "",
+            }}
+            errors={formErrors?.confirmPassword}
+          >
+            <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
+              {isHidden ? <LuEye /> : <LuEyeClosed />}
+            </Button.Icon>
+          </Input>
+
           <Button type="submit" disabled={isLoading}>
             Register
           </Button>

@@ -22,7 +22,7 @@ return function(App $app) {
         'domain' => 'localhost',
         'secure' => false,
         'httponly' => false, // TRUE IN PRODUCTION
-        'samesite' => 'Strict'
+        'samesite' => 'Lax'
     ]);
 
     if(session_status() === PHP_SESSION_NONE) session_start();
@@ -39,6 +39,7 @@ return function(App $app) {
         $group->post('/register', [AuthController::class, 'register']);
         $group->post('/login', [AuthController::class, 'login']);
         $group->post('/logout', [AuthController::class, 'logout']);
+        $group->get('/session', [AuthController::class, 'getSession']);
     });
 
     // Posts routes

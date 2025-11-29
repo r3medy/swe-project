@@ -78,8 +78,7 @@ class AuthController {
         }
 
         session_regenerate_id(true);
-        $_SESSION['user_id'] = $doesUserExist['user']['userId'];
-        $_SESSION['role'] = $doesUserExist['user']['role'];
+        $_SESSION['userId'] = $doesUserExist['user']['userId'];
 
         $response->getBody()->write(json_encode([
             "message" => "Login successful",
@@ -98,20 +97,41 @@ class AuthController {
         session_unset();
         session_destroy();
 
-        if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(), 
-            '',
-            time() - 42000, 
-            $params["path"], 
-            $params["domain"], 
-            $params["secure"], 
-            $params["httponly"]
-        );
-    }
+        if(ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(), 
+                '',
+                time() - 42000, 
+                $params["path"], 
+                $params["domain"], 
+                $params["secure"], 
+                $params["httponly"]
+            );
+        }
 
         $response->getBody()->write(json_encode(["message" => "Logout successful"]));
+        return $response->withStatus(200);
+    }
+
+    public function getSession(Request $request, Response $response) {
+        if(!isset($_SESSION['userId'])) {
+            $response->getBody()->write(json_encode(["message" => "No active session"]));
+            return $response->withStatus(401);
+        }
+        $stmt = $this->db->prepare("SELECT userId, username, email, role, firstName, lastName, title, country, bio FROM users WHERE userId = :userId");
+        $stmt->execute(['userId' => $_SESSION['userId']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if(!$user) {
+            $response->getBody()->write(json_encode(["message" => "No active session"]));
+            return $response->withStatus(401);
+        }
+
+        $response->getBody()->write(json_encode([
+            "message" => "Session active",
+            "data" => $user
+        ]));
         return $response->withStatus(200);
     }
 

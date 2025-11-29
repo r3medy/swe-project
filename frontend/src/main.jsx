@@ -12,17 +12,15 @@ import Onboarding from "@/pages/Onboarding/Onboarding";
 import "./global.css";
 
 /*
-  TODO: Add useFetch hook
-
   ? Login & Signup
   ? Home
   ? About
   ? Terms & Conditions
+  * Onboarding
   * Profile ( Client / Admin / Freelancer )
   * Chat
   * Pending posts ( Admin )
   * The wall
-  * Onboarding
   * Proposals
 
   -- Modals
