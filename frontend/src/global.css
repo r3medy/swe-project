@@ -48,6 +48,12 @@ a:hover {
   opacity: 0.1;
 }
 
+.vertical-divider {
+  height: 75%;
+  border-left: 1px solid var(--foreground);
+  opacity: 0.1;
+}
+
 @font-face {
   font-family: "Playfair Display Italic";
   src: url("./assets/fonts/PlayfairDisplay\ Variable\ Italic.ttf");

@@ -8,6 +8,7 @@ import Login from "@/pages/Login/Login";
 import Register from "@/pages/Register/Register";
 import About from "@/pages/About/About";
 import TermsandConditions from "@/pages/TermsandConditions/TermsandConditions";
+import Onboarding from "@/pages/Onboarding/Onboarding";
 import "./global.css";
 
 /*
@@ -48,6 +49,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="register" element={<Register />} />
           <Route path="about" element={<About />} />
           <Route path="terms-and-conditions" element={<TermsandConditions />} />
+          <Route path="onboarding" element={<Onboarding />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

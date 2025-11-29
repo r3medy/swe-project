@@ -1,5 +1,6 @@
 import "@/pages/Login/Login.css";
 import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
+import toast, { Toaster } from "react-hot-toast";
 import Button from "@/components/Button/Button";
 import SmallText from "@/components/SmallText/SmallText";
 import { useState } from "react";
@@ -9,6 +10,7 @@ import { useNavigate } from "react-router";
 
 function Login() {
   const [isHidden, setIsHidden] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({
     usernameoremail: "",
     password: "",
@@ -21,19 +23,48 @@ function Login() {
 
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const fetchLogin = async () => {
+    const response = await fetch("http://localhost:8000/auth/login", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await response.json();
+    if (response.status !== 200) throw new Error(data.message);
+    return data;
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     const { success, error } = loginSchema.safeParse(credentials);
     if (!success) setFormErrors({ ...error.flatten().fieldErrors, success });
     else {
       setFormErrors({ ...formErrors, success });
-      // navigate("/");
-      console.log(credentials);
+      toast.promise(fetchLogin(), {
+        loading: () => {
+          setIsLoading(true);
+          return "Logging in...";
+        },
+        success: () => {
+          setIsLoading(false);
+          setTimeout(() => navigate("/"), 3000);
+          return "Login successful, You will be redirected in 3 seconds.";
+        },
+        error: (err) => {
+          setIsLoading(false);
+          return err.message;
+        },
+      });
     }
   };
 
   return (
     <div className="login-container">
+      <Toaster />
       <div className="login-header">
         <LuFlower size={40} />
         <p>Welcome back!</p>
@@ -96,12 +127,18 @@ function Login() {
                     </p>
                   );
                 })}
-              <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
+              <Button.Icon
+                type="button"
+                onClick={() => setIsHidden(!isHidden)}
+                disabled={status === "LOADING"}
+              >
                 {isHidden ? <LuEye /> : <LuEyeClosed />}
               </Button.Icon>
             </div>
           </div>
-          <Button type="submit">Login</Button>
+          <Button type="submit" disabled={isLoading}>
+            Login
+          </Button>
         </form>
       </div>
       <div className="login-footer">
