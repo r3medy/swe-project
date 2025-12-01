@@ -1,7 +1,7 @@
 import { LuSearch } from "react-icons/lu";
 import "@/components/SearchBar/SearchBar.css";
 
-function SearchBar() {
+const SearchBar = () => {
   return (
     <div className="searchbar">
       <input
@@ -11,6 +11,6 @@ function SearchBar() {
       <LuSearch />
     </div>
   );
-}
+};
 
 export default SearchBar;

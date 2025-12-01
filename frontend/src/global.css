@@ -42,16 +42,16 @@ a:hover {
   opacity: 1;
 }
 
-.divider {
+hr {
   width: 75%;
   border: 1px solid var(--foreground);
   opacity: 0.1;
 }
 
-.vertical-divider {
+hr .vertical {
+  width: 1px;
   height: 75%;
-  border-left: 1px solid var(--foreground);
-  opacity: 0.1;
+  transform: rotate(90deg);
 }
 
 @font-face {

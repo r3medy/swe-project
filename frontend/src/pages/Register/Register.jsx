@@ -1,15 +1,24 @@
 import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
-import { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
-import { registerSchema } from "@/models/register.zod";
+
+import useSession from "@/hooks/useSession";
 import "@/pages/Register/Register.css";
 import "@/components/Input/Input.css";
+import { registerSchema } from "@/models/register.zod";
 import Button from "@/components/Button/Button";
 import SmallText from "@/components/SmallText/SmallText";
 import Input from "@/components/Input/Input";
 
-function Register() {
+const Register = () => {
+  const { user } = useSession();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) navigate("/");
+  }, [user]);
+
   const [isHidden, setIsHidden] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({
@@ -25,8 +34,6 @@ function Register() {
     password: [],
     confirmPassword: [],
   });
-
-  const navigate = useNavigate();
 
   const fetchCheckUser = async () => {
     const response = await fetch("http://localhost:8000/auth/checkUser", {
@@ -68,7 +75,6 @@ function Register() {
 
   return (
     <div className="register-container">
-      <Toaster />
       <div className="register-header">
         <Link to="/">
           <Button.Icon>
@@ -165,13 +171,13 @@ function Register() {
         </form>
       </div>
       <div className="register-footer">
-        <div className="divider" />
+        <hr />
         <SmallText text="By creating an account, you agree to our ">
           <Link to="/terms-and-conditions">Terms of Service</Link>
         </SmallText>
       </div>
     </div>
   );
-}
+};
 
 export default Register;

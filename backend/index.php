@@ -40,7 +40,7 @@ $app->add(function (Request $request, RequestHandler $handler) {
         // CORS
         ->withHeader('Access-Control-Allow-Credentials', 'true')
         ->withHeader('Access-Control-Allow-Origin', $allowedOrigin)
-        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+        ->withHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS')
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization');
 });
 

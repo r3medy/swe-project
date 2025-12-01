@@ -9,26 +9,25 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use src\Controllers\AdminController;
 use src\Controllers\AuthController;
 use src\Controllers\ChatController;
-use src\Controllers\ClientController;
-use src\Controllers\FreelancerController;
+use src\Controllers\ProfileController;
+use src\Controllers\TagController;
 use src\Controllers\PostController;
 use src\Controllers\ProposalController;
 
-return function(App $app) {
+return function (App $app) {
     // Cookies
     session_set_cookie_params([
         'lifetime' => 60 * 60 * 24 * 7, // 7 days
         'path' => '/',
-        'domain' => 'localhost',
         'secure' => false,
-        'httponly' => false, // TRUE IN PRODUCTION
-        'samesite' => 'Lax'
+        'httponly' => false // True only in production
     ]);
 
-    if(session_status() === PHP_SESSION_NONE) session_start();
+    if (session_status() === PHP_SESSION_NONE)
+        session_start();
 
     // Default route
-    $app->post('/', function(Request $request, Response $response) {
+    $app->post('/', function (Request $request, Response $response) {
         $response->getBody()->write(json_encode($request->getParsedBody()));
         return $response;
     });
@@ -40,6 +39,19 @@ return function(App $app) {
         $group->post('/login', [AuthController::class, 'login']);
         $group->post('/logout', [AuthController::class, 'logout']);
         $group->get('/session', [AuthController::class, 'getSession']);
+    });
+
+    // Profile routes
+    $app->group('/profile', function (RouteCollectorProxy $group) {
+        $group->get('/saved', [ProfileController::class, 'getSavedPosts']);
+        $group->get('/clientPosts', [ProfileController::class, 'getClientPosts']);
+        $group->get('/[{identifier}]', [ProfileController::class, 'getProfile']);
+        $group->post('', [ProfileController::class, 'updateProfile']);
+    });
+
+    // Tags routes
+    $app->group('/tags', function (RouteCollectorProxy $group) {
+        $group->get('', [TagController::class, 'getTags']);
     });
 
     // Posts routes

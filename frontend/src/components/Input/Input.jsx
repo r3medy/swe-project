@@ -1,6 +1,6 @@
 import "./Input.css";
 
-function Input({
+const Input = ({
   label,
   name,
   type,
@@ -9,7 +9,7 @@ function Input({
   errors,
   children,
   ...props
-}) {
+}) => {
   return (
     <div className="input">
       <label htmlFor={name}>{label}</label>
@@ -33,9 +33,9 @@ function Input({
       </div>
     </div>
   );
-}
+};
 
-function TextArea({
+const TextArea = ({
   label,
   name,
   placeholder,
@@ -43,7 +43,7 @@ function TextArea({
   errors,
   children,
   ...props
-}) {
+}) => {
   return (
     <div className="input">
       <label htmlFor={name}>{label}</label>
@@ -66,7 +66,7 @@ function TextArea({
       </div>
     </div>
   );
-}
+};
 
 Input.TextArea = TextArea;
 

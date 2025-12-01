@@ -8,7 +8,7 @@ import SmallText from "@/components/SmallText/SmallText";
 import Button from "@/components/Button/Button";
 import "@/pages/About/About.css";
 
-function About() {
+const About = () => {
   return (
     <>
       <Navigation />
@@ -19,12 +19,12 @@ function About() {
             <SmallText text="Our company started with one simple idea: everyone deserves access to the right talent at the right time. From day one, we focused on building a platform that connects project owners with skilled freelancers from across the region. Over the years, we have successfully delivered thousands of projects and became a trusted space for both clients and freelancers." />
           </div>
           <div className="about-image">
-            <img src={aboutImage1} alt="About Image 1" />
+            <img src={aboutImage1} alt="About Image 1" loading="lazy" />
           </div>
         </div>
         <div className="about-content">
           <div className="about-image">
-            <img src={aboutImage2} alt="About Image 2" />
+            <img src={aboutImage2} alt="About Image 2" loading="lazy" />
           </div>
           <div className="about-text">
             <h1>Why We’re Different</h1>
@@ -37,12 +37,12 @@ function About() {
             <SmallText text="Our freelancers are committed to delivering professional, reliable, and high-quality work. We follow strict quality standards, continuous feedback, and ongoing support to make sure every project meets your expectations—on time, every time." />
           </div>
           <div className="about-image">
-            <img src={aboutImage3} alt="About Image 3" />
+            <img src={aboutImage3} alt="About Image 3" loading="lazy" />
           </div>
         </div>
         <div className="about-content">
           <div className="about-image">
-            <img src={aboutImage4} alt="About Image 4" />
+            <img src={aboutImage4} alt="About Image 4" loading="lazy" />
           </div>
           <div className="about-text">
             <h1>Find the Perfect Deal Every Time</h1>
@@ -50,7 +50,7 @@ function About() {
           </div>
         </div>
         <div className="about-footer">
-          <div className="divider" />
+          <hr />
           <h1>Our Message to You</h1>
           <SmallText text="We’re more than just a platform—we’re your partner in turning ideas into reality. Let’s build something great together," />
           <Button>
@@ -60,6 +60,6 @@ function About() {
       </div>
     </>
   );
-}
+};
 
 export default About;

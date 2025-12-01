@@ -4,3 +4,24 @@
   font-family: "Geist", sans-serif;
   font-weight: 200;
 }
+
+.badge,
+.destructive-badge {
+  background-color: color-mix(in srgb, var(--foreground), transparent 95%);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 90%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+}
+
+.destructive-badge:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+  cursor: pointer;
+  opacity: 1;
+}

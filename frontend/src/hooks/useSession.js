@@ -1,51 +1,66 @@
-import { useState, useEffect, useCallback } from "react";
-
-// TODO: Fix the file
+import { useState, useCallback, useEffect } from "react";
 
 const useSession = () => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const checkSession = useCallback(async () => {
-    setLoading(true);
     try {
-      const data = await request("http://localhost:8000/auth/session");
-      setUser(data.user);
+      const response = await fetch("http://localhost:8000/auth/session", {
+        method: "GET",
+        credentials: "include",
+      });
+      const { data } = await response.json();
+      if (response.ok) {
+        setUser(data);
+      } else {
+        setUser(null);
+      }
     } catch (err) {
-      // Session check failed, user is not logged in
       setUser(null);
-    } finally {
-      setLoading(false);
     }
-  }, [request]);
+  }, []);
 
-  const login = useCallback(
-    async (credentials) => {
-      const data = await request(
-        "http://localhost:8000/auth/login",
-        "POST",
-        credentials
-      );
-      setUser(data.user);
-      return data;
-    },
-    [request]
-  );
+  const login = useCallback(async (credentials) => {
+    try {
+      const response = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(credentials),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        return data;
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }, []);
 
   const logout = useCallback(async () => {
     try {
-      await request("http://localhost:8000/auth/logout", "POST");
-    } catch (error) {
-      console.error("Logout failed", error);
+      await fetch("http://localhost:8000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      setUser(null);
+    } catch (err) {
+      console.error(err);
     }
-    setUser(null);
-  }, [request]);
+  }, []);
 
   useEffect(() => {
     checkSession();
   }, [checkSession]);
 
-  return { user, loading, login, logout, checkSession };
+  return { user, checkSession, login, logout };
 };
 
 export default useSession;

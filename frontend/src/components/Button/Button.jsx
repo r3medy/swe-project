@@ -1,36 +1,36 @@
 import "@/components/Button/Button.css";
 
-function Button({ children, ...props }) {
+const Button = ({ children, ...props }) => {
   return (
     <button className="button-regular" {...props}>
       {children}
     </button>
   );
-}
+};
 
-function Destructive({ children, ...props }) {
+const Destructive = ({ children, ...props }) => {
   return (
     <button className="button-destructive" {...props}>
       {children}
     </button>
   );
-}
+};
 
-function Text({ children, ...props }) {
+const Text = ({ children, ...props }) => {
   return (
     <button className="button-text" {...props}>
       {children}
     </button>
   );
-}
+};
 
-function Icon({ children, ...props }) {
+const Icon = ({ children, ...props }) => {
   return (
     <button className="button-icon-only" {...props}>
       {children}
     </button>
   );
-}
+};
 
 Button.Destructive = Destructive;
 Button.Text = Text;

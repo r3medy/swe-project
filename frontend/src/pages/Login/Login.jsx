@@ -1,16 +1,24 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router";
+import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
+import toast from "react-hot-toast";
+
 import "@/pages/Login/Login.css";
 import "@/components/Input/Input.css";
-import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
-import Input from "@/components/Input/Input";
-import toast, { Toaster } from "react-hot-toast";
 import Button from "@/components/Button/Button";
 import SmallText from "@/components/SmallText/SmallText";
-import { useState } from "react";
-import { Link } from "react-router";
+import Input from "@/components/Input/Input";
+import { useUser } from "@/contexts/UserContext";
 import { loginSchema } from "@/models/login.zod";
 import { useNavigate } from "react-router";
+import useSession from "@/hooks/useSession";
 
-function Login() {
+const Login = () => {
+  const { user } = useSession();
+  useEffect(() => {
+    if (user) navigate("/");
+  }, [user]);
+
   const [isHidden, setIsHidden] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({
@@ -24,21 +32,7 @@ function Login() {
   });
 
   const navigate = useNavigate();
-
-  const fetchLogin = async () => {
-    const response = await fetch("http://localhost:8000/auth/login", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    const data = await response.json();
-    if (response.status !== 200) throw new Error(data.message);
-    return data;
-  };
+  const { login } = useUser();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -46,7 +40,7 @@ function Login() {
     if (!success) setFormErrors({ ...error.flatten().fieldErrors, success });
     else {
       setFormErrors({ ...formErrors, success });
-      toast.promise(fetchLogin(), {
+      toast.promise(login(credentials), {
         loading: () => {
           setIsLoading(true);
           return "Logging in...";
@@ -66,7 +60,6 @@ function Login() {
 
   return (
     <div className="login-container">
-      <Toaster />
       <div className="login-header">
         <Link to="/">
           <Button.Icon>
@@ -128,13 +121,13 @@ function Login() {
         </form>
       </div>
       <div className="login-footer">
-        <div className="divider" />
+        <hr />
         <SmallText text="By using our platform, you agree to our ">
           <Link to="/terms-and-conditions">Terms of Service</Link>
         </SmallText>
       </div>
     </div>
   );
-}
+};
 
 export default Login;

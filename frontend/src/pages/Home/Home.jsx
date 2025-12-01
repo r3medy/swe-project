@@ -1,12 +1,15 @@
-import "@/pages/Home/Home.css";
 import { Link } from "react-router";
+
+import "@/pages/Home/Home.css";
+import useSession from "@/hooks/useSession";
 import LightRays from "@/components/LightRays/LightRays.jsx";
 import SearchBar from "@/components/SearchBar/SearchBar.jsx";
 import CurrencyBox from "@/components/CurrencyBox/CurrencyBox.jsx";
 import Navigation from "@/components/Navigation/Navigation.jsx";
 import SmallText from "@/components/SmallText/SmallText";
 
-function Home() {
+const Home = () => {
+  const { user } = useSession();
   return (
     <div className="home-page">
       <LightRays
@@ -42,16 +45,22 @@ function Home() {
         </h1>
         <div className="hero-search">
           <SearchBar />
-          <SmallText text="Do you prefer to work as a freelancer?">
-            <Link to="/register">Start now</Link>
-          </SmallText>
-          <SmallText text="Are you an existing user?">
-            <Link to="/login">Login</Link>
-          </SmallText>
+          {!user ? (
+            <>
+              <SmallText text="Do you prefer to work as a freelancer?">
+                <Link to="/register">Start now</Link>
+              </SmallText>
+              <SmallText text="Are you an existing user?">
+                <Link to="/login">Login</Link>
+              </SmallText>
+            </>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Home;

@@ -2,7 +2,7 @@ USE swe_project;
 ---------------------------
 CREATE TABLE users (
   userId INT UNSIGNED AUTO_INCREMENT NOT NULL, 
-  role ENUM('Admin', 'Freelance', 'Client') NOT NULL DEFAULT 'Client', 
+  role ENUM('Admin', 'Freelancer', 'Client') NOT NULL DEFAULT 'Client', 
   -- User Details
   firstName VARCHAR(100) NOT NULL, 
   lastName 	VARCHAR(100) NOT NULL, 
@@ -12,6 +12,7 @@ CREATE TABLE users (
   title VARCHAR(100), 
   country VARCHAR(100), 
   bio TEXT, 
+  website VARCHAR(255),
   -- Security specifics
   hashedPassword CHAR(100) NOT NULL, 
   SSN VARCHAR(20) UNIQUE, 
@@ -68,7 +69,8 @@ CREATE TABLE proposals (
 ---------------------------
 CREATE TABLE chatLogs (
   -- IDs
-  postId INT UNSIGNED NOT NULL, 
+  postId INT UNSIGNED NOT NULL,
+  messageId INT UNSIGNED AUTO_INCREMENT NOT NULL,
   freelancerId INT UNSIGNED NOT NULL, 
   clientId INT UNSIGNED NOT NULL, 
   -- Message Info
@@ -76,7 +78,7 @@ CREATE TABLE chatLogs (
   content TEXT NOT NULL, 
   sentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   -- Constraints
-  PRIMARY KEY (postId, freelancerId, clientId), 
+  PRIMARY KEY (messageId), 
   CONSTRAINT fk_chat_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE, 
   CONSTRAINT fk_chat_freelancer FOREIGN KEY (freelancerId) REFERENCES users(userId) ON DELETE CASCADE, 
   CONSTRAINT fk_chat_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE
@@ -92,7 +94,17 @@ CREATE TABLE tags (
   PRIMARY KEY (tagId)
 );
 ---------------------------
-CREATE TABLE postTags (
+CREATE TABLE usertags (
+  -- IDs
+  userId INT UNSIGNED NOT NULL, 
+  tagId INT UNSIGNED NOT NULL, 
+  -- Constraints
+  PRIMARY KEY (userId, tagId), 
+  CONSTRAINT fk_usertags_user FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE, 
+  CONSTRAINT fk_usertags_tag FOREIGN KEY (tagId) REFERENCES tags(tagId) ON DELETE CASCADE
+);
+---------------------------
+CREATE TABLE posttags (
   -- IDs
   postId INT UNSIGNED NOT NULL, 
   tagId INT UNSIGNED NOT NULL, 
@@ -111,6 +123,6 @@ CREATE TABLE notifications (
   isMarkedRead BOOLEAN DEFAULT FALSE, 
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   -- Constraints
-  PRIMARY KEY (notificationId, userId), 
+  PRIMARY KEY (notificationId), 
   CONSTRAINT fk_notifications_user FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );

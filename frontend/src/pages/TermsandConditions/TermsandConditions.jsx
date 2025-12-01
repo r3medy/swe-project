@@ -1,7 +1,7 @@
 import "@/pages/TermsandConditions/TermsandConditions.css";
 import Navigation from "@/components/Navigation/Navigation";
 
-function TermsandConditions() {
+const TermsandConditions = () => {
   return (
     <>
       <Navigation />
@@ -298,7 +298,7 @@ function TermsandConditions() {
             </section>
           </div>
         </div>
-        <div className="divider" />
+        <hr />
         <div className="privacy-policy">
           <div className="privacy-policy-dates">
             <p>Last Updated: 29.11.2025</p> {" | "}
@@ -443,6 +443,6 @@ function TermsandConditions() {
       </div>
     </>
   );
-}
+};
 
 export default TermsandConditions;
