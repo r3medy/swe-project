@@ -3,9 +3,8 @@ import aboutImage1 from "@/assets/images/about-1.jpg";
 import aboutImage2 from "@/assets/images/about-2.jpg";
 import aboutImage3 from "@/assets/images/about-3.jpg";
 import aboutImage4 from "@/assets/images/about-4.jpg";
-import Navigation from "@/components/Navigation/Navigation";
-import SmallText from "@/components/SmallText/SmallText";
-import Button from "@/components/Button/Button";
+
+import { Navigation, SmallText, Button } from "@/components";
 import "@/pages/About/About.css";
 
 const About = () => {

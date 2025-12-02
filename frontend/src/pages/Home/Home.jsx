@@ -2,11 +2,14 @@ import { Link } from "react-router";
 
 import "@/pages/Home/Home.css";
 import useSession from "@/hooks/useSession";
-import LightRays from "@/components/LightRays/LightRays.jsx";
-import SearchBar from "@/components/SearchBar/SearchBar.jsx";
-import CurrencyBox from "@/components/CurrencyBox/CurrencyBox.jsx";
-import Navigation from "@/components/Navigation/Navigation.jsx";
-import SmallText from "@/components/SmallText/SmallText";
+
+import {
+  LightRays,
+  SearchBar,
+  CurrencyBox,
+  Navigation,
+  SmallText,
+} from "@/components";
 
 const Home = () => {
   const { user } = useSession();

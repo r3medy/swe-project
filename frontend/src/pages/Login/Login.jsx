@@ -5,9 +5,8 @@ import toast from "react-hot-toast";
 
 import "@/pages/Login/Login.css";
 import "@/components/Input/Input.css";
-import Button from "@/components/Button/Button";
-import SmallText from "@/components/SmallText/SmallText";
-import Input from "@/components/Input/Input";
+import { Button, SmallText, Input } from "@/components";
+
 import { useUser } from "@/contexts/UserContext";
 import { loginSchema } from "@/models/login.zod";
 import { useNavigate } from "react-router";

@@ -5,11 +5,9 @@ import { Link, useNavigate } from "react-router";
 
 import useSession from "@/hooks/useSession";
 import "@/pages/Register/Register.css";
-import "@/components/Input/Input.css";
 import { registerSchema } from "@/models/register.zod";
-import Button from "@/components/Button/Button";
-import SmallText from "@/components/SmallText/SmallText";
-import Input from "@/components/Input/Input";
+
+import { Button, SmallText, Input } from "@/components";
 
 const Register = () => {
   const { user } = useSession();

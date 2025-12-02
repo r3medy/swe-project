@@ -78,8 +78,8 @@ class ProfileController
             return $this->error($response, 'Unauthorized', 401);
         $userId = $_SESSION['userId'];
         $stmt = $this->db->prepare("
-            SELECT p.postId, p.title, p.description, p.createdAt
-            FROM saved_posts sp
+            SELECT p.postId, p.jobTitle AS title, p.jobDescription AS description, p.createdAt, p.budget, p.hourlyRate, p.status
+            FROM savedPosts sp
             JOIN posts p ON sp.postId = p.postId
             WHERE sp.userId = :userId
         ");
@@ -90,22 +90,38 @@ class ProfileController
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
-    public function getClientPosts(Request $request, Response $response)
+    public function getClientPosts(Request $request, Response $response, array $args)
     {
-        if (!isset($_SESSION['userId']))
-            return $this->error($response, 'Unauthorized', 401);
+        $identifier = $args['identifier'] ?? null;
+        $userId = null;
 
-        $userId = $_SESSION['userId'];
-        // make sure rule = client
+        if (!$identifier) {
+            $userId = $_SESSION['userId'] ?? null;
+        } elseif (is_numeric($identifier)) {
+            $userId = $identifier;
+        } elseif (str_starts_with($identifier, '@')) {
+            $username = substr($identifier, 1);
+            $stmt = $this->db->prepare("SELECT userId FROM users WHERE username = :username");
+            $stmt->execute([':username' => $username]);
+            $userId = $stmt->fetchColumn();
+        }
 
-        $stmtRole = $this->db->prepare("SELECT role FROM Users WHERE userId = :id");
+        if (!$userId) {
+            return $this->error($response, 'User not found', 404);
+        }
+
+        $stmtRole = $this->db->prepare("SELECT role FROM users WHERE userId = :id");
         $stmtRole->execute([':id' => $userId]);
         $role = $stmtRole->fetchColumn();
 
         if ($role !== 'Client')
             return $this->error($response, 'Forbidden: Not a client', 403);
 
-        $stmt = $this->db->prepare("SELECT * FROM posts WHERE creatorId = :userId");
+        $stmt = $this->db->prepare("
+            SELECT postId, clientId, jobTitle AS title, jobType, jobDescription AS description, budget, hourlyRate, status, isJobAccepted, createdAt 
+            FROM posts 
+            WHERE clientId = :userId
+        ");
         $stmt->execute([':userId' => $userId]);
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -140,6 +156,16 @@ class ProfileController
                     $tagId = $action['tagId'];
                     $stmt = $this->db->prepare("INSERT INTO usertags (userId, tagId) VALUES (:userId, :tagId)");
                     $stmt->execute([':userId' => $userId, ':tagId' => $tagId]);
+                    break;
+                case 'change-title':
+                    $title = $action['title'];
+                    $stmt = $this->db->prepare("UPDATE Users SET title = :title WHERE userId = :userId");
+                    $stmt->execute([':title' => $title, ':userId' => $userId]);
+                    break;
+                case 'remove-saved-post':
+                    $postId = $action['postId'];
+                    $stmt = $this->db->prepare("DELETE FROM savedPosts WHERE userId = :userId AND postId = :postId");
+                    $stmt->execute([':userId' => $userId, ':postId' => $postId]);
                     break;
             }
         }

@@ -3,9 +3,11 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  min-height: 100vh;
-  padding-top: 8rem;
+  height: 100vh;
+  padding: 8rem 1rem 2rem 1rem;
   font-family: "Geist", sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .profile-header {
@@ -54,6 +56,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0;
+  word-break: break-word;
 }
 
 .header-actions {
@@ -153,5 +156,131 @@
   to {
     transform: translate(-50%, 0);
     opacity: 1;
+  }
+}
+
+.post-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 90%);
+  border-radius: 0.5rem;
+  width: 100%;
+  background-color: color-mix(in srgb, var(--foreground), transparent 98%);
+}
+
+.post-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  word-break: break-word;
+}
+
+.post-footer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--foreground), transparent 90%);
+  flex-wrap: wrap;
+}
+
+.post-metric {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--foreground), transparent 40%);
+}
+
+.posts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25rem;
+}
+
+/* Scrollbar styling */
+.posts-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.posts-container::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--foreground), transparent 95%);
+  border-radius: 3px;
+}
+
+.posts-container::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--foreground), transparent 70%);
+  border-radius: 3px;
+}
+
+.posts-container::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--foreground), transparent 60%);
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 15rem 1rem 2rem 1rem;
+  }
+
+  .header-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .header-details {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .header-text {
+    align-items: center;
+  }
+
+  .header-info h1 {
+    justify-content: center;
+    font-size: 1.75rem;
+    flex-wrap: wrap;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .changes-popup {
+    min-width: unset;
+    width: 90%;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    bottom: 1rem;
+  }
+
+  .changes-popup-left {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .changes-popup-right {
+    width: 100%;
+    justify-content: center;
   }
 }

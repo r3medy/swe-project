@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 import {
@@ -10,21 +10,40 @@ import {
   LuCircleX,
   LuLoaderCircle,
   LuBadgeCheck,
+  LuBadgeDollarSign,
+  LuTimer,
+  LuBookDashed,
 } from "react-icons/lu";
 import ReactCountryFlag from "react-country-flag";
-import toast from "react-hot-toast";
 
 import "./Profile.css";
 import profileImage1 from "@/assets/profilepictures/1.png";
 
 import useSession from "@/hooks/useSession";
-import SmallText from "@/components/SmallText/SmallText";
-import Navigation from "@/components/Navigation/Navigation";
-import Button from "@/components/Button/Button";
-import Tooltip from "@/components/Tooltip/Tooltip";
-import Drawer from "@/components/Drawer/Drawer";
-import Input from "@/components/Input/Input";
-import Select from "@/components/Select/Select";
+import {
+  SmallText,
+  Navigation,
+  Button,
+  Tooltip,
+  Drawer,
+  Input,
+  Select,
+} from "@/components";
+import {
+  handleApplyChanges,
+  handleCancelChanges,
+  handleShareProfile,
+  handleRemoveTag,
+  handleAddTag,
+  handleChangeTitle,
+  handleRemoveSavedPost,
+} from "./Extras/handlers";
+import {
+  fetchProfile,
+  fetchTags,
+  fetchSavedPosts,
+  fetchPosts,
+} from "./Extras/fetchers";
 
 const ChangesPopup = ({
   changes,
@@ -34,36 +53,6 @@ const ChangesPopup = ({
   isLoading,
   setIsLoading,
 }) => {
-  const handleApplyChanges = () => {
-    setIsLoading(true);
-    fetch("http://localhost:8000/profile", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(changes),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          toast.success("Profile updated successfully");
-          setChanges([]);
-          setIsLoading(false);
-          window.location.reload();
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Something went wrong");
-        setIsLoading(false);
-      });
-  };
-  const handleCancelChanges = () => {
-    setProfile(backupProfile);
-    setChanges([]);
-  };
-
   return (
     <div className="changes-popup">
       <div className="changes-popup-left">
@@ -74,15 +63,68 @@ const ChangesPopup = ({
       </div>
       <div className="changes-popup-right">
         <Button
-          onClick={handleApplyChanges}
+          onClick={() => handleApplyChanges(changes, setIsLoading, setChanges)}
           className="changes-popup-right"
           disabled={isLoading}
         >
           Apply
         </Button>
-        <Button.Text onClick={handleCancelChanges} disabled={isLoading}>
+        <Button.Text
+          onClick={() =>
+            handleCancelChanges(setProfile, backupProfile, setChanges)
+          }
+          disabled={isLoading}
+        >
           Cancel
         </Button.Text>
+      </div>
+    </div>
+  );
+};
+
+const PostCard = ({ post, setProfile, setChanges, postType }) => {
+  return (
+    <div className="post-card">
+      <h3>
+        {post.title}
+        {postType === "saved" && (
+          <Tooltip text="Remove post">
+            <Button.Icon
+              onClick={(e) =>
+                handleRemoveSavedPost(post.postId, setProfile, setChanges)
+              }
+            >
+              <LuCircleX />
+            </Button.Icon>
+          </Tooltip>
+        )}
+      </h3>
+      <SmallText text={post.description} />
+      <div className="post-footer">
+        <Tooltip text="Budget">
+          <div className="post-metric">
+            <LuBadgeDollarSign />
+            <span>${post.budget}</span>
+          </div>
+        </Tooltip>
+        <Tooltip text="Status">
+          <div className="post-metric">
+            <LuBookDashed />
+            <span>{post.status}</span>
+          </div>
+        </Tooltip>
+        <Tooltip text="Hourly Rate">
+          <div className="post-metric">
+            <LuTimer />
+            <span>${post.hourlyRate}/hr</span>
+          </div>
+        </Tooltip>
+        <Tooltip text="Posted at">
+          <div className="post-metric">
+            <LuCalendar1 />
+            <span>{new Date(post.createdAt).toDateString()}</span>
+          </div>
+        </Tooltip>
       </div>
     </div>
   );
@@ -95,20 +137,6 @@ const ProfileCard = ({
   user,
   setDrawerOpen,
 }) => {
-  const handleShareProfile = (e) => {
-    e.preventDefault();
-    navigator.clipboard.writeText(
-      `${window.location.origin}/profile/@${profile.username}`
-    );
-    toast.success("Profile link copied to clipboard");
-  };
-
-  const handleRemoveTag = (tagId) => {
-    const newTags = profile.tags.filter((tag) => tag.tagId !== tagId);
-    setChanges((prev) => [...prev, { type: "remove-tag", tagId }]);
-    setProfile({ ...profile, tags: newTags });
-  };
-
   return (
     <>
       <div className="profile-header">
@@ -123,13 +151,24 @@ const ProfileCard = ({
                 />
                 {`${profile.firstName} ${profile.lastName}`}
               </h1>
-              <p>{profile.title}</p>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                {profile.title}
+                {user?.userId === profile?.userId && (
+                  <Tooltip text="Edit title">
+                    <Button.Icon onClick={() => setDrawerOpen("change-title")}>
+                      <LuPenLine />
+                    </Button.Icon>
+                  </Tooltip>
+                )}
+              </div>
               <SmallText text={`@${profile.username}`} />
             </div>
           </div>
           <div className="header-actions">
             <Tooltip text="Share your profile">
-              <Button.Icon onClick={handleShareProfile}>
+              <Button.Icon onClick={(e) => handleShareProfile(e, profile)}>
                 <LuShare2 />
               </Button.Icon>
             </Tooltip>
@@ -179,7 +218,14 @@ const ProfileCard = ({
                     <SmallText.DestructiveBadge
                       key={tag.tagId}
                       text={tag.tagName}
-                      onClick={() => handleRemoveTag(tag.tagId)}
+                      onClick={() =>
+                        handleRemoveTag(
+                          tag.tagId,
+                          profile,
+                          setProfile,
+                          setChanges
+                        )
+                      }
                     />
                   );
                 } else {
@@ -192,9 +238,52 @@ const ProfileCard = ({
           )}
         </div>
         <hr />
+        {user?.userId === profile?.userId && (
+          <div className="profile-content">
+            <h1>
+              Saved Posts ( <strong>{profile?.savedPosts?.length || 0}</strong>{" "}
+              )
+            </h1>
+            <div className="posts-container">
+              {profile?.savedPosts?.length > 0 ? (
+                profile.savedPosts.map((post) => (
+                  <PostCard
+                    key={post.postId}
+                    post={post}
+                    setProfile={setProfile}
+                    setChanges={setChanges}
+                    postType="saved"
+                  />
+                ))
+              ) : (
+                <SmallText text="No saved posts yet" />
+              )}
+            </div>
+          </div>
+        )}
+        {profile?.role === "Client" && (
+          <div className="profile-content">
+            <h1>
+              Posts ( <strong>{profile?.clientPosts?.length || 0}</strong> )
+            </h1>
+            <div className="posts-container">
+              {profile?.clientPosts?.length > 0 ? (
+                profile.clientPosts.map((post) => (
+                  <PostCard
+                    key={post.postId}
+                    post={post}
+                    setProfile={setProfile}
+                    setChanges={setChanges}
+                    postType="client"
+                  />
+                ))
+              ) : (
+                <SmallText text="No posts yet" />
+              )}
+            </div>
+          </div>
+        )}
       </div>
-      {/* <div className="profile-posts"></div> */}
-      {/* <div className="profile-savedposts"></div> */}
     </>
   );
 };
@@ -202,75 +291,41 @@ const ProfileCard = ({
 const Profile = () => {
   const navigate = useNavigate();
   const { user } = useSession();
+  const selectRef = useRef(null);
+  const { profileQuery } = useParams();
+
   const [tags, setTags] = useState();
   const [drawerOpen, setDrawerOpen] = useState(null);
   const [changes, setChanges] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [backupProfile, setBackupProfile] = useState(null);
-  const selectRef = useRef(null);
-  const { profileQuery } = useParams();
-
-  const fetchProfile = useCallback(async (profileQuery) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `http://localhost:8000/profile/${profileQuery ?? ""}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const data = await response.json();
-      setProfile(data?.user);
-      setBackupProfile(data?.user);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const fetchTags = useCallback(async () => {
-    try {
-      const response = await fetch(`http://localhost:8000/tags`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      setTags(data);
-    } catch (err) {
-      console.log(err);
-    }
-  }, [profile]);
-
-  const handleAddTag = () => {
-    const selectedTag = tags.find(
-      (tag) => tag.tagName === selectRef.current.value
-    );
-    if (selectedTag) {
-      setProfile({
-        ...profile,
-        tags: [...profile.tags, selectedTag],
-      });
-      setChanges((prev) => [
-        ...prev,
-        { type: "add-tag", tagId: selectedTag.tagId },
-      ]);
-    }
-    setDrawerOpen(null);
-  };
 
   useEffect(() => {
-    fetchProfile(profileQuery);
-    fetchTags();
-  }, [profileQuery]);
+    const loadProfile = async () => {
+      try {
+        setIsLoading(true);
+        const [fetchedProfile] = await Promise.all([
+          fetchProfile(profileQuery, setProfile, setBackupProfile),
+          fetchTags(setTags),
+        ]);
+
+        if (fetchedProfile?.role === "Client") {
+          await fetchPosts(profileQuery, setProfile, setBackupProfile);
+        }
+
+        if (fetchedProfile?.userId === user?.userId) {
+          await fetchSavedPosts(setProfile, setBackupProfile);
+        }
+      } catch (e) {
+        toast.error("Something went wrong while loading the profile");
+        navigate("/");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadProfile();
+  }, [profileQuery, user]);
 
   useEffect(() => {
     if (profile?.bio !== backupProfile?.bio) {
@@ -366,7 +421,42 @@ const Profile = () => {
               ?.map((tag) => tag.tagName)}
             ref={selectRef}
           />
-          <Button onClick={handleAddTag}>Add Interest</Button>
+          <Button
+            onClick={() =>
+              handleAddTag(
+                tags,
+                selectRef,
+                profile,
+                setProfile,
+                setChanges,
+                setDrawerOpen
+              )
+            }
+          >
+            Add Interest
+          </Button>
+        </Drawer>
+      )}
+      {drawerOpen === "change-title" && (
+        <Drawer
+          title="Change Title"
+          onClose={() => setDrawerOpen(null)}
+          isOpen={drawerOpen}
+        >
+          <Input
+            name="newtitle"
+            label="Your new title"
+            value={profile.title}
+            onChange={(e) => setProfile({ ...profile, title: e.target.value })}
+            style={{ marginBottom: "1rem" }}
+          />
+          <Button
+            onClick={() =>
+              handleChangeTitle(profile, setProfile, setChanges, setDrawerOpen)
+            }
+          >
+            Change Title
+          </Button>
         </Drawer>
       )}
     </>

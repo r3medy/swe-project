@@ -15,7 +15,9 @@ import Profile from "@/pages/Profile/Profile";
 import "./global.css";
 
 /*
-  TODO: add ability to change title
+  TODO: make the profile page responsive
+  TODO: add Saved posts & Posts to the profile page
+  TODO: use changepassword.zod to implement change password form validation
 
   ? Login & Signup
   ? Home

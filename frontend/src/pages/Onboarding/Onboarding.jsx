@@ -6,10 +6,8 @@ import toast from "react-hot-toast";
 
 import { firstStepSchema, secondStepSchema } from "@/models/onboarding.zod";
 import useSession from "@/hooks/useSession";
-import Button from "@/components/Button/Button";
-import Input from "@/components/Input/Input";
-import SmallText from "@/components/SmallText/SmallText";
-import Select from "@/components/Select/Select";
+import { Button, Input, SmallText, Select } from "@/components";
+
 import illustration1 from "@/assets/illustrations/designer-desk.svg";
 import illustration2 from "@/assets/illustrations/designer-working.svg";
 import illustration3 from "@/assets/illustrations/virtual-reality.svg";
