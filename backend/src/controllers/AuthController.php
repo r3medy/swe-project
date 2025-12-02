@@ -9,30 +9,33 @@ use PDO;
 
 use src\Core\Validator;
 
-class AuthController {
+class AuthController
+{
     private $db;
-    public function __construct(ContainerInterface $container) {
+    public function __construct(ContainerInterface $container)
+    {
         $this->db = $container->get('db');
     }
-    
-    public function register(Request $request, Response $response) {
+
+    public function register(Request $request, Response $response)
+    {
         $doesUserExist = $this->checkCredentials($request);
 
-        if(isset($doesUserExist['status']) && $doesUserExist['status'] == 200) {
+        if (isset($doesUserExist['status']) && $doesUserExist['status'] == 200) {
             $response->getBody()->write(json_encode(["message" => "User already exists"]));
             return $response->withStatus(409);
         }
-        
+
         $requestBody = $request->getParsedBody();
 
         // Validate the request body
         $requiredFields = ['username', 'email', 'password', 'role', 'firstName', 'lastName', 'title', 'country', 'bio'];
         $validator = new Validator();
-        foreach($requiredFields as $field) {
+        foreach ($requiredFields as $field) {
             $validator->validate($field, $requestBody[$field] ?? null);
         }
 
-        if(count($validator->errors) > 0) {
+        if (count($validator->errors) > 0) {
             $response->getBody()->write(json_encode(["message" => "Validation failed", "data" => $validator->errors]));
             return $response->withStatus(400);
         }
@@ -54,15 +57,16 @@ class AuthController {
         return $response->withStatus(201);
     }
 
-    public function login(Request $request, Response $response) {
+    public function login(Request $request, Response $response)
+    {
         $doesUserExist = $this->checkCredentials($request);
-        if(isset($doesUserExist['status']) && $doesUserExist['status'] == 404) {
+        if (isset($doesUserExist['status']) && $doesUserExist['status'] == 404) {
             $response->getBody()->write(json_encode(["message" => "User not found"]));
             return $response->withStatus(404);
         }
 
         // Validate request body
-        if(!isset($request->getParsedBody()['usernameoremail']) || !isset($request->getParsedBody()['password'])) {
+        if (!isset($request->getParsedBody()['usernameoremail']) || !isset($request->getParsedBody()['password'])) {
             $response->getBody()->write(json_encode(["message" => "Invalid username or email and password"]));
             return $response->withStatus(400);
         }
@@ -72,7 +76,7 @@ class AuthController {
         $password = $request->getParsedBody()['password'];
 
         $passwordComparison = password_verify($password, $doesUserExist['user']['hashedPassword']);
-        if(!$passwordComparison) {
+        if (!$passwordComparison) {
             $response->getBody()->write(json_encode(["message" => "Invalid username or email and password"]));
             return $response->withStatus(401);
         }
@@ -92,20 +96,69 @@ class AuthController {
         return $response->withStatus(200);
     }
 
-    public function logout(Request $request, Response $response) {
+    public function changePassword(Request $request, Response $response)
+    {
+        $userId = $_SESSION['userId'];
+        if (!isset($userId)) {
+            $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }
+
+        $data = $request->getParsedBody();
+        $oldPassword = $data['currentPassword'] ?? '';
+        $newPassword = $data['newPassword'] ?? '';
+
+        if (empty($oldPassword) || empty($newPassword)) {
+            $response->getBody()->write(json_encode(['error' => 'Both fields are required']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $stmt = $this->db->prepare("SELECT userId, hashedPassword FROM users WHERE userId = :id");
+        $stmt->execute([':id' => $userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            $response->getBody()->write(json_encode(['error' => 'User not found']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+        if (!password_verify($oldPassword, $user['hashedPassword'])) {
+            $response->getBody()->write(json_encode(['error' => 'Old password is incorrect']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+        $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        $update = $this->db->prepare("UPDATE users SET hashedPassword = :newPass WHERE userId = :id");
+        $success = $update->execute([
+            ':newPass' => $newHash,
+            ':id' => $userId
+        ]);
+
+        if ($success) {
+            $response->getBody()->write(json_encode(['status' => 200, 'message' => 'Password changed successfully']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } else {
+            $response->getBody()->write(json_encode(['status' => 500, 'error' => 'Failed to change password']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+    }
+
+    public function logout(Request $request, Response $response)
+    {
         $_SESSION = [];
         session_unset();
         session_destroy();
 
-        if(ini_get("session.use_cookies")) {
+        if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
-                session_name(), 
+                session_name(),
                 '',
-                time() - 42000, 
-                $params["path"], 
-                $params["domain"], 
-                $params["secure"], 
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
                 $params["httponly"]
             );
         }
@@ -114,8 +167,9 @@ class AuthController {
         return $response->withStatus(200);
     }
 
-    public function getSession(Request $request, Response $response) {
-        if(!isset($_SESSION['userId'])) {
+    public function getSession(Request $request, Response $response)
+    {
+        if (!isset($_SESSION['userId'])) {
             $response->getBody()->write(json_encode(["message" => "No active session"]));
             return $response->withStatus(401);
         }
@@ -123,7 +177,7 @@ class AuthController {
         $stmt->execute(['userId' => $_SESSION['userId']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if(!$user) {
+        if (!$user) {
             $response->getBody()->write(json_encode(["message" => "No active session"]));
             return $response->withStatus(401);
         }
@@ -136,19 +190,22 @@ class AuthController {
     }
 
     // Returns the endpoint for checking if a user exists in the database
-    public function checkUser(Request $request, Response $response) {
+    public function checkUser(Request $request, Response $response)
+    {
         $doesUserExist = $this->checkCredentials($request);
         $returnStatus;
-        if($doesUserExist['status'] == 404) {
+        if ($doesUserExist['status'] == 404) {
             $response->getBody()->write(json_encode(["message" => "User not found", "data" => null]));
             $returnStatus = 404;
         } else {
             $response->getBody()->write(json_encode([
                 "message" => "User exists",
-                "data" => ["userId" => $doesUserExist['user']['userId'],
-                "username" => $doesUserExist['user']['username'],
-                "email" => $doesUserExist['user']['email'],
-                "role" => $doesUserExist['user']['role']]
+                "data" => [
+                    "userId" => $doesUserExist['user']['userId'],
+                    "username" => $doesUserExist['user']['username'],
+                    "email" => $doesUserExist['user']['email'],
+                    "role" => $doesUserExist['user']['role']
+                ]
             ]));
             $returnStatus = 200;
         }
@@ -156,7 +213,8 @@ class AuthController {
     }
 
     // Checks wether the user exists in the database
-    private function checkCredentials(Request $request) {
+    private function checkCredentials(Request $request)
+    {
         $requestBody = $request->getParsedBody();
         $loginValue = null;
         $loginColumn = null;
@@ -172,19 +230,25 @@ class AuthController {
             $loginColumn = 'email';
         }
 
-        if (!$loginValue) return ["status" => 400];
+        if (!$loginValue)
+            return ["status" => 400];
 
         $stmt = $this->db->prepare("SELECT * FROM users WHERE $loginColumn = :value");
         $stmt->execute(['value' => $loginValue]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if($user) return ["status" => 200, "user" => $user];
-        else return ["status" => 404];
+        if ($user)
+            return ["status" => 200, "user" => $user];
+        else
+            return ["status" => 404];
     }
 
     // Returns wether the user gave an email or a username
-    private function checkLoginType($usernameOrEmail) {
-        if(filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL)) return "email";
-        else return "username";
+    private function checkLoginType($usernameOrEmail)
+    {
+        if (filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL))
+            return "email";
+        else
+            return "username";
     }
 }

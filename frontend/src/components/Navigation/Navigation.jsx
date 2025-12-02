@@ -1,10 +1,9 @@
 import "@/components/Navigation/Navigation.css";
-import Button from "@/components/Button/Button";
-import Dropdown from "@/components/Dropdown/Dropdown";
-import Drawer from "@/components/Drawer/Drawer";
-import Input from "@/components/Input/Input";
-import useSession from "@/hooks/useSession";
+import { Button, Dropdown, Drawer, Input } from "@/components";
 import { useTheme } from "@/contexts/ThemeContext";
+import useSession from "@/hooks/useSession";
+import { changePasswordSchema } from "@/models/changepassword.zod";
+import { toast } from "react-hot-toast";
 
 import {
   LuFlower,
@@ -18,7 +17,7 @@ import {
   LuAlarmClockCheck,
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 const Navigation = () => {
   const { theme, toggleTheme } = useTheme();
@@ -29,11 +28,56 @@ const Navigation = () => {
     newPassword: "",
     confirmPassword: "",
   });
+  const [passwordErrors, setPasswordErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChangePassword = (e) => {
     e.preventDefault();
-    setChangePasswordDrawer(false);
+    const { success, error } = changePasswordSchema.safeParse(passwords);
+    if (!success) {
+      setPasswordErrors(error.flatten().fieldErrors);
+      return;
+    }
+
+    setIsPasswordLoading(true);
+    fetch("http://localhost:8000/auth/changePassword", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(passwords),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          toast.success("Password changed successfully");
+          setIsPasswordLoading(false);
+          setChangePasswordDrawer(false);
+          setPasswords({
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+          });
+          setPasswordErrors({
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+          });
+        } else {
+          toast.error(data.message || data.error);
+          setIsPasswordLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("An error occurred");
+      });
   };
 
   return (
@@ -111,21 +155,34 @@ const Navigation = () => {
       </div>
       <Drawer
         isOpen={changePasswordDrawer}
-        onClose={() => setChangePasswordDrawer(false)}
+        onClose={() => {
+          setPasswords({
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+          });
+          setPasswordErrors({
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+          });
+          setChangePasswordDrawer(false);
+        }}
         title="Change Password"
       >
-        <form
-          onSubmit={handleChangePassword}
-          style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-        >
+        <form style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <Input
             label="Current Password"
             type="password"
             placeholder="Current Password"
             value={passwords.currentPassword}
             onChange={(e) =>
-              setPasswords({ ...passwords, currentPassword: e.target.value })
+              setPasswords((prev) => ({
+                ...prev,
+                currentPassword: e.target.value,
+              }))
             }
+            errors={passwordErrors.currentPassword}
           />
           <Input
             label="New Password"
@@ -133,8 +190,9 @@ const Navigation = () => {
             placeholder="New Password"
             value={passwords.newPassword}
             onChange={(e) =>
-              setPasswords({ ...passwords, newPassword: e.target.value })
+              setPasswords((prev) => ({ ...prev, newPassword: e.target.value }))
             }
+            errors={passwordErrors.newPassword}
           />
           <Input
             label="Confirm New Password"
@@ -142,10 +200,20 @@ const Navigation = () => {
             placeholder="Confirm New Password"
             value={passwords.confirmPassword}
             onChange={(e) =>
-              setPasswords({ ...passwords, confirmPassword: e.target.value })
+              setPasswords((prev) => ({
+                ...prev,
+                confirmPassword: e.target.value,
+              }))
             }
+            errors={passwordErrors.confirmPassword}
           />
-          <Button type="submit">Change Password</Button>
+          <Button
+            type="button"
+            onClick={handleChangePassword}
+            disabled={isPasswordLoading}
+          >
+            Change Password
+          </Button>
         </form>
       </Drawer>
     </>

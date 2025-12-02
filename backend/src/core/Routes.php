@@ -38,6 +38,7 @@ return function (App $app) {
         $group->post('/register', [AuthController::class, 'register']);
         $group->post('/login', [AuthController::class, 'login']);
         $group->post('/logout', [AuthController::class, 'logout']);
+        $group->post('/changePassword', [AuthController::class, 'changePassword']);
         $group->get('/session', [AuthController::class, 'getSession']);
     });
 

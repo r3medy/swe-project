@@ -8,9 +8,7 @@ export const changePasswordSchema = z
     newPassword: z
       .string()
       .min(8, "Password must be at least 8 characters long"),
-    confirmPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters long"),
+    confirmPassword: z.string(),
   })
   .superRefine((data, ctx) => {
     if (data.newPassword != data.confirmPassword)

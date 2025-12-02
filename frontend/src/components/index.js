@@ -1,5 +1,6 @@
 export { default as Button } from "./Button/Button";
 export { default as CurrencyBox } from "./CurrencyBox/CurrencyBox";
+export { default as Dropdown } from "./Dropdown/Dropdown";
 export { default as Drawer } from "./Drawer/Drawer";
 export { default as Input } from "./Input/Input";
 export { default as LightRays } from "./LightRays/LightRays";
