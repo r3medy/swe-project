@@ -2,22 +2,18 @@
 
 namespace src\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Container\ContainerInterface;
 use PDO;
-
 use src\Core\Validator;
 
 class AuthController
 {
     private $db;
-    public function __construct(ContainerInterface $container)
+    public function __construct($container)
     {
         $this->db = $container->get('db');
     }
 
-    public function register(Request $request, Response $response)
+    public function register($request, $response)
     {
         $doesUserExist = $this->checkCredentials($request);
 
@@ -57,7 +53,7 @@ class AuthController
         return $response->withStatus(201);
     }
 
-    public function login(Request $request, Response $response)
+    public function login($request, $response)
     {
         $doesUserExist = $this->checkCredentials($request);
         if (isset($doesUserExist['status']) && $doesUserExist['status'] == 404) {
@@ -96,7 +92,7 @@ class AuthController
         return $response->withStatus(200);
     }
 
-    public function changePassword(Request $request, Response $response)
+    public function changePassword($request, $response)
     {
         $userId = $_SESSION['userId'];
         if (!isset($userId)) {
@@ -144,7 +140,7 @@ class AuthController
         }
     }
 
-    public function logout(Request $request, Response $response)
+    public function logout($request, $response)
     {
         $_SESSION = [];
         session_unset();
@@ -167,7 +163,7 @@ class AuthController
         return $response->withStatus(200);
     }
 
-    public function getSession(Request $request, Response $response)
+    public function getSession($request, $response)
     {
         if (!isset($_SESSION['userId'])) {
             $response->getBody()->write(json_encode(["message" => "No active session"]));
@@ -190,7 +186,7 @@ class AuthController
     }
 
     // Returns the endpoint for checking if a user exists in the database
-    public function checkUser(Request $request, Response $response)
+    public function checkUser($request, $response)
     {
         $doesUserExist = $this->checkCredentials($request);
         $returnStatus;
@@ -213,7 +209,7 @@ class AuthController
     }
 
     // Checks wether the user exists in the database
-    private function checkCredentials(Request $request)
+    private function checkCredentials($request)
     {
         $requestBody = $request->getParsedBody();
         $loginValue = null;

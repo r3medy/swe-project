@@ -2,20 +2,17 @@
 
 namespace src\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Container\ContainerInterface;
 use PDO;
 
 class TagController
 {
     private $db;
-    public function __construct(ContainerInterface $container)
+    public function __construct($container)
     {
         $this->db = $container->get('db');
     }
 
-    public function getTags(Request $request, Response $response, array $args): Response
+    public function getTags($request, $response, $args)
     {
         try {
             $stmt = $this->db->prepare("SELECT * FROM tags");

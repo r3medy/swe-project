@@ -1,9 +1,6 @@
 <?php
 
 use Slim\App;
-use Slim\Routing\RouteCollectorProxy;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 // Import Controllers
 use src\Controllers\AdminController;
@@ -27,13 +24,13 @@ return function (App $app) {
         session_start();
 
     // Default route
-    $app->post('/', function (Request $request, Response $response) {
+    $app->post('/', function ($request, $response) {
         $response->getBody()->write(json_encode($request->getParsedBody()));
         return $response;
     });
 
     // Authentication routes
-    $app->group('/auth', function (RouteCollectorProxy $group) {
+    $app->group('/auth', function ($group) {
         $group->post('/checkUser', [AuthController::class, 'checkUser']);
         $group->post('/register', [AuthController::class, 'register']);
         $group->post('/login', [AuthController::class, 'login']);
@@ -43,7 +40,7 @@ return function (App $app) {
     });
 
     // Profile routes
-    $app->group('/profile', function (RouteCollectorProxy $group) {
+    $app->group('/profile', function ($group) {
         $group->get('/saved', [ProfileController::class, 'getSavedPosts']);
         $group->get('/clientPosts/[{identifier}]', [ProfileController::class, 'getClientPosts']);
         $group->get('/savedPosts', [ProfileController::class, 'getSavedPosts']);
@@ -52,12 +49,12 @@ return function (App $app) {
     });
 
     // Tags routes
-    $app->group('/tags', function (RouteCollectorProxy $group) {
+    $app->group('/tags', function ($group) {
         $group->get('', [TagController::class, 'getTags']);
     });
 
     // Posts routes
-    $app->group('/posts', function (RouteCollectorProxy $group) {
+    $app->group('/posts', function ($group) {
         $group->get('/', [PostController::class, 'getAllPosts']);
     });
 };

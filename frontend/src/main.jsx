@@ -15,25 +15,22 @@ import Profile from "@/pages/Profile/Profile";
 import "./global.css";
 
 /*
-  TODO: make the profile page responsive
-  TODO: add Saved posts & Posts to the profile page
-  TODO: use changepassword.zod to implement change password form validation
-
   ? Login & Signup
   ? Home
   ? About
   ? Terms & Conditions
   ? Onboarding
-  * Profile ( Client / Admin / Freelancer )
+  ? Profile ( Client / Admin / Freelancer )
   * Chat
   * Users control panel ( Admin )
   * Pending posts ( Admin )
   * The wall
   * Proposals
-
+  
+  -- Side drawer
+  * Notifications
   -- Modals
   * Job information
-  * Notifications
   * Tell user about the contract
   * Create job post
 */

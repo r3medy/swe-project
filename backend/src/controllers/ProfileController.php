@@ -2,9 +2,6 @@
 
 namespace src\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Container\ContainerInterface;
 use PDO;
 
 
@@ -12,14 +9,14 @@ use PDO;
 class ProfileController
 {
     private $db;
-    public function __construct(ContainerInterface $container)
+    public function __construct($container)
     {
         $this->db = $container->get('db');
     }
 
     // read the identifier (@username or ID) from route
 
-    public function getProfile(Request $request, Response $response, $args)
+    public function getProfile($request, $response, $args)
     {
         $identifier = $args['identifier'] ?? null;
 
@@ -72,7 +69,7 @@ class ProfileController
         $response->getBody()->write(json_encode(['user' => $user]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
-    public function getSavedPosts(Request $request, Response $response)
+    public function getSavedPosts($request, $response)
     {
         if (!isset($_SESSION['userId']))
             return $this->error($response, 'Unauthorized', 401);
@@ -90,7 +87,7 @@ class ProfileController
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
-    public function getClientPosts(Request $request, Response $response, array $args)
+    public function getClientPosts($request, $response, $args)
     {
         $identifier = $args['identifier'] ?? null;
         $userId = null;
@@ -129,7 +126,7 @@ class ProfileController
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
-    public function updateProfile(Request $request, Response $response)
+    public function updateProfile($request, $response)
     {
         if (!isset($_SESSION['userId']))
             return $this->error($response, 'Unauthorized', 401);
@@ -173,7 +170,7 @@ class ProfileController
         $response->getBody()->write(json_encode(['success' => true]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
-    private function error(Response $response, $message, $status)
+    private function error($response, $message, $status)
     {
         $response->getBody()->write(json_encode(['error' => $message]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
