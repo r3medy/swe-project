@@ -1,7 +1,5 @@
 <?php
 
-use Slim\App;
-
 // Import Controllers
 use src\Controllers\AdminController;
 use src\Controllers\AuthController;
@@ -11,13 +9,13 @@ use src\Controllers\TagController;
 use src\Controllers\PostController;
 use src\Controllers\ProposalController;
 
-return function (App $app) {
+return function ($app) {
     // Cookies
     session_set_cookie_params([
         'lifetime' => 60 * 60 * 24 * 7, // 7 days
         'path' => '/',
         'secure' => false,
-        'httponly' => false // True only in production
+        'httponly' => true
     ]);
 
     if (session_status() === PHP_SESSION_NONE)

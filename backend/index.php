@@ -1,16 +1,17 @@
 <?php
 // متلمسش الملف ده
 // Don't edit this file
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use DI\Container;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/core/DatabaseConfig.php'; // Database Configuration
 
-$container  = new Container();
+/*
+    TODO: Implement models for users, posts, proposals
+*/
+
+$container = new Container();
 $container->set('db', function () use ($host, $db_name, $username, $password, $opts) {
     // Connection statement
     $conn_stmt = "mysql:host=$host;dbname=$db_name;charset=utf8mb4";
@@ -29,10 +30,10 @@ $app->addBodyParsingMiddleware();
 // displayErrorDetails=true, logErrors=true, logErrorDetails=true
 $app->addErrorMiddleware(true, true, true);
 
-$app->add(function (Request $request, RequestHandler $handler) {
+$app->add(function ($request, $handler) {
     $response = $handler->handle($request);
-    $origin   = $request->getHeaderLine('Origin');
-    $allowedOrigin = $origin ?: '*';
+    $origin = $request->getHeaderLine('Origin');
+    $allowedOrigin = $origin ? $origin : '*';
 
     return $response
         // Force JSON response
@@ -49,7 +50,7 @@ $routes = require __DIR__ . '/src/core/Routes.php';
 $routes($app);
 
 // Pre-flight requests
-$app->options('/{routes:.+}', function (Request $request, Response $response, $args) {
+$app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response->withStatus(200);
 });
 
