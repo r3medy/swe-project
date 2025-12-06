@@ -1,10 +1,20 @@
-import { useState, useCallback, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 
-const useSession = () => {
+const SessionContext = createContext();
+
+export function SessionProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [isFetchingSession, setIsFetchingSession] = useState(true);
 
   const checkSession = useCallback(async () => {
     try {
+      setIsFetchingSession(true);
       const response = await fetch("http://localhost:8000/auth/session", {
         method: "GET",
         credentials: "include",
@@ -17,6 +27,8 @@ const useSession = () => {
       }
     } catch (err) {
       setUser(null);
+    } finally {
+      setIsFetchingSession(false);
     }
   }, []);
 
@@ -60,7 +72,19 @@ const useSession = () => {
     checkSession();
   }, [checkSession]);
 
-  return { user, checkSession, login, logout };
-};
+  return (
+    <SessionContext.Provider
+      value={{ user, isFetchingSession, checkSession, login, logout }}
+    >
+      {children}
+    </SessionContext.Provider>
+  );
+}
 
-export default useSession;
+export function useSession() {
+  const context = useContext(SessionContext);
+  if (!context) {
+    throw new Error("useSession must be used within a SessionProvider");
+  }
+  return context;
+}

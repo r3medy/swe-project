@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 
 import "@/pages/Home/Home.css";
-import useSession from "@/hooks/useSession";
+import { useSession } from "@/contexts/SessionContext";
 
 import {
   LightRays,

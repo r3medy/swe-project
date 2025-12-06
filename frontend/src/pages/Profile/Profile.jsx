@@ -18,7 +18,7 @@ import ReactCountryFlag from "react-country-flag";
 import "./Profile.css";
 import profileImage1 from "@/assets/profilepictures/1.png";
 
-import useSession from "@/hooks/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import {
   SmallText,
   Navigation,
@@ -419,6 +419,7 @@ const Profile = () => {
               )
               ?.map((tag) => tag.tagName)}
             ref={selectRef}
+            style={{ marginBottom: "1rem" }}
           />
           <Button
             onClick={() =>

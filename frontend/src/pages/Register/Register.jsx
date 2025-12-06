@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 
-import useSession from "@/hooks/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import "@/pages/Register/Register.css";
 import { registerSchema } from "@/models/register.zod";
 
@@ -171,7 +171,7 @@ const Register = () => {
       <div className="register-footer">
         <hr />
         <SmallText text="By creating an account, you agree to our ">
-          <Link to="/terms-and-conditions">Terms of Service</Link>
+          <Link to="/terms-and-policies">Terms of Service</Link>
         </SmallText>
       </div>
     </div>

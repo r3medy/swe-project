@@ -5,7 +5,7 @@ import { LuArrowLeft, LuArrowRight } from "react-icons/lu";
 import toast from "react-hot-toast";
 
 import { firstStepSchema, secondStepSchema } from "@/models/onboarding.zod";
-import useSession from "@/hooks/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import { Button, Input, SmallText, Select } from "@/components";
 
 import illustration1 from "@/assets/illustrations/designer-desk.svg";
@@ -71,6 +71,7 @@ const Onboarding = () => {
   const [userDetails, setUserDetails] = useState({
     firstName: "",
     lastName: "",
+    gender: "",
     role: "",
     title: "",
     country: "",
@@ -178,6 +179,17 @@ const Onboarding = () => {
           setUserDetails({ ...userDetails, lastName: e.target.value })
         }
         errors={formErrors?.lastName}
+      />
+      <Select
+        label="Gender"
+        name="gender"
+        value={userDetails.gender}
+        required
+        options={["Choose your gender", "Male", "Female"]}
+        onChange={(e) =>
+          setUserDetails({ ...userDetails, gender: e.target.value })
+        }
+        errors={formErrors?.gender}
       />
       <Select.Countries
         label="Country"

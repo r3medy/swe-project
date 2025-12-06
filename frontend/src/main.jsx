@@ -4,14 +4,19 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { Toaster } from "react-hot-toast";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { UserProvider } from "@/contexts/UserContext";
-import Home from "@/pages/Home/Home";
-import Login from "@/pages/Login/Login";
-import Register from "@/pages/Register/Register";
-import About from "@/pages/About/About";
-import TermsandConditions from "@/pages/TermsandConditions/TermsandConditions";
-import Onboarding from "@/pages/Onboarding/Onboarding";
-import Profile from "@/pages/Profile/Profile";
+import { SessionProvider } from "@/contexts/SessionContext";
+
+import {
+  Home,
+  Login,
+  Register,
+  About,
+  TermsandPolicies,
+  Onboarding,
+  Profile,
+  Pending,
+  UsersControlPanel,
+} from "@/pages";
 import "./global.css";
 
 /*
@@ -21,9 +26,9 @@ import "./global.css";
   ? Terms & Conditions
   ? Onboarding
   ? Profile ( Client / Admin / Freelancer )
-  * Chat
-  * Users control panel ( Admin )
-  * Pending posts ( Admin )
+  * Chat ( needs fixing )
+  * Users control panel ( Admin ) ( needs to be done )
+  * Pending posts ( Admin ) ( needs fixing )
   * The wall
   * Proposals
   
@@ -45,7 +50,7 @@ const colorScheme = {
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
-      <UserProvider>
+      <SessionProvider>
         <BrowserRouter>
           <Toaster
             toastOptions={{
@@ -59,16 +64,15 @@ createRoot(document.getElementById("root")).render(
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="about" element={<About />} />
-            <Route
-              path="terms-and-conditions"
-              element={<TermsandConditions />}
-            />
+            <Route path="terms-and-policies" element={<TermsandPolicies />} />
             <Route path="onboarding" element={<Onboarding />} />
             <Route path="profile" element={<Profile />} />
             <Route path="profile/:profileQuery" element={<Profile />} />
+            <Route path="pending" element={<Pending />} />
+            <Route path="users-control-panel" element={<UsersControlPanel />} />
           </Routes>
         </BrowserRouter>
-      </UserProvider>
+      </SessionProvider>
     </ThemeProvider>
   </StrictMode>
 );

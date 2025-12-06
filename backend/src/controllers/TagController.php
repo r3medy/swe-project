@@ -3,17 +3,16 @@
 namespace src\Controllers;
 
 use PDO;
+use Psr\Container\ContainerInterface;
 
 class TagController
 {
     private $db;
-    public function __construct($container)
-    {
+    public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
     }
 
-    public function getTags($request, $response, $args)
-    {
+    public function getTags($request, $response, $args) {
         try {
             $stmt = $this->db->prepare("SELECT * FROM tags");
             $stmt->execute();

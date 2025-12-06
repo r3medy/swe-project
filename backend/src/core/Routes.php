@@ -8,6 +8,7 @@ use src\Controllers\ProfileController;
 use src\Controllers\TagController;
 use src\Controllers\PostController;
 use src\Controllers\ProposalController;
+use src\Controllers\NotificationsController;
 
 return function ($app) {
     // Cookies
@@ -54,5 +55,13 @@ return function ($app) {
     // Posts routes
     $app->group('/posts', function ($group) {
         $group->get('/', [PostController::class, 'getAllPosts']);
+    });
+
+    // Notifications routes
+    $app->group('/notifications',  function($group)  {
+        $group->get('', [NotificationsController::class, 'getallnotifications']);
+        $group->delete('/{notificationId}', [NotificationsController::class, 'delete']);
+        $group->post('/markallread', [NotificationsController::class, 'markallread']);
+        $group->post('/markread', [NotificationsController::class, 'markread']);
     });
 };

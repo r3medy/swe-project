@@ -1,9 +1,10 @@
 import "@/components/Navigation/Navigation.css";
 import { Button, Dropdown, Drawer, Input } from "@/components";
 import { useTheme } from "@/contexts/ThemeContext";
-import useSession from "@/hooks/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import { changePasswordSchema } from "@/models/changepassword.zod";
 import { toast } from "react-hot-toast";
+import { LuLoaderCircle } from "react-icons/lu";
 
 import {
   LuFlower,
@@ -11,17 +12,18 @@ import {
   LuMoon,
   LuChevronDown,
   LuUser,
+  LuUsers,
   LuLogOut,
   LuFileText,
   LuKey,
   LuAlarmClockCheck,
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 
 const Navigation = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useSession();
+  const { user, isFetchingSession, logout } = useSession();
   const [changePasswordDrawer, setChangePasswordDrawer] = useState(false);
   const [passwords, setPasswords] = useState({
     currentPassword: "",
@@ -102,7 +104,7 @@ const Navigation = () => {
               <LuMoon size={20} className="theme-icon" />
             )}
           </Button.Icon>
-          {!user ? (
+          {!user && !isFetchingSession ? (
             <>
               <Button.Text>
                 <Link to="/login">Login</Link>
@@ -111,7 +113,7 @@ const Navigation = () => {
                 <Link to="/register">Join</Link>
               </Button>
             </>
-          ) : (
+          ) : user && !isFetchingSession ? (
             <Dropdown
               trigger={
                 <Button.Text>
@@ -122,19 +124,26 @@ const Navigation = () => {
             >
               <Dropdown.Item>
                 <LuUser size={16} />
-                <Link to="/profile">Profile</Link>
+                <Link to="/profile">My Profile</Link>
               </Dropdown.Item>
               <Dropdown.Item>
                 <LuFileText size={16} />
-                <Link to="/terms-and-conditions">Terms and Policies</Link>
+                <Link to="/terms-and-policies">Terms and Policies</Link>
               </Dropdown.Item>
-              <hr />
               {user?.role === "Admin" && (
-                <Dropdown.Item>
-                  <LuAlarmClockCheck size={16} />
-                  <p>Pending Posts</p>
-                </Dropdown.Item>
+                <>
+                  <hr className="admin-controls-separator" />
+                  <Dropdown.Item>
+                    <LuAlarmClockCheck size={16} />
+                    <Link to="/pending">Pending Posts</Link>
+                  </Dropdown.Item>
+                  <Dropdown.Item>
+                    <LuUsers size={16} />
+                    <Link to="/users-control-panel">Users Control</Link>
+                  </Dropdown.Item>
+                </>
               )}
+              <hr />
               <Dropdown.Item onClick={() => setChangePasswordDrawer(true)}>
                 <LuKey size={16} />
                 <p>Change Password</p>
@@ -150,6 +159,8 @@ const Navigation = () => {
                 <p>Logout</p>
               </Dropdown.Item>
             </Dropdown>
+          ) : (
+            <LuLoaderCircle size={20} className="spin" />
           )}
         </div>
       </div>

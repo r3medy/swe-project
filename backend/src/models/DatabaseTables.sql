@@ -13,6 +13,8 @@ CREATE TABLE users (
   country VARCHAR(100), 
   bio     TEXT, 
   website VARCHAR(255),
+  gender  ENUM('Male', 'Female'),
+  profilePicture VARCHAR(255),
   -- Security specifics
   hashedPassword CHAR(100) NOT NULL, 
   SSN            VARCHAR(20) UNIQUE, 

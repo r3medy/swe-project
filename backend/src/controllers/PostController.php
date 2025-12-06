@@ -3,17 +3,15 @@
 namespace src\Controllers;
 
 use PDO;
+use Psr\Container\ContainerInterface;
 
-class PostController
-{
+class PostController {
     private $db;
-    public function __construct($container)
-    {
+    public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
     }
 
-    public function getAllPosts($request, $response)
-    {
+    public function getAllPosts($request, $response) {
 
     }
 }

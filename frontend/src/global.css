@@ -68,3 +68,16 @@ hr .vertical {
   font-family: "Geist";
   src: url("./assets/fonts/Geist\ Variable.ttf");
 }
+
+.spin {
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

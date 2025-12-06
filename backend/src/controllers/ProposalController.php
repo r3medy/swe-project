@@ -3,11 +3,12 @@
 namespace src\Controllers;
 
 use PDO;
+use Psr\Container\ContainerInterface;
 
 class ProposalController
 {
     private $db;
-    public function __construct($container)
+    public function __construct(ContainerInterface $container)
     {
         $this->db = $container->get('db');
     }

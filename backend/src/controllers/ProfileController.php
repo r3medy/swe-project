@@ -3,21 +3,19 @@
 namespace src\Controllers;
 
 use PDO;
+use Psr\Container\ContainerInterface;
 
 
 
-class ProfileController
-{
+class ProfileController {
     private $db;
-    public function __construct($container)
-    {
+    public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
     }
 
     // read the identifier (@username or ID) from route
 
-    public function getProfile($request, $response, $args)
-    {
+    public function getProfile($request, $response, $args) {
         $identifier = $args['identifier'] ?? null;
 
         if (!$identifier) {
@@ -69,8 +67,8 @@ class ProfileController
         $response->getBody()->write(json_encode(['user' => $user]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
-    public function getSavedPosts($request, $response)
-    {
+    
+    public function getSavedPosts($request, $response) {
         if (!isset($_SESSION['userId']))
             return $this->error($response, 'Unauthorized', 401);
         $userId = $_SESSION['userId'];
@@ -87,8 +85,7 @@ class ProfileController
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
-    public function getClientPosts($request, $response, $args)
-    {
+    public function getClientPosts($request, $response, $args) {
         $identifier = $args['identifier'] ?? null;
         $userId = null;
 
@@ -126,14 +123,10 @@ class ProfileController
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
-    public function updateProfile($request, $response)
-    {
+    public function updateProfile($request, $response) {
         if (!isset($_SESSION['userId']))
             return $this->error($response, 'Unauthorized', 401);
-
-        // [["type" => "edit-bio", "bio" => "new bio"],
-        // ["type" => "remove-tag", "tagId" => 1],
-        // ["type" => "add-tag", "tagId" => 2]]
+        
         $userId = $_SESSION['userId'];
         $actions = $request->getParsedBody();
 
@@ -170,8 +163,8 @@ class ProfileController
         $response->getBody()->write(json_encode(['success' => true]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
-    private function error($response, $message, $status)
-    {
+
+    private function error($response, $message, $status) {
         $response->getBody()->write(json_encode(['error' => $message]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }

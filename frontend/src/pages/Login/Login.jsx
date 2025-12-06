@@ -7,10 +7,9 @@ import "@/pages/Login/Login.css";
 import "@/components/Input/Input.css";
 import { Button, SmallText, Input } from "@/components";
 
-import { useUser } from "@/contexts/UserContext";
 import { loginSchema } from "@/models/login.zod";
 import { useNavigate } from "react-router";
-import useSession from "@/hooks/useSession";
+import { useSession } from "@/contexts/SessionContext";
 
 const Login = () => {
   const { user } = useSession();
@@ -31,7 +30,7 @@ const Login = () => {
   });
 
   const navigate = useNavigate();
-  const { login } = useUser();
+  const { login } = useSession();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -122,7 +121,7 @@ const Login = () => {
       <div className="login-footer">
         <hr />
         <SmallText text="By using our platform, you agree to our ">
-          <Link to="/terms-and-conditions">Terms of Service</Link>
+          <Link to="/terms-and-policies">Terms of Service</Link>
         </SmallText>
       </div>
     </div>

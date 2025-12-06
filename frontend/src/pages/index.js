@@ -1,0 +1,9 @@
+export { default as About } from "./About/About";
+export { default as Home } from "./Home/Home";
+export { default as Login } from "./Login/Login";
+export { default as Onboarding } from "./Onboarding/Onboarding";
+export { default as Pending } from "./Pending/Pending";
+export { default as Profile } from "./Profile/Profile";
+export { default as Register } from "./Register/Register";
+export { default as TermsandPolicies } from "./TermsandPolicies/TermsandPolicies";
+export { default as UsersControlPanel } from "./UsersControlPanel/UsersControlPanel";

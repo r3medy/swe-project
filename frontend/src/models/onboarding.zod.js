@@ -9,6 +9,7 @@ const firstStepSchema = z.object({
     .string()
     .min(2, "Last name must be at least 2 characters long")
     .max(100, "Last name exceeds 100 characters"),
+  gender: z.enum(["Male", "Female"]),
   country: z
     .string()
     .min(2, "A country must be selected")

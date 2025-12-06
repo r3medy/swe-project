@@ -1,7 +1,7 @@
-import "@/pages/TermsandConditions/TermsandConditions.css";
-import Navigation from "@/components/Navigation/Navigation";
+import "@/pages/TermsandPolicies/TermsandPolicies.css";
+import { Navigation } from "@/components";
 
-const TermsandConditions = () => {
+const TermsandPolicies = () => {
   return (
     <>
       <Navigation />
@@ -445,4 +445,4 @@ const TermsandConditions = () => {
   );
 };
 
-export default TermsandConditions;
+export default TermsandPolicies;
