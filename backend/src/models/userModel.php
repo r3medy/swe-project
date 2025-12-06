@@ -43,6 +43,7 @@ class userModel {
     }
 
     // User management
+    // Register a user
     public function storeUser($data) {
         $requiredFields = ['username', 'email', 'password', 'role', 'gender', 'firstName', 'lastName', 'title', 'country', 'bio'];
         foreach($requiredFields as $field) {
@@ -76,6 +77,7 @@ class userModel {
     //  ["type" => "add-tag", "tagId" => tagId],
     //  ["type" => "change-title", "title" => "new title"],
     //  ["type" => "remove-saved-post", "postId" => postId]]
+    // Update the user information
     public function updateUser($changes) {
         foreach($changes as $change) {
             $type = $change["type"];
@@ -109,6 +111,7 @@ class userModel {
         }
     }
 
+    // Change password
     public function changePassword($oldPassword, $newPassword) {
         $user = $this->getUserById($this->userId, false);
         if(!$user) return ["status" => 404, "message" => "User not found"];
@@ -126,6 +129,42 @@ class userModel {
         return ["status" => 500, "message" => "Failed to change password"];
     }
 
+    // Get user tags
+    public function getUserTags($userId) {
+        $stmt = $this->db->prepare("
+            SELECT t.tagId, t.tagName 
+            FROM usertags ut
+            JOIN tags t ON ut.tagId = t.tagId
+            WHERE ut.userId = :userId
+        ");
+        $stmt->execute([':userId' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Get user saved posts
+    public function getSavedPosts($userId) {
+        $stmt = $this->db->prepare("
+            SELECT p.postId, p.jobTitle AS title, p.jobDescription AS description, p.createdAt, p.budget, p.hourlyRate, p.status
+            FROM savedPosts sp
+            JOIN posts p ON sp.postId = p.postId
+            WHERE sp.userId = :userId
+        ");
+        $stmt->execute([':userId' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Get client's posts
+    public function getClientPosts($userId) {
+        $stmt = $this->db->prepare("
+            SELECT postId, clientId, jobTitle AS title, jobType, jobDescription AS description, budget, hourlyRate, status, isJobAccepted, createdAt 
+            FROM posts 
+            WHERE clientId = :userId
+        ");
+        $stmt->execute([':userId' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Delete a user ( Admin function )
     public function deleteUser($userId) {
         $user = $this->getUserById($userId);
         if(!$user) return ["status" => 404, "message" => "User not found"];
@@ -139,10 +178,12 @@ class userModel {
     }
 
     // Helper methods
+    // Infer login method
     private function inferLoginMethod($logincreds) {
         return filter_var($logincreds, FILTER_VALIDATE_EMAIL) ? "email" : (is_numeric($logincreds) ? "userId" : "username");
     }
 
+    // Get user from database using any login method
     private function getUserFromDB($loginmethod, $value) {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE $loginmethod = :value");
         if(str_starts_with($value, "@")) $stmt->execute(['value' => substr($value, 1)]);

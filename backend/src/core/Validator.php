@@ -2,8 +2,7 @@
 
 namespace src\Core;
 
-class Validator
-{
+class Validator {
     public $errors = [];
     public function validate($field, $value) {
         if (method_exists($this, $field)) {
