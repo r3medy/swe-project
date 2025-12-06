@@ -11,6 +11,18 @@ require __DIR__ . '/src/core/DatabaseConfig.php'; // Database Configuration
     TODO: Implement models for users, posts, proposals
 */
 
+// Cookies & Session
+session_set_cookie_params([
+    'lifetime' => 86400 * 7, // 7 days
+    'path' => '/',
+    'domain' => '',
+    'secure' => false,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
+if (session_status() === PHP_SESSION_NONE) session_start();
+
 $container = new Container();
 $container->set('db', function () use ($host, $db_name, $username, $password, $opts) {
     // Connection statement

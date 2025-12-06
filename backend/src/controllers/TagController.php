@@ -5,8 +5,7 @@ namespace src\Controllers;
 use PDO;
 use Psr\Container\ContainerInterface;
 
-class TagController
-{
+class TagController {
     private $db;
     public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');

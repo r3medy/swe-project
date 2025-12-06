@@ -7,16 +7,17 @@ import {
   LuShare2,
   LuPenLine,
   LuCircleX,
-  LuLoaderCircle,
+  LuBookDashed,
   LuBadgeCheck,
   LuBadgeDollarSign,
   LuTimer,
-  LuBookDashed,
+  LuCamera,
 } from "react-icons/lu";
 import ReactCountryFlag from "react-country-flag";
 
 import "./Profile.css";
 import profileImage1 from "@/assets/profilepictures/1.png";
+import profileImage3 from "@/assets/profilepictures/3.png";
 
 import { useSession } from "@/contexts/SessionContext";
 import {
@@ -27,6 +28,7 @@ import {
   Drawer,
   Input,
   Select,
+  Status,
 } from "@/components";
 import {
   handleApplyChanges,
@@ -36,6 +38,7 @@ import {
   handleAddTag,
   handleChangeTitle,
   handleRemoveSavedPost,
+  handleChangeProfilePicture,
 } from "./Extras/handlers";
 import {
   fetchProfile,
@@ -141,7 +144,17 @@ const ProfileCard = ({
       <div className="profile-header">
         <div className="header-info">
           <div className="header-details">
-            <img src={profileImage1} alt="Profile Image" loading="lazy" />
+            <img
+              src={
+                profile.profilePicture
+                  ? `http://localhost:8000${profile.profilePicture}`
+                  : user?.gender === "Male"
+                  ? profileImage1
+                  : profileImage3
+              }
+              alt="Profile Image"
+              loading="lazy"
+            />
             <div className="header-text">
               <h1>
                 <ReactCountryFlag
@@ -154,7 +167,7 @@ const ProfileCard = ({
                 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
               >
                 {profile.title}
-                {user?.userId === profile?.userId && (
+                {user?.userId == profile?.userId && (
                   <Tooltip text="Edit title">
                     <Button.Icon onClick={() => setDrawerOpen("change-title")}>
                       <LuPenLine />
@@ -166,6 +179,15 @@ const ProfileCard = ({
             </div>
           </div>
           <div className="header-actions">
+            {user?.userId == profile?.userId && (
+              <Tooltip text="Change profile picture">
+                <Button.Icon
+                  onClick={() => setDrawerOpen("change-profile-picture")}
+                >
+                  <LuCamera />
+                </Button.Icon>
+              </Tooltip>
+            )}
             <Tooltip text="Share your profile">
               <Button.Icon onClick={(e) => handleShareProfile(e, profile)}>
                 <LuShare2 />
@@ -188,7 +210,7 @@ const ProfileCard = ({
         <div className="profile-content">
           <h1>
             About Me
-            {user?.userId === profile?.userId && (
+            {user?.userId == profile?.userId && (
               <Tooltip text="Edit about me">
                 <Button.Icon onClick={() => setDrawerOpen("edit-bio")}>
                   <LuPenLine />
@@ -201,7 +223,7 @@ const ProfileCard = ({
         <div className="profile-content">
           <h1>
             Interests
-            {user?.userId === profile?.userId && (
+            {user?.userId == profile?.userId && (
               <Tooltip text="Add interest">
                 <Button.Icon onClick={() => setDrawerOpen("add-interest")}>
                   <LuPlus />
@@ -212,7 +234,7 @@ const ProfileCard = ({
           {profile?.tags?.length > 0 ? (
             <>
               {profile.tags.map((tag) => {
-                if (profile?.userId === user?.userId) {
+                if (profile?.userId == user?.userId) {
                   return (
                     <SmallText.DestructiveBadge
                       key={tag.tagId}
@@ -237,7 +259,7 @@ const ProfileCard = ({
           )}
         </div>
         <hr />
-        {user?.userId === profile?.userId && (
+        {user?.userId == profile?.userId && (
           <div className="profile-content">
             <h1>
               Saved Posts ( <strong>{profile?.savedPosts?.length || 0}</strong>{" "}
@@ -309,16 +331,23 @@ const Profile = () => {
           fetchTags(setTags),
         ]);
 
+        if (!fetchedProfile) {
+          // Profile not found, just stop loading - Status.Error will show
+          setIsLoading(false);
+          return;
+        }
+
         if (fetchedProfile?.role === "Client") {
           await fetchPosts(profileQuery, setProfile, setBackupProfile);
         }
 
-        if (fetchedProfile?.userId === user?.userId) {
+        // Check if viewing own profile using string comparison
+        if (user && String(fetchedProfile?.userId) === String(user?.userId)) {
           await fetchSavedPosts(setProfile, setBackupProfile);
         }
       } catch (e) {
-        toast.error("Something went wrong while loading the profile");
-        navigate("/");
+        console.error("Error loading profile:", e);
+        // Don't redirect - just show error state
       } finally {
         setIsLoading(false);
       }
@@ -343,26 +372,24 @@ const Profile = () => {
       <Navigation />
       <div className="profile-container">
         {isLoading && changes.length === 0 && (
-          <div className="centered-container">
-            <LuLoaderCircle size={48} className="spin" />
-            <h1>Loading profile...</h1>
-            <SmallText text="Please wait while we load your requested profile" />
-          </div>
+          <Status
+            text="Loading profile..."
+            subtext="Please wait while we load your requested profile"
+          />
         )}
         {!isLoading && !profile && (
-          <div className="centered-container">
-            <LuCircleX size={48} color="#ef4444" />
-            <h1>Profile not found</h1>
-            <SmallText text="The profile you are looking for does not exist or has been deleted" />
+          <Status.Error
+            text="Profile not found"
+            subtext="The profile you are looking for does not exist or has been deleted"
+          >
             <Button onClick={() => navigate("/")}>Back to home</Button>
-          </div>
+          </Status.Error>
         )}
         {isLoading && changes.length > 0 && (
-          <div className="centered-container">
-            <LuLoaderCircle size={48} className="spin" />
-            <h1>Saving your changes...</h1>
-            <SmallText text="Please wait while we save your changes" />
-          </div>
+          <Status
+            text="Saving your changes..."
+            subtext="Please wait while we save your changes"
+          />
         )}
         {!isLoading && profile && (
           <ProfileCard
@@ -457,6 +484,30 @@ const Profile = () => {
           >
             Change Title
           </Button>
+        </Drawer>
+      )}
+      {drawerOpen === "change-profile-picture" && (
+        <Drawer
+          title="Change Profile Picture"
+          onClose={() => setDrawerOpen(null)}
+          isOpen={drawerOpen}
+        >
+          <SmallText text="Upload a new profile picture, It will be saved on upload." />
+          <Input
+            type="file"
+            name="newprofilepicture"
+            accept="image/jpeg,image/png"
+            onChange={(e) => {
+              if (e.target.files[0]) {
+                handleChangeProfilePicture(
+                  e.target.files[0],
+                  setProfile,
+                  setIsLoading
+                );
+              }
+            }}
+            style={{ marginBottom: "1rem" }}
+          />
         </Drawer>
       )}
     </>

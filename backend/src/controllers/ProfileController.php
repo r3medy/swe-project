@@ -66,6 +66,39 @@ class ProfileController {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
+    public function updateProfilePicture($request, $response) {
+        $me = $this->userModel->getUser($_SESSION['userId']);
+        if(!isset($_SESSION['userId']) && $me['role'] !== 'Admin') return $this->error($response, 'Unauthorized', 401);
+        
+        $uploadedFiles = $request->getUploadedFiles();
+        $uploadedFile  = $uploadedFiles['profilePicture'] ?? null;
+        $allowedTypes  = ['image/jpeg', 'image/png'];
+        $maxFileSize   = 2.5 * 1024 * 1024; // 2.5 MB
+        $uploadsDir    = __DIR__ . '/../../uploads/';
+
+        if(!$uploadedFile) return $this->error($response, 'No file uploaded', 400);
+        if($uploadedFile->getError() !== UPLOAD_ERR_OK) return $this->error($response, 'File upload failed', 400);
+        if(!in_array($uploadedFile->getClientMediaType(), $allowedTypes)) return $this->error($response, 'Invalid file type, only JPEG and PNG are allowed', 400);
+        if($uploadedFile->getSize() > $maxFileSize) return $this->error($response, 'File size exceeds the limit of 2.5MB', 400);
+
+        $ext = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+        $filename = $_SESSION['userId'] . '.' . $ext;
+
+        $filePath = $uploadsDir . $filename;
+        $uploadedFile->moveTo($filePath);
+
+        $relativePath = '/uploads/' . $filename;
+        $this->userModel->updateUser([
+            ['type' => 'update-profile-picture', 'profilePicture' => $relativePath]
+        ]);
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'profilePicture' => $relativePath
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+    }
+
     private function error($response, $message, $status) {
         $response->getBody()->write(json_encode(['error' => $message]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);

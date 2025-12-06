@@ -16,7 +16,9 @@ import {
   LuLogOut,
   LuFileText,
   LuKey,
+  LuDelete,
   LuAlarmClockCheck,
+  LuTag,
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
@@ -24,7 +26,9 @@ import { useState } from "react";
 const Navigation = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, isFetchingSession, logout } = useSession();
-  const [changePasswordDrawer, setChangePasswordDrawer] = useState(false);
+  const [currentDrawer, setCurrentDrawer] = useState(false);
+  const [deleteAccountConfirmation, setDeleteAccountConfirmation] =
+    useState("");
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
@@ -36,6 +40,7 @@ const Navigation = () => {
     confirmPassword: "",
   });
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChangePassword = (e) => {
@@ -60,7 +65,7 @@ const Navigation = () => {
         if (data.status === 200) {
           toast.success("Password changed successfully");
           setIsPasswordLoading(false);
-          setChangePasswordDrawer(false);
+          setCurrentDrawer(null);
           setPasswords({
             currentPassword: "",
             newPassword: "",
@@ -74,6 +79,32 @@ const Navigation = () => {
         } else {
           toast.error(data.message || data.error);
           setIsPasswordLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("An error occurred");
+      });
+  };
+
+  const handleDeleteAccount = (e) => {
+    e.preventDefault();
+    setIsDeleteLoading(true);
+
+    fetch("http://localhost:8000/auth/deleteAccount", {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setIsDeleteLoading(false);
+          toast.success("Account deleted successfully");
+          setCurrentDrawer(null);
+          navigate(0);
+        } else {
+          setIsDeleteLoading(false);
+          toast.error(data.message || data.error);
         }
       })
       .catch((err) => {
@@ -141,12 +172,25 @@ const Navigation = () => {
                     <LuUsers size={16} />
                     <Link to="/users-control-panel">Users Control</Link>
                   </Dropdown.Item>
+                  <Dropdown.Item>
+                    <LuTag size={16} />
+                    <Link to="/tags-control-panel">Tags Control</Link>
+                  </Dropdown.Item>
                 </>
               )}
               <hr />
-              <Dropdown.Item onClick={() => setChangePasswordDrawer(true)}>
+              <Dropdown.Item
+                onClick={() => setCurrentDrawer("change-password")}
+              >
                 <LuKey size={16} />
                 <p>Change Password</p>
+              </Dropdown.Item>
+              <Dropdown.Item
+                onClick={() => setCurrentDrawer("delete-account")}
+                destructive
+              >
+                <LuDelete size={16} />
+                <p>Delete Account</p>
               </Dropdown.Item>
               <Dropdown.Item
                 onClick={() => {
@@ -165,7 +209,7 @@ const Navigation = () => {
         </div>
       </div>
       <Drawer
-        isOpen={changePasswordDrawer}
+        isOpen={currentDrawer === "change-password"}
         onClose={() => {
           setPasswords({
             currentPassword: "",
@@ -177,7 +221,7 @@ const Navigation = () => {
             newPassword: "",
             confirmPassword: "",
           });
-          setChangePasswordDrawer(false);
+          setCurrentDrawer(null);
         }}
         title="Change Password"
       >
@@ -225,6 +269,36 @@ const Navigation = () => {
           >
             Change Password
           </Button>
+        </form>
+      </Drawer>
+      <Drawer
+        isOpen={currentDrawer === "delete-account"}
+        onClose={() => setCurrentDrawer(null)}
+        title="Delete Account"
+      >
+        <p>
+          Are you sure you want to delete your account? This is a permenant
+          action and cannot be undone.
+        </p>
+        <form>
+          <Input
+            type="text"
+            value={deleteAccountConfirmation}
+            onChange={(e) => setDeleteAccountConfirmation(e.target.value)}
+            style={{ marginBottom: "1rem" }}
+            label="Enter your username to confirm"
+            placeholder={`@${user?.username}`}
+          />
+          <Button.Destructive
+            type="button"
+            onClick={handleDeleteAccount}
+            disabled={
+              isDeleteLoading ||
+              deleteAccountConfirmation !== `@${user?.username}`
+            }
+          >
+            Delete Account
+          </Button.Destructive>
         </form>
       </Drawer>
     </>

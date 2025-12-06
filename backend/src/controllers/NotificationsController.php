@@ -18,7 +18,7 @@ class NotificationsController {
         $userId = $_SESSION['userId'];
         
         try {
-            $stmt = $this->db->prepare("SELECT * FROM Notifications WHERE userId = :userId ORDER BY createdAt DESC");
+            $stmt = $this->db->prepare("SELECT * FROM notifications WHERE userId = :userId ORDER BY createdAt DESC");
             $stmt->execute(['userId' => $userId]);
             $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
@@ -32,11 +32,11 @@ class NotificationsController {
     // Mark all notification as read
     public function markallread($request,$response){
         if(!isset($_SESSION['userId']))
-            return $this->error($response,'unauthorized',401);
+            return $this->error($response,'Unauthorized',401);
             
         $userId = $_SESSION['userId'];
 
-        $stmt = $this->db->prepare("UPDATE Notifications SET isMarkedRead = 1 WHERE userId = :userId");
+        $stmt = $this->db->prepare("UPDATE notifications SET isMarkedRead = 1 WHERE userId = :userId");
         $stmt->execute(['userId' => $userId]);
 
         $response->getBody()->write(json_encode(['success'=>true , 'message'=>'All notifications marked as read']));
@@ -46,7 +46,7 @@ class NotificationsController {
     // Mark a notification as read
     public function markread($request,$response){
         if(!isset($_SESSION['userId']))
-            return $this->error($response,'unauthorized',401);
+            return $this->error($response,'Unauthorized',401);
 
         $userId = $_SESSION['userId'];
         $data = $request->getParsedBody();

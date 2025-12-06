@@ -2,7 +2,6 @@
 
 namespace src\Controllers;
 
-use PDO;
 use Psr\Container\ContainerInterface;
 
 class PostController {

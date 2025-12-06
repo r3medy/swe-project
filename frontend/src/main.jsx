@@ -20,12 +20,17 @@ import {
 import "./global.css";
 
 /*
-  ? Login & Signup
-  ? Home
-  ? About
-  ? Terms & Conditions
-  ? Onboarding
-  ? Profile ( Client / Admin / Freelancer )
+  TODO: Add an Interests step in onboarding ( 3rd step )
+  TODO: Finish the Pending posts page ( Table includes: Title, Category, Status, Actions: ( Approve, Reject ) )
+  TODO: Finish the Users control panel page ( Table includes: Username, Email, Role, Actions: ( View, Edit, Delete ) )
+  TODO: removeSavedPost, savePost methods should be implemented in UserModel.php
+
+  // Login & Signup
+  // Home
+  // About
+  // Terms & Conditions
+  // Onboarding
+  // Profile ( Client / Admin / Freelancer )
   * Chat ( needs fixing )
   * Users control panel ( Admin ) ( needs to be done )
   * Pending posts ( Admin ) ( needs fixing )
@@ -39,13 +44,6 @@ import "./global.css";
   * Tell user about the contract
   * Create job post
 */
-
-// Color Scheme
-const colorScheme = {
-  background: "#08090B", // Black
-  whites: "#EEF1F9", // White
-  accent: "#FF6B53", // Orange
-};
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

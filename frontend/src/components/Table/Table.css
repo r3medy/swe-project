@@ -1,0 +1,50 @@
+.table-container {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 80%);
+  background: color-mix(in srgb, var(--background), transparent 20%);
+  backdrop-filter: blur(4px);
+  font-family: "Geist", sans-serif;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.table thead tr {
+  background: color-mix(in srgb, var(--foreground), transparent 95%);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--foreground), transparent 80%);
+}
+
+.table th {
+  padding: 1rem;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--foreground), transparent 90%);
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--foreground), transparent 95%);
+}
+
+.table td {
+  padding: 1rem;
+  color: color-mix(in srgb, var(--foreground), transparent 20%);
+  vertical-align: middle;
+}

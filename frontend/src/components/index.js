@@ -10,3 +10,5 @@ export { default as Select } from "./Select/Select";
 export { default as SideDrawer } from "./SideDrawer/SideDrawer";
 export { default as SmallText } from "./SmallText/SmallText";
 export { default as Tooltip } from "./Tooltip/Tooltip";
+export { default as Table } from "./Table/Table";
+export { default as Status } from "./Status/Status";

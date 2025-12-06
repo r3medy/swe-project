@@ -93,3 +93,35 @@ export const handleRemoveSavedPost = (postId, setProfile, setChanges) => {
   }));
   setChanges((prev) => [...prev, { type: "remove-saved-post", postId }]);
 };
+
+export const handleChangeProfilePicture = (file, setProfile, setIsLoading) => {
+  setIsLoading(true);
+
+  // Create FormData for file upload
+  const formData = new FormData();
+  formData.append("profilePicture", file);
+
+  fetch("http://localhost:8000/profile/uploadPicture", {
+    method: "POST",
+    credentials: "include",
+    // Don't set Content-Type header - browser will set it automatically with boundary
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        toast.success("Profile picture updated successfully, refreshing page");
+        setProfile((prev) => ({ ...prev, profilePicture: data.url }));
+        window.location.reload();
+      } else {
+        toast.error(data.message || "Failed to update profile picture");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      toast.error("Something went wrong");
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+};

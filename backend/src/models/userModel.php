@@ -13,6 +13,13 @@ class userModel {
         $this->validator = new Validator();
     }
 
+    // Getting all users ( Admin )
+    public function getAllUsers() {
+        $query = $this->db->query("SELECT * FROM users");
+        $users = $query->fetchAll(PDO::FETCH_ASSOC);
+        return $users;
+    }
+
     // Getting user info by Id
     public function getUserById($userId, $public = true) {
         $user = $this->getUserFromDB("userId", $userId);
@@ -42,7 +49,6 @@ class userModel {
         return $user;
     }
 
-    // User management
     // Register a user
     public function storeUser($data) {
         $requiredFields = ['username', 'email', 'password', 'role', 'gender', 'firstName', 'lastName', 'title', 'country', 'bio'];
@@ -107,6 +113,11 @@ class userModel {
                     $stmt = $this->db->prepare("DELETE FROM savedposts WHERE userId = :userId AND postId = :postId");
                     $stmt->execute([':userId' => $this->userId, ':postId' => $postId]);
                     break;
+                case "update-profile-picture":
+                    $profilePicture = $change["profilePicture"];
+                    $stmt = $this->db->prepare("UPDATE users SET profilePicture = :profilePicture WHERE userId = :userId");
+                    $stmt->execute([':profilePicture' => $profilePicture, ':userId' => $this->userId]);
+                    break;
             }
         }
     }
@@ -164,11 +175,20 @@ class userModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Delete a user ( Admin function )
+    // Get all pending posts (Admin function)
+    public function getPendingPosts() {
+        $stmt = $this->db->query("
+            SELECT postId, clientId, jobTitle AS title, jobType, jobDescription AS description, budget, hourlyRate, status, createdAt 
+            FROM posts 
+            WHERE status = 'Pending'
+            ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Delete a user (Admin function)
     public function deleteUser($userId) {
         $user = $this->getUserById($userId);
         if(!$user) return ["status" => 404, "message" => "User not found"];
-        if($user['role'] !== "Admin") return ["status" => 401, "message" => "Unauthorized"];
         
         $stmt = $this->db->prepare("DELETE FROM users WHERE userId = :userId");
         $stmt->execute([':userId' => $userId]);

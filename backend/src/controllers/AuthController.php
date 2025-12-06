@@ -106,22 +106,7 @@ class AuthController {
     }
 
     public function logout($request, $response) {
-        $_SESSION = [];
-        session_unset();
-        session_destroy();
-
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
-        }
+        $this->deleteSession();
 
         $response->getBody()->write(json_encode(["message" => "Logout successful"]));
         return $response->withStatus(200);
@@ -145,6 +130,23 @@ class AuthController {
             "data" => $user
         ]));
         return $response->withStatus(200);
+    }
+
+    public function deleteAccount($request, $response) {
+        $userId = $_SESSION['userId'] ?? null;
+        if (!$userId) {
+            $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }
+
+        $result = $this->userModel->deleteUser($userId);
+        if ($result['status'] === 200) $this->deleteSession();
+
+        $response->getBody()->write(json_encode([
+            'status' => $result['status'],
+            'message' => $result['message']
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($result['status']);
     }
 
     public function checkUser($request, $response) {
@@ -173,6 +175,25 @@ class AuthController {
             ]
         ]));
         return $response->withStatus(200);
+    }
+
+    private function deleteSession() {
+        $_SESSION = [];
+        session_unset();
+        session_destroy();
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
     }
 }
 

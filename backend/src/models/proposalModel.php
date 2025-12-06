@@ -1,7 +1,6 @@
 <?php
 namespace src\Models;
 
-class tagModel {
-    // Constructor
+class proposalModel {
     public function __construct(private $db) {}
 }
