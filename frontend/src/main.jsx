@@ -16,13 +16,12 @@ import {
   Profile,
   Pending,
   UsersControlPanel,
+  TagsControlPanel,
 } from "@/pages";
 import "./global.css";
 
 /*
-  TODO: Finish the Pending posts page ( Table includes: Title, Category, Status, Actions: ( Approve, Reject, Edit ) )
   TODO: removeSavedPost, savePost methods should be implemented in postModel.php
-  TODO: Add Edit post information in Pending posts page
 
   // Login & Signup
   // Home
@@ -31,8 +30,9 @@ import "./global.css";
   // Onboarding
   // Profile ( Client / Admin / Freelancer )
   // Users control panel ( Admin )
-  * Pending posts ( Admin ) ( needs fixing )
-  * Chat ( needs fixing )
+  // Pending posts ( Admin )
+  // Tags control panel ( Admin )
+  * Chat
   * The wall
   * Proposals
   
@@ -67,6 +67,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="profile/:profileQuery" element={<Profile />} />
             <Route path="pending" element={<Pending />} />
             <Route path="users-control-panel" element={<UsersControlPanel />} />
+            <Route path="tags-control-panel" element={<TagsControlPanel />} />
           </Routes>
         </BrowserRouter>
       </SessionProvider>

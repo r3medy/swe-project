@@ -148,7 +148,7 @@ const ProfileCard = ({
               src={
                 profile.profilePicture
                   ? `http://localhost:8000${profile.profilePicture}`
-                  : user?.gender === "Male"
+                  : profile.gender === "Male"
                   ? profileImage1
                   : profileImage3
               }

@@ -1,5 +1,12 @@
 import "@/components/Navigation/Navigation.css";
-import { Button, Dropdown, Drawer, Input, SideDrawer } from "@/components";
+import {
+  Button,
+  Dropdown,
+  Drawer,
+  Input,
+  SideDrawer,
+  Tooltip,
+} from "@/components";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSession } from "@/contexts/SessionContext";
 import { changePasswordSchema } from "@/models/changepassword.zod";
@@ -20,9 +27,12 @@ import {
   LuAlarmClockCheck,
   LuBell,
   LuTag,
+  LuIterationCcw,
+  LuX,
+  LuCheckCheck,
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Navigation = () => {
   const { theme, toggleTheme } = useTheme();
@@ -42,6 +52,7 @@ const Navigation = () => {
   });
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
   const handleChangePassword = (e) => {
@@ -114,7 +125,59 @@ const Navigation = () => {
       });
   };
 
-  const fetchNotifications = () => {};
+  const handleReadAllNotifications = () => {
+    fetch("http://localhost:8000/notifications/markallread", {
+      method: "POST",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.success) {
+          setNotifications((prev) =>
+            prev.map((n) => ({ ...n, isMarkedRead: 1 }))
+          );
+          toast.success("All notifications marked as read");
+        }
+      })
+      .catch(() => toast.error("Failed to mark as read"));
+  };
+
+  const handleDeleteNotification = (notificationId) => {
+    fetch(`http://localhost:8000/notifications/${notificationId}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setNotifications((prev) =>
+            prev.filter((n) => n.notificationId !== notificationId)
+          );
+          toast.success("Notification deleted");
+        }
+      })
+      .catch(() => toast.error("Failed to delete"));
+  };
+
+  const fetchNotifications = () => {
+    fetch("http://localhost:8000/notifications", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setNotifications(data.notifications);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("An error occurred");
+      });
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   return (
     <>
@@ -312,9 +375,61 @@ const Navigation = () => {
       <SideDrawer
         isOpen={currentDrawer === "notifications"}
         onClose={() => setCurrentDrawer(null)}
-        title="Notifications"
+        title={`${notifications?.length || 0} Notifications`}
       >
-        <p>Notifications center</p>
+        <div className="notifications-container">
+          {notifications?.length > 0 && (
+            <div className="notifications-actions">
+              <Button.Text onClick={() => handleReadAllNotifications()}>
+                Mark all as read
+              </Button.Text>
+            </div>
+          )}
+
+          {notifications?.length === 0 ? (
+            <div className="notifications-empty">
+              <LuBell size={48} className="notifications-empty-icon" />
+              <p>No notifications yet</p>
+              <span>You're all caught up!</span>
+            </div>
+          ) : (
+            <div className="notifications-list">
+              {notifications?.map((notification) => (
+                <div
+                  key={notification.notificationId}
+                  className={`notification-card ${
+                    !notification.isMarkedRead ? "unread" : ""
+                  }`}
+                >
+                  <div className="notification-card-content">
+                    {!notification.isMarkedRead && (
+                      <span className="notification-unread-dot" />
+                    )}
+                    <div className="notification-card-text">
+                      <p className="notification-message">
+                        {notification.content}
+                      </p>
+                      <span className="notification-time">
+                        {new Date(notification.createdAt).toLocaleDateString()}
+                        {" - "}
+                        {new Date(notification.createdAt).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    className="notification-delete-btn"
+                    onClick={() =>
+                      handleDeleteNotification(notification.notificationId)
+                    }
+                    title="Delete notification"
+                  >
+                    <LuX size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </SideDrawer>
     </>
   );

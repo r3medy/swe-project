@@ -40,7 +40,10 @@ return function ($app) {
 
     // Tags routes
     $app->group('/tags', function ($group) {
-        $group->get('', [TagController::class, 'getTags']);
+        $group->get('', [TagController::class, 'getAllTags']);
+        $group->post('', [TagController::class, 'createTag']);
+        $group->put('/{tagId}', [TagController::class, 'updateTag']);
+        $group->delete('/{tagId}', [TagController::class, 'deleteTag']);
     });
 
     // Posts routes
@@ -52,10 +55,8 @@ return function ($app) {
     // Notifications routes
     $app->group('/notifications', function($group) {
         $group->get('', [NotificationsController::class, 'getAllNotifications']);
-        $group->delete('/{notificationId}', [NotificationsController::class, 'deleteNotification']);
-        $group->post('/markallread', [NotificationsController::class, 'markAllRead']);
-        $group->post('/markread/{notificationId}', [NotificationsController::class, 'markRead']);
-    });
+        $group->delete('/{notificationId}', [NotificationsController::class, 'delete']);
+        $group->post('/markallread', [NotificationsController::class, 'markAllRead']);    });
 
     // Proposals routes
     $app->group('/proposals', function($group) {

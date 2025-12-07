@@ -7,10 +7,6 @@ use Slim\Factory\AppFactory;
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/core/DatabaseConfig.php'; // Database Configuration
 
-/*
-    TODO: Implement models for users, posts, proposals
-*/
-
 // Cookies & Session
 session_set_cookie_params([
     'lifetime' => 86400 * 7, // 7 days

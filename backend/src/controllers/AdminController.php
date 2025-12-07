@@ -5,17 +5,20 @@ namespace src\Controllers;
 use Psr\Container\ContainerInterface;
 use src\Models\userModel;
 use src\Models\postModel;
+use src\Models\notificationModel;
 
 // ? Completed
 class AdminController {
     private $db;
     private $userModel;
     private $postModel;
+    private $notificationModel;
 
     public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
         $this->userModel = new userModel($this->db, $_SESSION['userId'] ?? null);
         $this->postModel = new postModel($this->db);
+        $this->notificationModel = new notificationModel($this->db); 
     }
 
     // updatePostStatus($postId, $status), editPost($postId, $changes), deletePost($postId), getPendingPosts()
@@ -46,8 +49,9 @@ class AdminController {
         $status = $request->getParsedBody()['status'] ?? "Accepted";
         $postId = $args['postId'];
 
+
         $this->postModel->updatePostStatus($postId, $status);
-        
+
         $response->getBody()->write(json_encode(["status" => 200, "message" => "Post status updated"]));
         return $response->withStatus(200);
     }

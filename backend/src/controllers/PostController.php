@@ -17,11 +17,6 @@ class PostController {
         $this->userModel = new userModel($this->db, $_SESSION['userId'] ?? null);
     }
 
-    public function getAllPosts($request, $response) {
-        // TODO: Implement getAllPosts
-        return $response->withStatus(200);
-    }
-
     public function updatePost($request, $response, $args) {
         $userId = $_SESSION['userId'] ?? null;
         if (!$userId) {
