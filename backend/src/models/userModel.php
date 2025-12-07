@@ -74,6 +74,21 @@ class userModel {
             ':bio' => $data["bio"]
         ]);
 
+        $userId = $this->db->lastInsertId();
+
+        // TODO: fix using tagModel
+        foreach($data['interests'] as $interest) {
+            $tagStmt = $this->db->prepare('SELECT tagId FROM tags WHERE tagName = :tagName');
+            $tagStmt->execute([":tagName" => $interest]);
+            $tag = $tagStmt->fetch(PDO::FETCH_ASSOC);
+
+            $stmt = $this->db->prepare('INSERT INTO usertags (userId, tagId) VALUES (:userId, :tagId)');
+            $stmt->execute([
+                ':userId' => $userId,
+                ':tagId' => $tag['tagId']
+            ]);
+        }
+
         return ["status" => 201, "message" => "User created successfully"];
     }
 
@@ -172,16 +187,6 @@ class userModel {
             WHERE clientId = :userId
         ");
         $stmt->execute([':userId' => $userId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // Get all pending posts (Admin function)
-    public function getPendingPosts() {
-        $stmt = $this->db->query("
-            SELECT postId, clientId, jobTitle AS title, jobType, jobDescription AS description, budget, hourlyRate, status, createdAt 
-            FROM posts 
-            WHERE status = 'Pending'
-            ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { LuX } from "react-icons/lu";
-import "./SideDrawer.css";
+import "@/components/SideDrawer/SideDrawer.css";
 
 const SideDrawer = ({ isOpen, onClose, title, children }) => {
   const [isVisible, setIsVisible] = useState(false);

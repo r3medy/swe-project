@@ -32,7 +32,7 @@ class AdminController {
         $me = $this->userModel->getUserById($_SESSION['userId']);
         
         $this->requireAdmin($me, $response);
-        $posts = $this->userModel->getPendingPosts();
+        $posts = $this->postModel->getPendingPosts();
         
         $response->getBody()->write(json_encode($posts));
         return $response->withStatus(200);

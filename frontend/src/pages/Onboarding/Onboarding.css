@@ -63,6 +63,21 @@
   gap: 1rem;
 }
 
+.interests-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.interests-container p {
+  flex-basis: 100%;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 1024px) {
   .onboarding-content {
     flex-direction: column;

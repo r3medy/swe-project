@@ -1,12 +1,12 @@
 import "@/components/Navigation/Navigation.css";
-import { Button, Dropdown, Drawer, Input } from "@/components";
+import { Button, Dropdown, Drawer, Input, SideDrawer } from "@/components";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSession } from "@/contexts/SessionContext";
 import { changePasswordSchema } from "@/models/changepassword.zod";
 import { toast } from "react-hot-toast";
-import { LuLoaderCircle } from "react-icons/lu";
 
 import {
+  LuLoaderCircle,
   LuFlower,
   LuSunMedium,
   LuMoon,
@@ -18,6 +18,7 @@ import {
   LuKey,
   LuDelete,
   LuAlarmClockCheck,
+  LuBell,
   LuTag,
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
@@ -113,6 +114,8 @@ const Navigation = () => {
       });
   };
 
+  const fetchNotifications = () => {};
+
   return (
     <>
       <div className="navigation">
@@ -145,64 +148,69 @@ const Navigation = () => {
               </Button>
             </>
           ) : user && !isFetchingSession ? (
-            <Dropdown
-              trigger={
-                <Button.Text>
-                  Settings
-                  <LuChevronDown style={{ marginLeft: "0.5rem" }} />
-                </Button.Text>
-              }
-            >
-              <Dropdown.Item>
-                <LuUser size={16} />
-                <Link to="/profile">My Profile</Link>
-              </Dropdown.Item>
-              <Dropdown.Item>
-                <LuFileText size={16} />
-                <Link to="/terms-and-policies">Terms and Policies</Link>
-              </Dropdown.Item>
-              {user?.role === "Admin" && (
-                <>
-                  <hr className="admin-controls-separator" />
-                  <Dropdown.Item>
-                    <LuAlarmClockCheck size={16} />
-                    <Link to="/pending">Pending Posts</Link>
-                  </Dropdown.Item>
-                  <Dropdown.Item>
-                    <LuUsers size={16} />
-                    <Link to="/users-control-panel">Users Control</Link>
-                  </Dropdown.Item>
-                  <Dropdown.Item>
-                    <LuTag size={16} />
-                    <Link to="/tags-control-panel">Tags Control</Link>
-                  </Dropdown.Item>
-                </>
-              )}
-              <hr />
-              <Dropdown.Item
-                onClick={() => setCurrentDrawer("change-password")}
+            <>
+              <Button.Icon onClick={() => setCurrentDrawer("notifications")}>
+                <LuBell size={20} />
+              </Button.Icon>
+              <Dropdown
+                trigger={
+                  <Button.Text>
+                    Settings
+                    <LuChevronDown style={{ marginLeft: "0.5rem" }} />
+                  </Button.Text>
+                }
               >
-                <LuKey size={16} />
-                <p>Change Password</p>
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={() => setCurrentDrawer("delete-account")}
-                destructive
-              >
-                <LuDelete size={16} />
-                <p>Delete Account</p>
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={() => {
-                  logout();
-                  navigate("/");
-                }}
-                destructive
-              >
-                <LuLogOut size={16} />
-                <p>Logout</p>
-              </Dropdown.Item>
-            </Dropdown>
+                <Dropdown.Item>
+                  <LuUser size={16} />
+                  <Link to="/profile">My Profile</Link>
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <LuFileText size={16} />
+                  <Link to="/terms-and-policies">Terms and Policies</Link>
+                </Dropdown.Item>
+                {user?.role === "Admin" && (
+                  <>
+                    <hr className="admin-controls-separator" />
+                    <Dropdown.Item>
+                      <LuAlarmClockCheck size={16} />
+                      <Link to="/pending">Pending Posts</Link>
+                    </Dropdown.Item>
+                    <Dropdown.Item>
+                      <LuUsers size={16} />
+                      <Link to="/users-control-panel">Users Control</Link>
+                    </Dropdown.Item>
+                    <Dropdown.Item>
+                      <LuTag size={16} />
+                      <Link to="/tags-control-panel">Tags Control</Link>
+                    </Dropdown.Item>
+                  </>
+                )}
+                <hr />
+                <Dropdown.Item
+                  onClick={() => setCurrentDrawer("change-password")}
+                >
+                  <LuKey size={16} />
+                  <p>Change Password</p>
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => setCurrentDrawer("delete-account")}
+                  destructive
+                >
+                  <LuDelete size={16} />
+                  <p>Delete Account</p>
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => {
+                    logout();
+                    navigate("/");
+                  }}
+                  destructive
+                >
+                  <LuLogOut size={16} />
+                  <p>Logout</p>
+                </Dropdown.Item>
+              </Dropdown>
+            </>
           ) : (
             <LuLoaderCircle size={20} className="spin" />
           )}
@@ -301,6 +309,13 @@ const Navigation = () => {
           </Button.Destructive>
         </form>
       </Drawer>
+      <SideDrawer
+        isOpen={currentDrawer === "notifications"}
+        onClose={() => setCurrentDrawer(null)}
+        title="Notifications"
+      >
+        <p>Notifications center</p>
+      </SideDrawer>
     </>
   );
 };

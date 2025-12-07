@@ -20,10 +20,10 @@ import {
 import "./global.css";
 
 /*
-  TODO: Add an Interests step in onboarding ( 3rd step )
+  TODO: Add an Interests step in onboarding ( 3rd step ) IN PROGRESS
   TODO: Finish the Pending posts page ( Table includes: Title, Category, Status, Actions: ( Approve, Reject ) )
-  TODO: Finish the Users control panel page ( Table includes: Username, Email, Role, Actions: ( View, Edit, Delete ) )
   TODO: removeSavedPost, savePost methods should be implemented in UserModel.php
+  TODO: Add Edit post information in Pending posts page
 
   // Login & Signup
   // Home
@@ -31,9 +31,9 @@ import "./global.css";
   // Terms & Conditions
   // Onboarding
   // Profile ( Client / Admin / Freelancer )
-  * Chat ( needs fixing )
-  * Users control panel ( Admin ) ( needs to be done )
+  // Users control panel ( Admin )
   * Pending posts ( Admin ) ( needs fixing )
+  * Chat ( needs fixing )
   * The wall
   * Proposals
   

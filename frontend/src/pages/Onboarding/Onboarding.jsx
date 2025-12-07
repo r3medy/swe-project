@@ -10,7 +10,43 @@ import { Button, Input, SmallText, Select } from "@/components";
 
 import illustration1 from "@/assets/illustrations/designer-desk.svg";
 import illustration2 from "@/assets/illustrations/designer-working.svg";
-import illustration3 from "@/assets/illustrations/virtual-reality.svg";
+import illustration3 from "@/assets/illustrations/being-creative.svg";
+import illustration4 from "@/assets/illustrations/virtual-reality.svg";
+
+const interestsList = [
+  [
+    "Coding & Development",
+    [
+      "Web Development",
+      "Game Development",
+      "Mobile Development",
+      "Android Development",
+      "iOS Development",
+    ],
+  ],
+  [
+    "Design & Art",
+    [
+      "UI/UX Design",
+      "Graphic Design",
+      "Motion Graphics",
+      "Video Editing",
+      "Product Design",
+    ],
+  ],
+  [
+    "Business & Marketing",
+    [
+      "SEO",
+      "Email Marketing",
+      "Advertising",
+      "Entrepreneurship",
+      "Human Resources",
+      "Finance",
+      "Sales",
+    ],
+  ],
+];
 
 const OnboardingStep = ({
   illustration,
@@ -21,6 +57,7 @@ const OnboardingStep = ({
   handleBackStep,
   handleNextStep,
   isLoading,
+  interests,
 }) => {
   return (
     <div className="onboarding">
@@ -32,10 +69,14 @@ const OnboardingStep = ({
           <LuArrowLeft />
         </Button.Icon>
         <p>
-          Step <strong>{currentStep}</strong> of <strong>3</strong>
+          Step <strong>{currentStep}</strong> of <strong>4</strong>
         </p>
         <Button.Icon
-          disabled={isLoading || currentStep === 3}
+          disabled={
+            isLoading ||
+            currentStep === 4 ||
+            (currentStep === 3 && interests.length == 0)
+          }
           onClick={handleNextStep}
         >
           <LuArrowRight />
@@ -85,6 +126,7 @@ const Onboarding = () => {
     title: "",
     bio: "",
   });
+  const [interests, setInterests] = useState([]);
 
   useEffect(() => {
     if (!location?.state) navigate("/");
@@ -120,6 +162,7 @@ const Onboarding = () => {
     const userInfo = {
       ...location.state,
       ...userDetails,
+      interests,
     };
 
     toast.promise(fetchRegister(userInfo), {
@@ -148,9 +191,11 @@ const Onboarding = () => {
 
   const handleNextStep = (e) => {
     e.preventDefault();
-    const validation = Validations[currentStep - 1].safeParse(userDetails);
-    if (!validation.success) {
-      setFormErrors(validation.error.flatten().fieldErrors);
+    if (currentStep <= 2) {
+      const validation = Validations[currentStep - 1].safeParse(userDetails);
+      if (!validation.success) {
+        setFormErrors(validation.error.flatten().fieldErrors);
+      } else setCurrentStep((prev) => prev + 1);
     } else setCurrentStep((prev) => prev + 1);
   };
 
@@ -248,6 +293,38 @@ const Onboarding = () => {
     </form>
   );
   const ThirdStepForm = (
+    <>
+      {interestsList.map((interest) => {
+        return (
+          <div className="interests-container" key={interest[0]}>
+            <p>{interest[0]}</p>
+            {interest[1].map((subInterest) => {
+              return (
+                <SmallText.ClickableBadge
+                  key={subInterest}
+                  text={subInterest}
+                  isClicked={interests.includes(subInterest)}
+                  onClick={() => {
+                    interests.includes(subInterest)
+                      ? setInterests(
+                          interests.filter(
+                            (interest) => interest !== subInterest
+                          )
+                        )
+                      : setInterests([...interests, subInterest]);
+                  }}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
+      <Button onClick={handleNextStep} disabled={isLoading}>
+        Next Step
+      </Button>
+    </>
+  );
+  const FourthStepForm = (
     <form>
       <Button onClick={handleSubmission} disabled={isLoading}>
         Rumble!
@@ -255,7 +332,7 @@ const Onboarding = () => {
     </form>
   );
 
-  const Forms = [FirstStepForm, SecondStepForm, ThirdStepForm];
+  const Forms = [FirstStepForm, SecondStepForm, ThirdStepForm, FourthStepForm];
   const Validations = [firstStepSchema, secondStepSchema];
   return (
     <OnboardingStep
@@ -264,13 +341,17 @@ const Onboarding = () => {
           ? illustration1
           : currentStep === 2
           ? illustration2
-          : illustration3
+          : currentStep === 3
+          ? illustration3
+          : illustration4
       }
       title={
         currentStep === 1
           ? "Who are you?"
           : currentStep === 2
           ? "What do you do?"
+          : currentStep === 3
+          ? "What are your interests?"
           : "Get ready to rumble!"
       }
       subtitle={
@@ -278,6 +359,8 @@ const Onboarding = () => {
           ? "Tell us a little bit about yourself"
           : currentStep === 2
           ? "Tell us what you do"
+          : currentStep === 3
+          ? "Tell us what you like, select at least 1 interests"
           : "Let's get going!"
       }
       form={Forms[currentStep - 1]}
@@ -285,6 +368,7 @@ const Onboarding = () => {
       handleNextStep={handleNextStep}
       handleBackStep={handleBackStep}
       isLoading={isLoading}
+      interests={interests}
     />
   );
 };

@@ -6,7 +6,8 @@
 }
 
 .badge,
-.destructive-badge {
+.destructive-badge,
+.clickable-badge {
   background-color: color-mix(in srgb, var(--foreground), transparent 95%);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
@@ -22,6 +23,13 @@
   background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
   border-color: rgba(239, 68, 68, 0.2);
+  cursor: pointer;
+  opacity: 1;
+}
+
+.clickable-badge:hover {
+  background-color: color-mix(in srgb, var(--foreground), transparent 90%);
+  border-color: color-mix(in srgb, var(--foreground), transparent 80%);
   cursor: pointer;
   opacity: 1;
 }

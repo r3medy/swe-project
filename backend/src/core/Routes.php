@@ -72,5 +72,7 @@ return function ($app) {
         $group->get('/users', [AdminController::class, 'getAllUsers']);
         $group->put('/users/{userId}', [AdminController::class, 'updateUser']);
         $group->delete('/users/{userId}', [AdminController::class, 'deleteUser']);
+        $group->get('/posts', [AdminController::class, 'getPendingPosts']);
+        $group->put('/posts/{postId}', [AdminController::class, 'updatePostStatus']);
     });
 };

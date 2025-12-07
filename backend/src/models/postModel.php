@@ -8,7 +8,7 @@ class postModel {
     public function __construct(private $db) {}
 
     public function getPendingPosts() {
-        $query = $this->db->query("SELECT posts.*, users.firstName, users.lastName, users.profilePicture FROM posts JOIN users ON posts.clientId = users.userId WHERE users.role = \"Client\" AND posts.status = \"Pending\"");
+        $query = $this->db->query("SELECT posts.*, users.firstName, users.lastName, users.profilePicture, users.username FROM posts JOIN users ON posts.clientId = users.userId WHERE users.role = 'Client' AND posts.status = 'Pending'");
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
