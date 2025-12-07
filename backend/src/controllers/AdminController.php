@@ -6,6 +6,7 @@ use Psr\Container\ContainerInterface;
 use src\Models\userModel;
 use src\Models\postModel;
 
+// ? Completed
 class AdminController {
     private $db;
     private $userModel;

@@ -71,7 +71,7 @@ class AuthController {
         $response->getBody()->write(json_encode([
             "message" => "Login successful",
             "user" => [
-                "id" => $user['userId'],
+                "userId" => $user['userId'],
                 "username" => $user['username'],
                 "role" => $user['role']
             ]

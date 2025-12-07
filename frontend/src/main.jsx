@@ -20,9 +20,8 @@ import {
 import "./global.css";
 
 /*
-  TODO: Add an Interests step in onboarding ( 3rd step ) IN PROGRESS
-  TODO: Finish the Pending posts page ( Table includes: Title, Category, Status, Actions: ( Approve, Reject ) )
-  TODO: removeSavedPost, savePost methods should be implemented in UserModel.php
+  TODO: Finish the Pending posts page ( Table includes: Title, Category, Status, Actions: ( Approve, Reject, Edit ) )
+  TODO: removeSavedPost, savePost methods should be implemented in postModel.php
   TODO: Add Edit post information in Pending posts page
 
   // Login & Signup

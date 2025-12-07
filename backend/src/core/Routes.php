@@ -46,6 +46,7 @@ return function ($app) {
     // Posts routes
     $app->group('/posts', function ($group) {
         $group->get('', [PostController::class, 'getAllPosts']);
+        $group->put('/{postId}', [PostController::class, 'updatePost']);
     });
 
     // Notifications routes

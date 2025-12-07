@@ -45,3 +45,18 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+.edit-post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-post-form .form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.edit-post-form .form-row > * {
+  flex: 1;
+}
