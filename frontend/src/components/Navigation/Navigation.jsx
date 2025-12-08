@@ -1,12 +1,5 @@
 import "@/components/Navigation/Navigation.css";
-import {
-  Button,
-  Dropdown,
-  Drawer,
-  Input,
-  SideDrawer,
-  Tooltip,
-} from "@/components";
+import { Button, Dropdown, Drawer, Input, SideDrawer } from "@/components";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSession } from "@/contexts/SessionContext";
 import { changePasswordSchema } from "@/models/changepassword.zod";
@@ -23,13 +16,11 @@ import {
   LuLogOut,
   LuFileText,
   LuKey,
-  LuDelete,
+  LuTrash,
   LuAlarmClockCheck,
   LuBell,
   LuTag,
-  LuIterationCcw,
   LuX,
-  LuCheckCheck,
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
@@ -184,7 +175,7 @@ const Navigation = () => {
       <div className="navigation">
         <div className="navigation-links">
           <Link to="/about">About</Link>
-          <Link to="#">The Wall</Link>
+          <Link to="/wall">The Wall</Link>
         </div>
         <div className="navigation-logo">
           <Link to="/">
@@ -259,7 +250,7 @@ const Navigation = () => {
                   onClick={() => setCurrentDrawer("delete-account")}
                   destructive
                 >
-                  <LuDelete size={16} />
+                  <LuTrash size={16} />
                   <p>Delete Account</p>
                 </Dropdown.Item>
                 <Dropdown.Item

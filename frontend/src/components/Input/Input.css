@@ -4,6 +4,23 @@
   gap: 0.5rem;
 }
 
+.input:has(input[type="radio"]) {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input:has(input[type="radio"]) .input-wrapper {
+  width: auto;
+}
+
+.input:has(input[type="radio"]) input[type="radio"] {
+  width: auto;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 .input-wrapper {
   position: relative;
   width: 100%;

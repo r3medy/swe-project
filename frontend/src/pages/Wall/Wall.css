@@ -1,0 +1,198 @@
+.wall-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  padding: 1rem;
+  padding-top: 8rem;
+  font-family: "Geist", sans-serif;
+  align-items: center;
+}
+
+.wall-search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.wall-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 600px;
+  padding-bottom: 2rem;
+}
+
+.wall-post {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background-color: var(--background);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, var(--background));
+  border-radius: 12px;
+  width: 100%;
+}
+
+.wall-post-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 0.5rem;
+}
+
+.header-info-user-details {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-info-user-details img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.header-info-user-details > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.header-info-user-details h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.header-info-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-info-column h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.wall-post-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.wall-post-body h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.wall-post-body p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.wall-post-body img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  object-fit: cover;
+  max-height: 400px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.wall-post-tags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid
+    color-mix(in srgb, var(--foreground) 10%, var(--background));
+  margin: 0;
+}
+
+.wall-post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  gap: 1rem;
+}
+
+.wall-post-actions button {
+  flex: 1;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.wall-post-actions button:hover {
+  background-color: color-mix(in srgb, var(--foreground) 5%, var(--background));
+}
+
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.filter-order-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.filter-section-tags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

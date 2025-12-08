@@ -46,6 +46,7 @@ hr {
   width: 75%;
   border: 1px solid var(--foreground);
   opacity: 0.1;
+  margin: 1rem auto;
 }
 
 hr .vertical {

@@ -21,6 +21,7 @@
   pointer-events: none;
   width: max-content;
   max-width: 250px;
+  font-family: "Geist", sans-serif;
 }
 
 .tooltip-container:hover .tooltip-text {

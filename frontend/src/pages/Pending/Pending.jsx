@@ -162,7 +162,9 @@ function Pending() {
                 post.jobDescription,
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <span>
-                    {post.budget ? `$${post.budget}` : `$${post.hourlyRate}/hr`}
+                    {!!post.hourlyRate
+                      ? `$${post.hourlyRate}/hr`
+                      : `$${post.budget}`}
                   </span>
                   <SmallText text={post.jobType} />
                 </div>,

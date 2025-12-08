@@ -6,21 +6,19 @@ CREATE TABLE users (
   -- User Details
   firstName VARCHAR(100) NOT NULL, 
   lastName 	VARCHAR(100) NOT NULL, 
-  email 	  VARCHAR(100) NOT NULL UNIQUE, 
+  email 	VARCHAR(100) NOT NULL UNIQUE, 
   username	VARCHAR(100) NOT NULL UNIQUE,
   -- User specifics
   title   VARCHAR(100), 
   country VARCHAR(100), 
   bio     TEXT, 
-  website VARCHAR(255),
   gender  ENUM('Male', 'Female') NOT NULL,
   profilePicture VARCHAR(255),
   -- Security specifics
   hashedPassword CHAR(100) NOT NULL, 
-  SSN            VARCHAR(20) UNIQUE, 
   createdAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   -- Constraints
-  PRIMARY KEY (userId)
+  PRIMARY KEY (userId),
 );
 ---------------------------
 CREATE TABLE posts (
@@ -31,6 +29,7 @@ CREATE TABLE posts (
   jobTitle   VARCHAR(255) NOT NULL, 
   jobType    ENUM('Fixed', 'Hourly') NOT NULL, 
   jobDescription TEXT, 
+  jobThumbnail	 VARCHAR(255),
   -- Payment
   budget     INT UNSIGNED, 
   hourlyRate INT UNSIGNED, 
@@ -40,7 +39,7 @@ CREATE TABLE posts (
   createdAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   -- Constraints
   PRIMARY KEY (postId), 
-  CONSTRAINT fk_posts_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE
+  CONSTRAINT fk_posts_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE,
 );
 ---------------------------
 CREATE TABLE savedPosts (
@@ -64,7 +63,7 @@ CREATE TABLE proposals (
   status       ENUM('Pending', 'Accepted', 'Refused'), 
   submittedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   -- Constraints
-  PRIMARY KEY (proposalId, freelancerId, postId), 
+  PRIMARY KEY (proposalId), 
   CONSTRAINT fk_proposal_user FOREIGN KEY (freelancerId) REFERENCES users(userId) ON DELETE CASCADE, 
   CONSTRAINT fk_proposal_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE
 );

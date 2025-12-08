@@ -9,6 +9,7 @@ use src\Controllers\TagController;
 use src\Controllers\PostController;
 use src\Controllers\ProposalController;
 use src\Controllers\NotificationsController;
+use src\Controllers\WallController;
 
 return function ($app) {
     // Default route
@@ -76,5 +77,10 @@ return function ($app) {
         $group->delete('/users/{userId}', [AdminController::class, 'deleteUser']);
         $group->get('/posts', [AdminController::class, 'getPendingPosts']);
         $group->put('/posts/{postId}', [AdminController::class, 'updatePostStatus']);
+    });
+
+    // Wall routes
+    $app->group('/wall', function ($group) {
+        $group->get('', [WallController::class, 'getWallPosts']);
     });
 };

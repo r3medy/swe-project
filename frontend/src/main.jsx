@@ -17,11 +17,13 @@ import {
   Pending,
   UsersControlPanel,
   TagsControlPanel,
+  Wall,
 } from "@/pages";
 import "./global.css";
 
 /*
   TODO: removeSavedPost, savePost methods should be implemented in postModel.php
+  TODO: Add ability to create an account as an admin
 
   // Login & Signup
   // Home
@@ -37,9 +39,8 @@ import "./global.css";
   * Proposals
   
   -- Side drawer
-  * Notifications
+  // Notifications
   -- Modals
-  * Job information
   * Tell user about the contract
   * Create job post
 */
@@ -68,6 +69,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="pending" element={<Pending />} />
             <Route path="users-control-panel" element={<UsersControlPanel />} />
             <Route path="tags-control-panel" element={<TagsControlPanel />} />
+            <Route path="wall" element={<Wall />} />
           </Routes>
         </BrowserRouter>
       </SessionProvider>
