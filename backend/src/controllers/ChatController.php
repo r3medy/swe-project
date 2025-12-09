@@ -14,57 +14,35 @@ class ChatController {
         $this->chatModel = new chatModel($this->db);
     }
 
+    public function getUserChats($request, $response) {
+        if(!isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
+        
+        $chats = $this->chatModel->getFullChats($_SESSION['userId']);
+        $response->getBody()->write(json_encode($chats));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+    }
+
+    public function sendMessage($request, $response, $args) {
+        if(!isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
+        
+        $chatId = $args['chatId'] ?? null;
+        if(!$chatId) return $this->error($response, 'Chat ID is required', 400);
+        
+        $participants = $this->chatModel->getChatParticipants($chatId);
+        if(!$participants) return $this->error($response, 'Chat not found', 404);
+        if($participants['clientId'] != $_SESSION['userId'] && $participants['freelancerId'] != $_SESSION['userId']) return $this->error($response, 'Unauthorized', 401);
+
+        $message = $request->getParsedBody()['messageContent'] ?? null;
+        if(!$message) return $this->error($response, 'Message is required', 400);
+        
+        $this->chatModel->sendMessage($chatId, $_SESSION['userId'], $message);
+        $response->getBody()->write(json_encode(['status' => 200, 'message' => 'Message sent successfully']));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+    }
+
     private function error($response, $message, $status) {
         $response->getBody()->write(json_encode(['error' => $message]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 
-    // GET /chat/{postId} - Get all messages for a chat
-    public function getChatMessages($request, $response, $args) {
-        if (!isset($_SESSION['userId'])) {
-            return $this->error($response, 'Unauthorized', 401);
-        }
-
-        $postId = $args['postId'] ?? null;
-        if (!$postId) {
-            return $this->error($response, 'Post ID required', 400);
-        }
-
-        $messages = $this->chatModel->getChats($postId);
-        
-        $response->getBody()->write(json_encode([
-            'success' => true,
-            'messages' => $messages
-        ]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
-    }
-
-    // POST /chat/{postId} - Send a message
-    public function sendMessage($request, $response, $args) {
-        if (!isset($_SESSION['userId'])) {
-            return $this->error($response, 'Unauthorized', 401);
-        }
-
-        $postId = $args['postId'] ?? null;
-        if (!$postId) {
-            return $this->error($response, 'Post ID required', 400);
-        }
-
-        $body = json_decode($request->getBody()->getContents(), true);
-        $content = $body['content'] ?? null;
-
-        if (!$content || trim($content) === '') {
-            return $this->error($response, 'Message content required', 400);
-        }
-
-        $result = $this->chatModel->sendMessage($postId, $content, $_SESSION['userId']);
-
-        if (isset($result['error'])) {
-            return $this->error($response, $result['error'], $result['status'] ?? 400);
-        }
-
-        $response->getBody()->write(json_encode($result));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
-    }
 }
-

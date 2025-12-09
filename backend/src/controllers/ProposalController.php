@@ -7,6 +7,7 @@ use src\Models\userModel;
 use src\Models\postModel;
 use src\Models\proposalModel;
 use src\Models\notificationModel;
+use src\Models\chatModel;
 use Psr\Container\ContainerInterface;
 
 class ProposalController {
@@ -15,6 +16,7 @@ class ProposalController {
     private $postModel;
     private $proposalModel;
     private $notificationModel;
+    private $chatModel;
 
     public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
@@ -22,6 +24,7 @@ class ProposalController {
         $this->postModel = new postModel($this->db);
         $this->proposalModel = new proposalModel($this->db);
         $this->notificationModel = new notificationModel($this->db);
+        $this->chatModel = new chatModel($this->db);
     }
 
     // creat proposal br freelancer
@@ -199,6 +202,12 @@ class ProposalController {
         if ($status === 'Accepted') {
             $updatePostAcceptance = $this->db->prepare("UPDATE posts SET isJobAccepted = 1 WHERE postId = :postId");
             $updatePostAcceptance->execute([':postId' => $postId]);
+
+            $proposalStmt = $this->db->prepare("SELECT freelancerId FROM proposals WHERE proposalId = :proposalId");
+            $proposalStmt->execute([':proposalId' => $proposalId]);
+            $freelancerId = $proposalStmt->fetchColumn();
+
+            $this->chatModel->newChat($postId, $freelancerId, $clientId);
         }
 
         if ($stmt->rowCount() === 0) return $this->error($response, 'Proposal not found', 404);

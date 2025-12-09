@@ -68,22 +68,45 @@ CREATE TABLE proposals (
   CONSTRAINT fk_proposal_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE
 );
 ---------------------------
-CREATE TABLE chatLogs (
+CREATE TABLE chats (
   -- IDs
+  chatId       INT UNSIGNED AUTO_INCREMENT NOT NULL,
   postId       INT UNSIGNED NOT NULL,
-  messageId    INT UNSIGNED AUTO_INCREMENT NOT NULL,
-  freelancerId INT UNSIGNED NOT NULL, 
-  clientId     INT UNSIGNED NOT NULL, 
-  -- Message Info
-  sender       ENUM('Freelancer', 'Client'), 
-  content      TEXT NOT NULL, 
-  sentAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+  freelancerId INT UNSIGNED NOT NULL,
+  clientId     INT UNSIGNED NOT NULL,
+  -- Date
+  createdAt    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
   -- Constraints
-  PRIMARY KEY (messageId), 
-  CONSTRAINT fk_chat_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE, 
-  CONSTRAINT fk_chat_freelancer FOREIGN KEY (freelancerId) REFERENCES users(userId) ON DELETE CASCADE, 
-  CONSTRAINT fk_chat_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE
+  PRIMARY KEY (chatId),
+  CONSTRAINT fk_chats_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE,
+  CONSTRAINT fk_chats_freelancer FOREIGN KEY (freelancerId) REFERENCES users(userId) ON DELETE CASCADE,
+  CONSTRAINT fk_chats_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE
 );
+-- Indexes
+CREATE INDEX idx_chats_client ON chats (clientId);
+CREATE INDEX idx_chats_freelancer ON chats (freelancerId);
+CREATE INDEX idx_chats_post ON chats (postId);
+---------------------------
+CREATE TABLE messages (
+  -- IDs
+  messageId      INT UNSIGNED AUTO_INCREMENT NOT NULL,
+  chatId         INT UNSIGNED NOT NULL,
+  senderId       INT UNSIGNED NOT NULL,
+  -- Message Info
+  messageContent TEXT NOT NULL,
+  -- Date
+  sentAt         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- Constraints
+  PRIMARY KEY (messageId),
+  CONSTRAINT fk_messages_chat FOREIGN KEY (chatId) REFERENCES chats(chatId) ON DELETE CASCADE,
+  CONSTRAINT fk_messages_sender FOREIGN KEY (senderId) REFERENCES users(userId) ON DELETE CASCADE
+);
+-- Indexes
+CREATE INDEX idx_messages_chat ON messages (chatId);
+CREATE INDEX idx_messages_sender ON messages (senderId);
+CREATE INDEX idx_messages_sentAt ON messages (sentAt);
 ---------------------------
 CREATE TABLE tags (
   -- IDs

@@ -200,7 +200,6 @@
   color: color-mix(in srgb, var(--foreground), transparent 40%);
 }
 
-/* Loading and Empty States */
 .loading,
 .no-messages {
   display: flex;

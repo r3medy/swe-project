@@ -86,8 +86,8 @@ return function ($app) {
     });
 
     // Chat routes
-    $app->group('/chat', function ($group) {
-        $group->get('/{postId}', [ChatController::class, 'getChatMessages']);
-        $group->post('/{postId}', [ChatController::class, 'sendMessage']);
+    $app->group('/chats', function ($group) {
+        $group->get('', [ChatController::class, 'getUserChats']);
+        $group->post('/{chatId}', [ChatController::class, 'sendMessage']);
     });
 };

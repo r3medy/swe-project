@@ -72,6 +72,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="tags-control-panel" element={<TagsControlPanel />} />
             <Route path="wall" element={<Wall />} />
             <Route path="newpost" element={<NewPost />} />
+            <Route path="chat" element={<Chat />} />
             <Route path="chat/:postId" element={<Chat />} />
             <Route path="proposals" element={<Proposals />} />
           </Routes>

@@ -77,8 +77,8 @@ function Proposals() {
       );
       const data = await response.json();
       if (data.success) {
-        toast.success(`${data.message}, You will be redirected to the chats`);
-        navigate(`/chats/${postId}`);
+        toast.success(`${data.message}, You will be redirected to the chat`);
+        navigate(`/chat`);
       } else throw new Error(data.message);
     } catch (error) {
       toast.error(error.message);
