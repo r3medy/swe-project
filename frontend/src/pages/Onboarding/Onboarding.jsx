@@ -175,8 +175,8 @@ const Onboarding = () => {
           usernameoremail: location.state.username,
           password: location.state.password,
         });
-        setTimeout(() => navigate("/"), 3000);
-        return "Registered successfully\nyou will be redirected to the home page in 3 seconds";
+        navigate("/");
+        return "Registered successfully\nyou will be redirected to the home page ";
       },
       error: (err) => {
         return err.message;
@@ -193,10 +193,10 @@ const Onboarding = () => {
     e.preventDefault();
     if (currentStep <= 2) {
       const validation = Validations[currentStep - 1].safeParse(userDetails);
-      if (!validation.success) {
-        setFormErrors(validation.error.flatten().fieldErrors);
-      } else setCurrentStep((prev) => prev + 1);
-    } else setCurrentStep((prev) => prev + 1);
+      if (!validation.success)
+        return setFormErrors(validation.error.flatten().fieldErrors);
+    }
+    setCurrentStep((prev) => prev + 1);
   };
 
   const FirstStepForm = (

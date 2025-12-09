@@ -21,6 +21,8 @@ import {
   LuBell,
   LuTag,
   LuX,
+  LuScroll,
+  LuMessageSquareMore,
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
@@ -219,12 +221,22 @@ const Navigation = () => {
                   <Link to="/profile">My Profile</Link>
                 </Dropdown.Item>
                 <Dropdown.Item>
+                  <LuMessageSquareMore size={16} />
+                  <Link to="/chat">My Chats</Link>
+                </Dropdown.Item>
+                {user?.role != "Freelancer" && (
+                  <Dropdown.Item>
+                    <LuScroll size={16} />
+                    <Link to="/proposals">My Proposals</Link>
+                  </Dropdown.Item>
+                )}
+                <Dropdown.Item>
                   <LuFileText size={16} />
                   <Link to="/terms-and-policies">Terms and Policies</Link>
                 </Dropdown.Item>
                 {user?.role === "Admin" && (
                   <>
-                    <hr className="admin-controls-separator" />
+                    <hr />
                     <Dropdown.Item>
                       <LuAlarmClockCheck size={16} />
                       <Link to="/pending">Pending Posts</Link>

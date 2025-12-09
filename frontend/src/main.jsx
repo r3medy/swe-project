@@ -18,11 +18,13 @@ import {
   UsersControlPanel,
   TagsControlPanel,
   Wall,
+  NewPost,
+  Chat,
+  Proposals,
 } from "@/pages";
 import "./global.css";
 
 /*
-  TODO: removeSavedPost, savePost methods should be implemented in postModel.php
   TODO: Add ability to create an account as an admin
 
   // Login & Signup
@@ -34,15 +36,14 @@ import "./global.css";
   // Users control panel ( Admin )
   // Pending posts ( Admin )
   // Tags control panel ( Admin )
+  // The wall
+  // Proposals
   * Chat
-  * The wall
-  * Proposals
   
   -- Side drawer
   // Notifications
   -- Modals
-  * Tell user about the contract
-  * Create job post
+  // Create job post
 */
 
 createRoot(document.getElementById("root")).render(
@@ -70,6 +71,9 @@ createRoot(document.getElementById("root")).render(
             <Route path="users-control-panel" element={<UsersControlPanel />} />
             <Route path="tags-control-panel" element={<TagsControlPanel />} />
             <Route path="wall" element={<Wall />} />
+            <Route path="newpost" element={<NewPost />} />
+            <Route path="chat/:postId" element={<Chat />} />
+            <Route path="proposals" element={<Proposals />} />
           </Routes>
         </BrowserRouter>
       </SessionProvider>

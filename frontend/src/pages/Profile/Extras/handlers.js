@@ -125,3 +125,11 @@ export const handleChangeProfilePicture = (file, setProfile, setIsLoading) => {
       setIsLoading(false);
     });
 };
+
+export const handleDeletePost = (postId, setProfile, setChanges) => {
+  setProfile((prev) => ({
+    ...prev,
+    clientPosts: prev.clientPosts.filter((post) => post.postId !== postId),
+  }));
+  setChanges((prev) => [...prev, { type: "delete-post", postId }]);
+};

@@ -13,8 +13,8 @@ class ProposalModel {
     // CREATE proposal
     public function createProposal($freelancerId, $postId, $description) {
         $stmt = $this->db->prepare("
-            INSERT INTO proposals (freelancerId, postId, description)
-            VALUES (:freelancerId, :postId, :description)
+            INSERT INTO proposals (freelancerId, postId, description, status)
+            VALUES (:freelancerId, :postId, :description, 'Pending')
         ");
 
         return $stmt->execute([
@@ -27,10 +27,22 @@ class ProposalModel {
     // GET proposals for post
     public function getProposalsByPost($postId) {
         $stmt = $this->db->prepare("
-            SELECT *
+            SELECT 
+                proposals.proposalId,
+                proposals.freelancerId,
+                proposals.postId,
+                proposals.description,
+                proposals.status,
+                proposals.submittedAt,
+                users.firstName,
+                users.lastName,
+                users.profilePicture,
+                users.username,
+                users.gender
             FROM proposals
-            WHERE postId = :postId
-            ORDER BY submittedAt DESC
+            JOIN users ON proposals.freelancerId = users.userId
+            WHERE proposals.postId = :postId
+            ORDER BY proposals.submittedAt DESC
         ");
 
         $stmt->execute([':postId' => $postId]);
@@ -38,7 +50,6 @@ class ProposalModel {
     }
 
     // GET proposal by ID
-    // TODO: ????
     public function getProposalsById($proposalId) {
         $stmt = $this->db->prepare("
             SELECT 

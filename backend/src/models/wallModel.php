@@ -22,7 +22,7 @@ class WallModel
                   LEFT JOIN posttags pt ON p.postId = pt.postId
                   LEFT JOIN tags t ON pt.tagId = t.tagId
                   LEFT JOIN users u ON p.clientId = u.userId 
-                  WHERE p.status = 'Accepted'";
+                  WHERE p.status = 'Accepted' AND p.isJobAccepted = 0";
         $params = [];
 
         // Filter by tags
@@ -40,6 +40,14 @@ class WallModel
                            SELECT userId FROM users WHERE CONCAT(firstName,' ',lastName) LIKE ?
                        )";
             $params[] = "%" . $filters['clientName'] . "%";
+        }
+
+        // Filter by search term (searches job title and description)
+        if (!empty($filters['searchTerm'])) {
+            $query .= " AND (p.jobTitle LIKE ? OR p.jobDescription LIKE ?)";
+            $searchPattern = "%" . $filters['searchTerm'] . "%";
+            $params[] = $searchPattern;
+            $params[] = $searchPattern;
         }
 
         $query .= " GROUP BY p.postId";

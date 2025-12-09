@@ -1,5 +1,6 @@
 <?php
 namespace src\Models;
+use PDO;
 
 class tagModel {
     // Constructor
@@ -24,6 +25,22 @@ class tagModel {
         $stmt->execute([
             ":newName" => $newName,
             ":tagId" => $tagId
+        ]);
+    }
+
+    public function findTagByName($name) {
+        $stmt = $this->db->prepare("SELECT * FROM tags WHERE tagName = :name");
+        $stmt->execute([
+            ":name" => $name
+        ]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function addTagtoUser($userId, $tagId) {
+        $stmt = $this->db->prepare('INSERT INTO usertags (userId, tagId) VALUES (:userId, :tagId)');
+        $stmt->execute([
+            ':userId' => $userId,
+            ':tagId' => $tagId
         ]);
     }
 

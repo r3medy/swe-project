@@ -49,8 +49,9 @@ return function ($app) {
 
     // Posts routes
     $app->group('/posts', function ($group) {
-        $group->get('', [PostController::class, 'getAllPosts']);
+        $group->post('/{postId}', [PostController::class, 'saveOrRemoveSavedPost']);
         $group->put('/{postId}', [PostController::class, 'updatePost']);
+        $group->post('', [PostController::class, 'createPost']);
     });
 
     // Notifications routes
@@ -62,10 +63,10 @@ return function ($app) {
     // Proposals routes
     $app->group('/proposals', function($group) {
         $group->get('/{postId}', [ProposalController::class,'getProposals']);
+        $group->get('/proposal/{proposalId}', [ProposalController::class,'getProposalById']);
         $group->post('/{postId}', [ProposalController::class,'createProposal']);
         $group->put('/decline/{postId}/{proposalId}', [ProposalController::class,'declineProposal']);
         $group->put('/accept/{postId}/{proposalId}', [ProposalController::class,'acceptProposal']);
-        $group->get('/proposal/{proposalId}', [ProposalController::class,'getProposalById']);
         $group->put('/update/{proposalId}', [ProposalController::class,'updateProposal']);
         $group->delete('/{postId}/{proposalId}', [ProposalController::class,'deleteProposal']);
     });
@@ -82,5 +83,11 @@ return function ($app) {
     // Wall routes
     $app->group('/wall', function ($group) {
         $group->get('', [WallController::class, 'getWallPosts']);
+    });
+
+    // Chat routes
+    $app->group('/chat', function ($group) {
+        $group->get('/{postId}', [ChatController::class, 'getChatMessages']);
+        $group->post('/{postId}', [ChatController::class, 'sendMessage']);
     });
 };

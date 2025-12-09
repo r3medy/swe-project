@@ -3,60 +3,56 @@
 namespace src\Controllers;
 
 use PDO;
+use src\Models\userModel;
+use src\Models\postModel;
+use src\Models\proposalModel;
+use src\Models\notificationModel;
+use Psr\Container\ContainerInterface;
 
 class ProposalController {
     private $db;
+    private $userModel;
+    private $postModel;
+    private $proposalModel;
+    private $notificationModel;
 
-    public function __construct($container) {
+    public function __construct(ContainerInterface $container) {
         $this->db = $container->get('db');
+        $this->userModel = new userModel($this->db, $_SESSION['userId'] ?? null);
+        $this->postModel = new postModel($this->db);
+        $this->proposalModel = new proposalModel($this->db);
+        $this->notificationModel = new notificationModel($this->db);
     }
 
     // creat proposal br freelancer
     public function createProposal($request, $response, $args) {
-        if (!isset($_SESSION['userId'])) {
-            return $this->error($response, 'Unauthorized', 401);
-        }
+        if (!isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
 
-        $stmtRole = $this->db->prepare("SELECT role FROM Users WHERE userId = :userId");
-        $stmtRole->execute([':userId' => $_SESSION['userId']]);
-        $role = $stmtRole->fetchColumn();
+        $me = $this->userModel->getUserById($_SESSION['userId']);
+        if ($me['role'] !== 'Freelancer') return $this->error($response, 'Forbidden', 403);
 
-    if ($role !== 'Freelancer') {
-    return $this->error($response, 'Forbidden: Only freelancers can submit proposals', 403);
-}
         $freelancerId = $_SESSION['userId'];
         $postId = $args['postId'] ?? null;
         $data = $request->getParsedBody(); // expected=> ['description']
 
-        if (!$postId || empty($data['description'])) {
-            return $this->error($response, 'Post ID and description required', 400);
-        }
+        if (!$postId || empty($data['description'])) return $this->error($response, 'Post ID and description required', 400);
 
-        $stmt = $this->db->prepare("
-            INSERT INTO Proposals (freelancerId, postId, description)
-            VALUES (:freelancerId, :postId, :description)
-        ");
-        $stmt->execute([
-            ':freelancerId' => $freelancerId,
-            ':postId' => $postId,
-            ':description' => $data['description']
-        ]);
+        $this->proposalModel->createProposal($freelancerId, $postId, $data['description']);
 
+        $clientId = $this->postModel->getClientId($postId);
+        $this->notificationModel->addNotification($clientId, "New proposal received for your post");
+
+        // $this->proposalModel->createChat($freelancerId, $postId);
         $response->getBody()->write(json_encode(['success' => true, 'message' => 'Proposal submitted']));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
     }
 
     // Get all proposals for a post
     public function getProposals($request, $response, $args) {
-        if (!isset($_SESSION['userId'])) {
-            return $this->error($response, 'Unauthorized', 401);
-        }
-        $stmtRole = $this->db->prepare("SELECT role FROM Users WHERE userId = :userId");
-        $stmtRole->execute([':userId' => $_SESSION['userId']]);
-        $role = $stmtRole->fetchColumn();
+        if (!isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
 
-    if ($role !== 'Client') {
-    return $this->error($response, 'Only the post owner (Client) can view proposals', 403);}
+        $me = $this->userModel->getUserById($_SESSION['userId']);
+        if ($me['role'] !== 'Client') return $this->error($response, 'Forbidden', 403);
 
         $postId = $args['postId'] ?? null;
         if (!$postId) return $this->error($response, 'Post ID required', 400);
@@ -65,23 +61,17 @@ class ProposalController {
         $stmt->execute([':postId' => $postId]);
         $clientId = $stmt->fetchColumn();
 
-        if ($clientId != $_SESSION['userId']) {
-            return $this->error($response, 'Forbidden: Not the post owner', 403);
-        }
-
-        $stmt = $this->db->prepare("SELECT * FROM Proposals WHERE postId = :postId ORDER BY submittedAt DESC");
-        $stmt->execute([':postId' => $postId]);
-        $proposals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($clientId != $_SESSION['userId']) return $this->error($response, 'Forbidden', 403);
+        
+        $proposals = $this->proposalModel->getProposalsByPost($postId);
 
         $response->getBody()->write(json_encode(['proposals' => $proposals]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
-    // Decline a proposal
     public function declineProposal($request, $response, $args) {
         return $this->changeProposalStatus($request, $response, $args, 'Refused');
     }
 
-    // Accept a proposal
     public function acceptProposal($request, $response, $args) {
         return $this->changeProposalStatus($request, $response, $args, 'Accepted');
     }
@@ -154,9 +144,9 @@ class ProposalController {
     $postId = $args['postId'] ?? null;
     $proposalId = $args['proposalId'] ?? null;
 
-    if (!$postId || !$proposalId) {
-        return $this->error($response, 'Post ID and Proposal ID required', 400);
-    }
+    if (!$postId || !$proposalId) return $this->error($response, 'Post ID and Proposal ID required', 400);
+
+    // TODO: use the proposalModel
     // Bring post owner
     $stmt = $this->db->prepare("SELECT clientId FROM Posts WHERE postId = :postId");
     $stmt->execute([':postId' => $postId]);
@@ -166,9 +156,7 @@ class ProposalController {
     $stmt->execute([':proposalId' => $proposalId]);
     $freelancerId = $stmt->fetchColumn();
     // Checking
-    if ($userId != $clientId && $userId != $freelancerId) {
-        return $this->error($response, 'Forbidden: You cannot delete this proposal', 403);
-    }
+    if ($userId != $clientId && $userId != $freelancerId) return $this->error($response, 'Forbidden', 403);
     $stmt = $this->db->prepare("DELETE FROM Proposals WHERE proposalId = :proposalId AND postId = :postId");
     $stmt->execute([
         ':proposalId' => $proposalId,
@@ -198,16 +186,20 @@ class ProposalController {
         $stmt->execute([':postId' => $postId]);
         $clientId = $stmt->fetchColumn();
 
-        if ($clientId != $_SESSION['userId']) {
-            return $this->error($response, 'Forbidden: Not the post owner', 403);
-        }
+        if ($clientId != $_SESSION['userId']) return $this->error($response, 'Forbidden: Not the post owner', 403);
 
-        $stmt = $this->db->prepare("UPDATE Proposals SET status = :status WHERE proposalId = :proposalId AND postId = :postId");
+        // TODO: use the proposalModel
+        $stmt = $this->db->prepare("UPDATE proposals SET status = :status WHERE proposalId = :proposalId AND postId = :postId");
         $stmt->execute([
             ':status' => $status,
             ':proposalId' => $proposalId,
             ':postId' => $postId
         ]);
+
+        if ($status === 'Accepted') {
+            $updatePostAcceptance = $this->db->prepare("UPDATE posts SET isJobAccepted = 1 WHERE postId = :postId");
+            $updatePostAcceptance->execute([':postId' => $postId]);
+        }
 
         if ($stmt->rowCount() === 0) return $this->error($response, 'Proposal not found', 404);
 

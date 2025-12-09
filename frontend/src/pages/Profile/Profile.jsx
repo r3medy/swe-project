@@ -39,6 +39,7 @@ import {
   handleChangeTitle,
   handleRemoveSavedPost,
   handleChangeProfilePicture,
+  handleDeletePost,
 } from "./Extras/handlers";
 import {
   fetchProfile,
@@ -89,36 +90,55 @@ const PostCard = ({ post, setProfile, setChanges, postType }) => {
     <div className="post-card">
       <h3>
         {post.title}
-        {postType === "saved" && (
-          <Tooltip text="Remove post">
-            <Button.Icon
-              onClick={(e) =>
-                handleRemoveSavedPost(post.postId, setProfile, setChanges)
-              }
-            >
-              <LuCircleX />
-            </Button.Icon>
-          </Tooltip>
-        )}
+        <Tooltip
+          text={postType === "saved" ? "Remove from saved" : "Delete post"}
+        >
+          <Button.Icon
+            onClick={(e) =>
+              postType === "saved"
+                ? handleRemoveSavedPost(post.postId, setProfile, setChanges)
+                : handleDeletePost(post.postId, setProfile, setChanges)
+            }
+          >
+            <LuCircleX />
+          </Button.Icon>
+        </Tooltip>
       </h3>
       <SmallText text={post.description} />
+      {post.jobThumbnail && (
+        <img
+          src={`http://localhost:8000${post.jobThumbnail}`}
+          alt="Job Thumbnail"
+          loading="lazy"
+          style={{
+            maxWidth: "100%",
+            maxHeight: "200px",
+            borderRadius: "12px",
+            objectFit: "cover",
+            marginTop: "0.5rem",
+          }}
+        />
+      )}
       <div className="post-footer">
-        <Tooltip text="Budget">
-          <div className="post-metric">
-            <LuBadgeDollarSign />
-            <span>${post.budget}</span>
-          </div>
-        </Tooltip>
+        {!!post.hourlyRate ? (
+          <Tooltip text="Hourly Rate">
+            <div className="post-metric">
+              <LuTimer />
+              <span>${post.hourlyRate}/hr</span>
+            </div>
+          </Tooltip>
+        ) : (
+          <Tooltip text="Budget">
+            <div className="post-metric">
+              <LuBadgeDollarSign />
+              <span>${post.budget}</span>
+            </div>
+          </Tooltip>
+        )}
         <Tooltip text="Status">
           <div className="post-metric">
             <LuBookDashed />
             <span>{post.status}</span>
-          </div>
-        </Tooltip>
-        <Tooltip text="Hourly Rate">
-          <div className="post-metric">
-            <LuTimer />
-            <span>${post.hourlyRate}/hr</span>
           </div>
         </Tooltip>
         <Tooltip text="Posted at">
@@ -332,22 +352,16 @@ const Profile = () => {
         ]);
 
         if (!fetchedProfile) {
-          // Profile not found, just stop loading - Status.Error will show
           setIsLoading(false);
           return;
         }
 
-        if (fetchedProfile?.role === "Client") {
+        if (fetchedProfile?.role === "Client")
           await fetchPosts(profileQuery, setProfile, setBackupProfile);
-        }
-
-        // Check if viewing own profile using string comparison
-        if (user && String(fetchedProfile?.userId) === String(user?.userId)) {
+        if (user && fetchedProfile?.userId == user?.userId)
           await fetchSavedPosts(setProfile, setBackupProfile);
-        }
       } catch (e) {
-        console.error("Error loading profile:", e);
-        // Don't redirect - just show error state
+        toast.error("An error occured while loading profile");
       } finally {
         setIsLoading(false);
       }

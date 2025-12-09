@@ -20,7 +20,7 @@ import {
 } from "react-icons/lu";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import profileImage1 from "@/assets/profilepictures/1.png";
 import profileImage3 from "@/assets/profilepictures/3.png";
@@ -41,6 +41,7 @@ const DEFAULT_FILTERS = {
 
 function Wall() {
   const { user: me } = useSession();
+  const [searchParams] = useSearchParams();
   const [openDrawer, setOpenDrawer] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tags, setTags] = useState([]);
@@ -118,8 +119,41 @@ function Wall() {
     }
   };
 
-  const handleSubmitProposal = async (postId) => {};
-  const handleSavePost = async (postId) => {};
+  const handleSubmitProposal = async (e) => {
+    e.preventDefault();
+    setOpenDrawer(null);
+
+    const res = await fetch(
+      "http://localhost:8000/proposals/" + proposalInfo.postId,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ description: proposalInfo.description }),
+      }
+    );
+
+    const data = await res.json();
+    if (data.success) toast.success(data.message);
+    else toast.error(data.message);
+  };
+
+  const handleSavePost = async (postId) => {
+    try {
+      const res = await fetch("http://localhost:8000/posts/" + postId, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (data.status === 200) toast.success(data.message);
+      else throw new Error(data.message);
+    } catch (e) {
+      toast.error(e.message);
+    }
+  };
 
   const updateFilter = (key, value) => {
     setSelectedFilters((prev) => ({ ...prev, [key]: value }));
@@ -138,13 +172,18 @@ function Wall() {
     const loadData = async () => {
       try {
         setIsLoading(true);
+
+        const queryFromUrl = searchParams.get("q") || "";
+        if (queryFromUrl) {
+          setSearchTerm(queryFromUrl);
+        }
+
         const [tagsData, postsData] = await Promise.all([
           fetchTags(),
-          fetchPosts(),
+          fetchPosts(queryFromUrl, DEFAULT_FILTERS),
         ]);
         setTags(tagsData);
         setPosts(postsData);
-        console.log({ postsData });
       } catch (e) {
         console.error(e);
         toast.error("Failed to load data");
@@ -153,7 +192,7 @@ function Wall() {
       }
     };
     loadData();
-  }, []);
+  }, [searchParams]);
 
   const hasActiveFilters =
     selectedFilters.sortBy !== "None" ||
@@ -188,7 +227,7 @@ function Wall() {
             <Tooltip text="Create a new post">
               <Button.Icon>
                 <LuPlus />
-                New
+                <Link to="/newpost">New</Link>
               </Button.Icon>
             </Tooltip>
           )}
@@ -265,20 +304,26 @@ function Wall() {
                   <div className="wall-post-actions">
                     {me?.userId ? (
                       <>
-                        {me?.role !== "Client" && (
-                          <Button.Icon
-                            onClick={() => handleSubmitProposal(post.postId)}
-                          >
-                            <LuScroll />
-                            Submit Proposal
-                          </Button.Icon>
-                        )}
                         <Button.Icon
                           onClick={() => handleSavePost(post.postId)}
                         >
                           <LuBookmark />
                           Save Post
                         </Button.Icon>
+                        {me?.role !== "Client" && (
+                          <Button.Icon
+                            onClick={() => {
+                              setOpenDrawer("proposal");
+                              setProposalInfo((prev) => ({
+                                ...prev,
+                                postId: post.postId,
+                              }));
+                            }}
+                          >
+                            <LuScroll />
+                            Submit Proposal
+                          </Button.Icon>
+                        )}
                       </>
                     ) : (
                       <SmallText text="To perform any action, please ">
@@ -355,10 +400,28 @@ function Wall() {
         </div>
       </SideDrawer>
       <Drawer
+        title="Proposal Submission"
         isOpen={openDrawer === "proposal"}
         onClose={() => setOpenDrawer(null)}
       >
-        <p>HELLO</p>
+        <form>
+          <Input
+            name="proposal-description"
+            type="text"
+            placeholder="Proposal description"
+            value={proposalInfo.description}
+            onChange={(e) =>
+              setProposalInfo({ ...proposalInfo, description: e.target.value })
+            }
+            style={{ marginBottom: "1rem" }}
+          />
+          <Button
+            onClick={handleSubmitProposal}
+            disabled={!proposalInfo.description}
+          >
+            Submit proposal
+          </Button>
+        </form>
       </Drawer>
     </>
   );

@@ -18,7 +18,7 @@ CREATE TABLE users (
   hashedPassword CHAR(100) NOT NULL, 
   createdAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   -- Constraints
-  PRIMARY KEY (userId),
+  PRIMARY KEY (userId)
 );
 ---------------------------
 CREATE TABLE posts (
@@ -39,7 +39,7 @@ CREATE TABLE posts (
   createdAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   -- Constraints
   PRIMARY KEY (postId), 
-  CONSTRAINT fk_posts_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE,
+  CONSTRAINT fk_posts_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE
 );
 ---------------------------
 CREATE TABLE savedPosts (

@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import "@/pages/Home/Home.css";
 import { useSession } from "@/contexts/SessionContext";
@@ -13,6 +13,13 @@ import {
 
 const Home = () => {
   const { user } = useSession();
+  const navigate = useNavigate();
+
+  const handleSearch = (searchTerm) => {
+    if (searchTerm?.trim())
+      navigate(`/wall?q=${encodeURIComponent(searchTerm.trim())}`);
+    else navigate("/wall");
+  };
   return (
     <div className="home-page">
       <LightRays
@@ -47,7 +54,7 @@ const Home = () => {
           </span>
         </h1>
         <div className="hero-search">
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} />
           {!user ? (
             <>
               <SmallText text="Do you prefer to work as a freelancer?">

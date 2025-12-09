@@ -45,8 +45,8 @@ const Login = () => {
         },
         success: () => {
           setIsLoading(false);
-          setTimeout(() => navigate("/"), 3000);
-          return "Login successful, You will be redirected in 3 seconds.";
+          navigate("/");
+          return "Login successful, You will be redirected to home";
         },
         error: (err) => {
           setIsLoading(false);

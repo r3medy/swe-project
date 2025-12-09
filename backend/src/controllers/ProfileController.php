@@ -18,7 +18,7 @@ class ProfileController {
     public function getProfile($request, $response, $args) {
         $identifier = $args['identifier'] ?? null;
 
-        // Determine user
+        // Get the user
         if (!$identifier && !isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
         $user = $this->userModel->getUser($identifier ?? $_SESSION['userId']);
 
@@ -41,11 +41,12 @@ class ProfileController {
 
     public function getClientPosts($request, $response, $args) {
         $identifier = $args['identifier'] ?? null;
-        $user = null;
 
-        // Determine user
         if (!$identifier && !isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
-        $user = $this->userModel->getUser($identifier ?? $_SESSION['userId']);
+        
+        $user = $identifier 
+            ? $this->userModel->getUser($identifier) 
+            : $this->userModel->getUserById($_SESSION['userId']);
 
         if (!$user) return $this->error($response, 'User not found', 404);
         if ($user['role'] !== 'Client') return $this->error($response, 'Forbidden: Not a client', 403);

@@ -9,3 +9,6 @@ export { default as TermsandPolicies } from "./TermsandPolicies/TermsandPolicies
 export { default as UsersControlPanel } from "./UsersControlPanel/UsersControlPanel";
 export { default as TagsControlPanel } from "./TagsControlPanel/TagsControlPanel";
 export { default as Wall } from "./Wall/Wall";
+export { default as NewPost } from "./NewPost/NewPost";
+export { default as Chat } from "./Chat/Chat";
+export { default as Proposals } from "./Proposals/Proposals";

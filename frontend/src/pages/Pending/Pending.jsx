@@ -15,7 +15,7 @@ import {
   Select,
 } from "@/components";
 import { toast } from "react-hot-toast";
-import { LuCheck, LuX, LuBrush } from "react-icons/lu";
+import { LuCheck, LuX, LuBrush, LuImage } from "react-icons/lu";
 
 import profileImage1 from "@/assets/profilepictures/1.png";
 import profileImage3 from "@/assets/profilepictures/3.png";
@@ -27,7 +27,7 @@ function Pending() {
   const [posts, setPosts] = useState([]);
   const [currentPostId, setCurrentPostId] = useState();
   const [editPost, setEditPost] = useState({});
-  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+  const [openedDrawer, setOpenedDrawer] = useState(null);
   const [isDrawerButtonDisabled, setIsDrawerButtonDisabled] = useState(false);
 
   const fetchPosts = useCallback(() => {
@@ -61,7 +61,7 @@ function Pending() {
       .then((data) => {
         if (data.status === 200) {
           toast.success("Post updated successfully");
-          setIsEditDrawerOpen(false);
+          setOpenedDrawer(null);
           fetchPosts();
         } else {
           toast.error("Failed to update post");
@@ -190,20 +190,32 @@ function Pending() {
                     <Button.Icon
                       onClick={() => {
                         setCurrentPostId(post.postId);
-                        setIsEditDrawerOpen(true);
+                        setOpenedDrawer("edit");
                       }}
                     >
                       <LuBrush size={16} />
                     </Button.Icon>
                   </Tooltip>
+                  {post.jobThumbnail && (
+                    <Tooltip text="View Image">
+                      <Button.Icon
+                        onClick={() => {
+                          setCurrentPostId(post.postId);
+                          setOpenedDrawer("view-image");
+                        }}
+                      >
+                        <LuImage size={16} />
+                      </Button.Icon>
+                    </Tooltip>
+                  )}
                 </div>,
               ])}
             />
             <Drawer
               title="Edit post"
-              isOpen={isEditDrawerOpen}
+              isOpen={openedDrawer === "edit"}
               onClose={() => {
-                setIsEditDrawerOpen(false);
+                setOpenedDrawer(null);
                 setEditPost({});
               }}
             >
@@ -287,6 +299,25 @@ function Pending() {
                   Save Changes
                 </Button>
               </form>
+            </Drawer>
+            <Drawer
+              title="View Image"
+              isOpen={openedDrawer === "view-image"}
+              onClose={() => setOpenedDrawer(null)}
+            >
+              <img
+                src={
+                  "http://localhost:8000" +
+                  posts.find((p) => p.postId === currentPostId)?.jobThumbnail
+                }
+                alt="Job Thumbnail"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "70vh",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                }}
+              />
             </Drawer>
           </>
         )}

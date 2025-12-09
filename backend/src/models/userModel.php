@@ -3,14 +3,20 @@
 namespace src\Models;
 
 use src\Core\Validator;
+use src\Models\tagModel;
+use src\Models\postModel;
 use PDO;
 
 class userModel {
     private $validator;
+    private $tagModel;
+    private $postModel;
 
     // Constructor
     public function __construct(private $db, private $userId) {
         $this->validator = new Validator();
+        $this->tagModel  = new tagModel($db);
+        $this->postModel = new postModel($db);
     }
 
     // Getting all users ( Admin )
@@ -76,17 +82,9 @@ class userModel {
 
         $userId = $this->db->lastInsertId();
 
-        // TODO: fix using tagModel
         foreach($data['interests'] as $interest) {
-            $tagStmt = $this->db->prepare('SELECT tagId FROM tags WHERE tagName = :tagName');
-            $tagStmt->execute([":tagName" => $interest]);
-            $tag = $tagStmt->fetch(PDO::FETCH_ASSOC);
-
-            $stmt = $this->db->prepare('INSERT INTO usertags (userId, tagId) VALUES (:userId, :tagId)');
-            $stmt->execute([
-                ':userId' => $userId,
-                ':tagId' => $tag['tagId']
-            ]);
+            $tag = $this->tagModel->findTagByName($interest);
+            $this->tagModel->addTagtoUser($userId, $tag['tagId']);
         }
 
         return ["status" => 201, "message" => "User created successfully"];
@@ -125,8 +123,11 @@ class userModel {
                     break;
                 case "remove-saved-post":
                     $postId = $change["postId"];
-                    $stmt = $this->db->prepare("DELETE FROM savedposts WHERE userId = :userId AND postId = :postId");
-                    $stmt->execute([':userId' => $this->userId, ':postId' => $postId]);
+                    $this->postModel->removeSavedPost($this->userId, $postId);
+                    break;
+                case 'delete-post':
+                    $postId = $change['postId'];
+                    $this->postModel->deletePostFromUser($this->userId, $postId);
                     break;
                 case "update-profile-picture":
                     $profilePicture = $change["profilePicture"];
@@ -170,7 +171,7 @@ class userModel {
     // Get user saved posts
     public function getSavedPosts($userId) {
         $stmt = $this->db->prepare("
-            SELECT p.postId, p.jobTitle AS title, p.jobDescription AS description, p.createdAt, p.budget, p.hourlyRate, p.status
+            SELECT p.postId, p.jobTitle AS title, p.jobThumbnail, p.jobDescription AS description, p.createdAt, p.budget, p.hourlyRate, p.status
             FROM savedPosts sp
             JOIN posts p ON sp.postId = p.postId
             WHERE sp.userId = :userId
@@ -179,12 +180,12 @@ class userModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Get client's posts
+    // Get client's posts (excluding accepted jobs for proposals view)
     public function getClientPosts($userId) {
         $stmt = $this->db->prepare("
-            SELECT postId, clientId, jobTitle AS title, jobType, jobDescription AS description, budget, hourlyRate, status, isJobAccepted, createdAt 
+            SELECT postId, clientId, jobTitle AS title, jobType, jobDescription AS description, jobThumbnail, budget, hourlyRate, status, isJobAccepted, createdAt 
             FROM posts 
-            WHERE clientId = :userId
+            WHERE clientId = :userId AND isJobAccepted = 0
         ");
         $stmt->execute([':userId' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
