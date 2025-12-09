@@ -66,3 +66,16 @@
   gap: 1rem;
   margin-top: 0.5rem;
 }
+
+.tags-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tags-section label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.9;
+}

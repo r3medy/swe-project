@@ -38,7 +38,7 @@ import "./global.css";
   // Tags control panel ( Admin )
   // The wall
   // Proposals
-  * Chat
+  // Chat
   
   -- Side drawer
   // Notifications

@@ -405,9 +405,8 @@ function Wall() {
         onClose={() => setOpenDrawer(null)}
       >
         <form>
-          <Input
+          <Input.TextArea
             name="proposal-description"
-            type="text"
             placeholder="Proposal description"
             value={proposalInfo.description}
             onChange={(e) =>

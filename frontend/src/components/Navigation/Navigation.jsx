@@ -206,7 +206,14 @@ const Navigation = () => {
           ) : user && !isFetchingSession ? (
             <>
               <Button.Icon onClick={() => setCurrentDrawer("notifications")}>
-                <LuBell size={20} />
+                <LuBell
+                  size={20}
+                  style={{
+                    color: notifications?.some((n) => !n.isMarkedRead)
+                      ? "var(--accent)"
+                      : undefined,
+                  }}
+                />
               </Button.Icon>
               <Dropdown
                 trigger={

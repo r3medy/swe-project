@@ -3,12 +3,13 @@ import { useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
 
-import { LuExternalLink, LuTrash, LuBrush } from "react-icons/lu";
+import { LuExternalLink, LuTrash, LuBrush, LuPlus } from "react-icons/lu";
 
 import profileImage1 from "@/assets/profilepictures/1.png";
 import profileImage3 from "@/assets/profilepictures/3.png";
 
 import { useSession } from "@/contexts/SessionContext";
+import { createUserSchema } from "@/models/createuser.zod";
 import {
   Navigation,
   Status,
@@ -34,6 +35,22 @@ function UsersControlPanel() {
   const [currentDrawer, setCurrentDrawer] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editUserForm, setEditUserForm] = useState({});
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [createUserForm, setCreateUserForm] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    title: "",
+    country: "",
+    role: "",
+    gender: "",
+    bio: "",
+  });
+  const [createUserErrors, setCreateUserErrors] = useState({});
 
   const fetchUsers = useCallback(() => {
     setIsLoading(true);
@@ -48,6 +65,13 @@ function UsersControlPanel() {
       .then((data) => setUsers(data))
       .catch((err) => console.log(err))
       .finally(() => setIsLoading(false));
+  }, []);
+
+  const fetchTags = useCallback(() => {
+    fetch("http://localhost:8000/tags")
+      .then((res) => res.json())
+      .then((data) => setTags(data))
+      .catch((err) => console.log(err));
   }, []);
 
   const handleEditUser = useCallback((user) => {
@@ -117,8 +141,74 @@ function UsersControlPanel() {
       });
   }, [selectedUser]);
 
+  const handleCreateUserSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      setCreateUserErrors({});
+
+      const validation = createUserSchema.safeParse(createUserForm);
+      if (!validation.success) {
+        setCreateUserErrors(validation.error.flatten().fieldErrors);
+        return;
+      }
+
+      fetch("http://localhost:8000/admin/users", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...createUserForm,
+          interests: selectedTags
+            .map((tagId) => tags.find((t) => t.tagId === tagId)?.tagName)
+            .filter(Boolean),
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status !== 200) {
+            toast.error(data.message || "Failed to create user");
+          } else {
+            toast.success("User created successfully");
+            setCurrentDrawer(null);
+            setCreateUserForm({
+              firstName: "",
+              lastName: "",
+              username: "",
+              email: "",
+              password: "",
+              confirmPassword: "",
+              title: "",
+              country: "",
+              role: "",
+              gender: "",
+              bio: "",
+            });
+            setSelectedTags([]);
+            setCreateUserErrors({});
+            fetchUsers();
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          toast.error("An error occurred");
+        });
+    },
+    [createUserForm, selectedTags, tags, fetchUsers]
+  );
+
+  const handleToggleTag = (tagId) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId]
+    );
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchTags();
   }, []);
 
   return (
@@ -140,7 +230,14 @@ function UsersControlPanel() {
         {!isLoading && users.length > 0 && (
           <>
             <div className="users-header">
-              <h2>Users control panel</h2>
+              <h2>
+                <Tooltip text="Add user">
+                  <Button.Icon onClick={() => setCurrentDrawer("create-user")}>
+                    <LuPlus />
+                  </Button.Icon>
+                </Tooltip>
+                Users control panel
+              </h2>
               <SmallText
                 text={`Where you could manage your ${users.length} users and show your authority😉`}
               />
@@ -371,6 +468,217 @@ function UsersControlPanel() {
             Cancel
           </Button.Text>
         </div>
+      </Drawer>
+      <Drawer
+        title="Create user"
+        isOpen={currentDrawer === "create-user"}
+        onClose={() => {
+          setCurrentDrawer(null);
+          setCreateUserErrors({});
+          setSelectedTags([]);
+        }}
+      >
+        <form className="edit-user-form" onSubmit={handleCreateUserSubmit}>
+          <div className="form-row">
+            <Input
+              label="First Name"
+              name="firstName"
+              type="text"
+              placeholder="First Name"
+              value={createUserForm.firstName}
+              onChange={(e) =>
+                setCreateUserForm({
+                  ...createUserForm,
+                  firstName: e.target.value,
+                })
+              }
+              errors={createUserErrors.firstName}
+            />
+            <Input
+              label="Last Name"
+              name="lastName"
+              type="text"
+              placeholder="Last Name"
+              value={createUserForm.lastName}
+              onChange={(e) =>
+                setCreateUserForm({
+                  ...createUserForm,
+                  lastName: e.target.value,
+                })
+              }
+              errors={createUserErrors.lastName}
+            />
+          </div>
+          <Input
+            label="Username"
+            name="username"
+            type="text"
+            placeholder="Username"
+            value={createUserForm.username}
+            onChange={(e) =>
+              setCreateUserForm({
+                ...createUserForm,
+                username: e.target.value,
+              })
+            }
+            errors={createUserErrors.username}
+          />
+          <Input
+            label="Email"
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={createUserForm.email}
+            onChange={(e) =>
+              setCreateUserForm({
+                ...createUserForm,
+                email: e.target.value,
+              })
+            }
+            errors={createUserErrors.email}
+          />
+          <div className="form-row">
+            <Input
+              label="Password"
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={createUserForm.password}
+              onChange={(e) =>
+                setCreateUserForm({
+                  ...createUserForm,
+                  password: e.target.value,
+                })
+              }
+              errors={createUserErrors.password}
+            />
+            <Input
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              placeholder="Confirm Password"
+              value={createUserForm.confirmPassword}
+              onChange={(e) =>
+                setCreateUserForm({
+                  ...createUserForm,
+                  confirmPassword: e.target.value,
+                })
+              }
+              errors={createUserErrors.confirmPassword}
+            />
+          </div>
+          <Input
+            label="Title"
+            name="title"
+            type="text"
+            placeholder="Professional Title"
+            value={createUserForm.title}
+            onChange={(e) =>
+              setCreateUserForm({
+                ...createUserForm,
+                title: e.target.value,
+              })
+            }
+            errors={createUserErrors.title}
+          />
+          <Select.Countries
+            label="Country"
+            name="country"
+            value={createUserForm.country}
+            onChange={(e) =>
+              setCreateUserForm({
+                ...createUserForm,
+                country: e.target.value,
+              })
+            }
+            errors={createUserErrors.country}
+          />
+          <div className="form-row">
+            <Select
+              label="Role"
+              name="role"
+              options={["Admin", "Freelancer", "Client"]}
+              value={createUserForm.role}
+              onChange={(e) =>
+                setCreateUserForm({
+                  ...createUserForm,
+                  role: e.target.value,
+                })
+              }
+              errors={createUserErrors.role}
+            >
+              <option value="">Select role</option>
+              <option value="Admin">Admin</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Client">Client</option>
+            </Select>
+            <Select
+              label="Gender"
+              name="gender"
+              options={["Male", "Female"]}
+              value={createUserForm.gender}
+              onChange={(e) =>
+                setCreateUserForm({
+                  ...createUserForm,
+                  gender: e.target.value,
+                })
+              }
+              errors={createUserErrors.gender}
+            >
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </Select>
+          </div>
+          <Input.TextArea
+            label="Bio"
+            name="bio"
+            placeholder="User bio"
+            value={createUserForm.bio}
+            onChange={(e) =>
+              setCreateUserForm({
+                ...createUserForm,
+                bio: e.target.value,
+              })
+            }
+            errors={createUserErrors.bio}
+          />
+          <div className="tags-section">
+            <label>Tags</label>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "0.5rem",
+                marginTop: "0.5rem",
+              }}
+            >
+              {tags.map((tag) => (
+                <SmallText.ClickableBadge
+                  key={tag.tagId}
+                  text={tag.tagName}
+                  isClicked={selectedTags.includes(tag.tagId)}
+                  onClick={() => handleToggleTag(tag.tagId)}
+                  style={{ cursor: "pointer" }}
+                />
+              ))}
+            </div>
+            {tags.length === 0 && <SmallText text="No tags available" />}
+          </div>
+          <div className="form-actions">
+            <Button type="submit">Create User</Button>
+            <Button.Text
+              type="button"
+              onClick={() => {
+                setCurrentDrawer(null);
+                setCreateUserErrors({});
+                setSelectedTags([]);
+              }}
+            >
+              Cancel
+            </Button.Text>
+          </div>
+        </form>
       </Drawer>
     </>
   );

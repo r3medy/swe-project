@@ -21,7 +21,6 @@ class AdminController {
         $this->notificationModel = new notificationModel($this->db); 
     }
 
-    // updatePostStatus($postId, $status), editPost($postId, $changes), deletePost($postId), getPendingPosts()
     public function getAllUsers($request, $response) {
         $me = $this->userModel->getUserById($_SESSION['userId']);
         
@@ -53,6 +52,17 @@ class AdminController {
         $this->postModel->updatePostStatus($postId, $status);
 
         $response->getBody()->write(json_encode(["status" => 200, "message" => "Post status updated"]));
+        return $response->withStatus(200);
+    }
+
+    public function createNewUser($request, $response) {
+        $me = $this->userModel->getUserById($_SESSION['userId']);
+        $this->requireAdmin($me, $response);
+
+        $data = $request->getParsedBody();
+        $this->userModel->storeUser($data);
+        
+        $response->getBody()->write(json_encode(["status" => 200, "message" => "User created"]));
         return $response->withStatus(200);
     }
 

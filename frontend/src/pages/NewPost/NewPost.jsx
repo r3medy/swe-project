@@ -214,6 +214,7 @@ const NewPost = () => {
         placeholder="Enter payment amount"
         value={postDetails.paymentAmount}
         step="0.01"
+        min="1"
         required
         onChange={(e) =>
           setPostDetails({ ...postDetails, paymentAmount: e.target.value })
