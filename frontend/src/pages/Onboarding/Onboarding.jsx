@@ -151,7 +151,6 @@ const Onboarding = () => {
     });
 
     const data = await response.json();
-    console.log(response.status);
     if (response.status !== 201) throw new Error(data.message);
     return data;
   };

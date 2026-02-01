@@ -1,9 +1,10 @@
 import {
   createContext,
-  useContext,
   useState,
   useCallback,
   useEffect,
+  useMemo,
+  use,
 } from "react";
 
 const SessionContext = createContext();
@@ -21,7 +22,10 @@ export function SessionProvider({ children }) {
       });
       const { data } = await response.json();
       if (response.ok) {
-        setUser(data);
+        // Only update if user actually changes to avoid re-renders
+        setUser((prev) =>
+          JSON.stringify(prev) !== JSON.stringify(data) ? data : prev,
+        );
       } else {
         setUser(null);
       }
@@ -74,7 +78,10 @@ export function SessionProvider({ children }) {
 
   return (
     <SessionContext.Provider
-      value={{ user, isFetchingSession, checkSession, login, logout }}
+      value={useMemo(
+        () => ({ user, isFetchingSession, checkSession, login, logout }),
+        [user, isFetchingSession, checkSession, login, logout],
+      )}
     >
       {children}
     </SessionContext.Provider>
@@ -82,7 +89,7 @@ export function SessionProvider({ children }) {
 }
 
 export function useSession() {
-  const context = useContext(SessionContext);
+  const context = use(SessionContext);
   if (!context) {
     throw new Error("useSession must be used within a SessionProvider");
   }

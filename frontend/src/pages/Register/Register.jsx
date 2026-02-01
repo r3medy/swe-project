@@ -1,5 +1,5 @@
 import { LuFlower, LuEye, LuEyeClosed } from "react-icons/lu";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 
@@ -13,9 +13,10 @@ const Register = () => {
   const { user } = useSession();
   const navigate = useNavigate();
 
+  // Redirect if already logged in
   useEffect(() => {
     if (user) navigate("/");
-  }, [user]);
+  }, [user, navigate]);
 
   const [isHidden, setIsHidden] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,26 +34,27 @@ const Register = () => {
     confirmPassword: [],
   });
 
-  const fetchCheckUser = async () => {
+  const fetchCheckUser = useCallback(async () => {
     const response = await fetch("http://localhost:8000/auth/checkUser", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
     });
-
     const data = await response.json();
     if (response.status === 200) throw new Error(data.message);
     return data;
-  };
+  }, [credentials]);
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    const { success, error } = registerSchema.safeParse(credentials);
-    if (!success) setFormErrors({ ...error.flatten().fieldErrors, success });
-    else {
-      setFormErrors({ ...formErrors, success });
+  const handleRegister = useCallback(
+    (e) => {
+      e.preventDefault();
+      const { success, error } = registerSchema.safeParse(credentials);
+      if (!success) {
+        setFormErrors({ ...error.flatten().fieldErrors, success });
+        return;
+      }
+
+      setFormErrors((prev) => ({ ...prev, success }));
       toast.promise(fetchCheckUser(), {
         loading: () => {
           setIsLoading(true);
@@ -68,8 +70,44 @@ const Register = () => {
           return err.message;
         },
       });
-    }
-  };
+    },
+    [credentials, fetchCheckUser, navigate],
+  );
+
+  // Functional setState for stable callbacks (rerender-functional-setstate)
+  const handleUsernameChange = useCallback(
+    (e) =>
+      setCredentials((prev) => ({
+        ...prev,
+        username: e.target.value.toLowerCase(),
+      })),
+    [],
+  );
+
+  const handleEmailChange = useCallback(
+    (e) =>
+      setCredentials((prev) => ({
+        ...prev,
+        email: e.target.value.toLowerCase(),
+      })),
+    [],
+  );
+
+  const handlePasswordChange = useCallback(
+    (e) => setCredentials((prev) => ({ ...prev, password: e.target.value })),
+    [],
+  );
+
+  const handleConfirmPasswordChange = useCallback(
+    (e) =>
+      setCredentials((prev) => ({ ...prev, confirmPassword: e.target.value })),
+    [],
+  );
+
+  const togglePasswordVisibility = useCallback(
+    () => setIsHidden((prev) => !prev),
+    [],
+  );
 
   return (
     <div className="register-container">
@@ -92,9 +130,7 @@ const Register = () => {
             name="username"
             placeholder="patrickjane"
             value={credentials.username}
-            onChange={(e) =>
-              setCredentials({ ...credentials, username: e.target.value })
-            }
+            onChange={handleUsernameChange}
             style={{
               borderColor: formErrors?.username?.length > 0 ? "#ef4444" : "",
             }}
@@ -107,9 +143,7 @@ const Register = () => {
             name="email"
             placeholder="patrickjane@domain.com"
             value={credentials.email}
-            onChange={(e) =>
-              setCredentials({ ...credentials, email: e.target.value })
-            }
+            onChange={handleEmailChange}
             style={{
               borderColor: formErrors?.email?.length > 0 ? "#ef4444" : "",
             }}
@@ -123,18 +157,13 @@ const Register = () => {
             placeholder="Type your password"
             required
             value={credentials.password}
-            onChange={(e) =>
-              setCredentials({
-                ...credentials,
-                password: e.target.value,
-              })
-            }
+            onChange={handlePasswordChange}
             style={{
               borderColor: formErrors?.password?.length > 0 ? "#ef4444" : "",
             }}
             errors={formErrors?.password}
           >
-            <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
+            <Button.Icon type="button" onClick={togglePasswordVisibility}>
               {isHidden ? <LuEye /> : <LuEyeClosed />}
             </Button.Icon>
           </Input>
@@ -146,19 +175,14 @@ const Register = () => {
             placeholder="Retype your password"
             required
             value={credentials.confirmPassword}
-            onChange={(e) =>
-              setCredentials({
-                ...credentials,
-                confirmPassword: e.target.value,
-              })
-            }
+            onChange={handleConfirmPasswordChange}
             style={{
               borderColor:
                 formErrors?.confirmPassword?.length > 0 ? "#ef4444" : "",
             }}
             errors={formErrors?.confirmPassword}
           >
-            <Button.Icon type="button" onClick={() => setIsHidden(!isHidden)}>
+            <Button.Icon type="button" onClick={togglePasswordVisibility}>
               {isHidden ? <LuEye /> : <LuEyeClosed />}
             </Button.Icon>
           </Input>

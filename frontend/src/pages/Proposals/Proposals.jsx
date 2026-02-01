@@ -27,20 +27,22 @@ function Proposals() {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
-      const { clientPosts } = await response.json();
+      const data = await response.json();
+      const clientPosts = data?.clientPosts || [];
 
       const postsWithProposals = await Promise.all(
         clientPosts.map(async (post) => {
           const proposals = await fetchPostProposals(post.postId);
           return { ...post, proposals: proposals || [] };
-        })
+        }),
       );
 
       setData(postsWithProposals);
     } catch (error) {
       console.error(error);
+      setData([]);
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +54,7 @@ function Proposals() {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
       const { proposals } = await response.json();
       return proposals || [];
@@ -65,7 +67,7 @@ function Proposals() {
   const handleUpdateProposal = async (
     postId,
     proposalId,
-    action = "accept"
+    action = "accept",
   ) => {
     try {
       const response = await fetch(
@@ -73,7 +75,7 @@ function Proposals() {
         {
           method: "PUT",
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
       if (data.success) {
@@ -127,8 +129,8 @@ function Proposals() {
                             proposal.profilePicture
                               ? `http://localhost:8000/${proposal.profilePicture}`
                               : proposal.gender === "Male"
-                              ? profileImage1
-                              : profileImage3
+                                ? profileImage1
+                                : profileImage3
                           }
                           alt="Profile picture"
                           className="proposal-avatar"
@@ -144,7 +146,7 @@ function Proposals() {
                         </p>
                         <SmallText
                           text={`Sent At: ${new Date(
-                            proposal.submittedAt
+                            proposal.submittedAt,
                           ).toLocaleString()}`}
                         />
                       </div>
@@ -155,7 +157,7 @@ function Proposals() {
                               handleUpdateProposal(
                                 post.postId,
                                 proposal.proposalId,
-                                "accept"
+                                "accept",
                               )
                             }
                           >
@@ -168,7 +170,7 @@ function Proposals() {
                               handleUpdateProposal(
                                 post.postId,
                                 proposal.proposalId,
-                                "decline"
+                                "decline",
                               )
                             }
                           >

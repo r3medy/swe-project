@@ -58,7 +58,6 @@ class CallableResolver
 
         // If it's already a callable there is nothing to do
         if (is_callable($callable)) {
-            // TODO with PHP 8 that should not be necessary to check this anymore
             if (! $this->isStaticCallToNonStaticMethod($callable)) {
                 return $callable;
             }

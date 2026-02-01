@@ -2,7 +2,6 @@
 
 namespace src\Controllers;
 
-use PDO;
 use src\Models\userModel;
 use src\Models\postModel;
 use src\Models\proposalModel;
@@ -60,9 +59,7 @@ class ProposalController {
         $postId = $args['postId'] ?? null;
         if (!$postId) return $this->error($response, 'Post ID required', 400);
 
-        $stmt = $this->db->prepare("SELECT clientId FROM Posts WHERE postId = :postId");
-        $stmt->execute([':postId' => $postId]);
-        $clientId = $stmt->fetchColumn();
+        $clientId = $this->postModel->getClientId($postId);
 
         if ($clientId != $_SESSION['userId']) return $this->error($response, 'Forbidden', 403);
         
@@ -86,23 +83,9 @@ class ProposalController {
     if (!$proposalId) {
         return $this->error($response, 'Proposal ID is required', 400);
     }
-    $stmt = $this->db->prepare("
-        SELECT 
-            Proposals.proposalId,
-            Proposals.freelancerId,
-            Proposals.postId,
-            Proposals.description,
-            Proposals.status,
-            Proposals.submittedAt,
-            Posts.clientId,
-            Users.role AS freelancerRole
-        FROM Proposals
-        JOIN Posts ON Proposals.postId = Posts.postId
-        JOIN Users ON Proposals.freelancerId = Users.userId
-        WHERE Proposals.proposalId = :proposalId
-    ");
-    $stmt->execute(['proposalId' => $proposalId]);
-    $proposal = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $proposals = $this->proposalModel->getProposalsById($proposalId);
+    $proposal = $proposals[0] ?? null;
 
     if (!$proposal) {
         return $this->error($response, 'Proposal not found', 404);
@@ -124,17 +107,12 @@ class ProposalController {
         $data = $request->getParsedBody(); // expected: ['description']
 
         if (!$proposalId || empty($data['description'])) return $this->error($response, 'Proposal ID and description required', 400);
-        //check who is upadte is the freelancer who is create the proposal
-        $stmt = $this->db->prepare("SELECT freelancerId FROM Proposals WHERE proposalId = :proposalId");
-        $stmt->execute([':proposalId' => $proposalId]);
-        $ownerId = $stmt->fetchColumn();
+        
+        //check who is update is the freelancer who created the proposal
+        $ownerId = $this->proposalModel->getProposalOwner($proposalId);
         if ($ownerId != $_SESSION['userId']) return $this->error($response, 'Forbidden: Not your proposal', 403);
 
-        $stmt = $this->db->prepare("UPDATE Proposals SET description = :description WHERE proposalId = :proposalId");
-        $stmt->execute([
-            ':description' => $data['description'],
-            ':proposalId' => $proposalId
-        ]);
+        $this->proposalModel->updateProposal($proposalId, $data['description']);
 
         $response->getBody()->write(json_encode(['success' => true, 'message' => 'Proposal updated']));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
@@ -149,24 +127,17 @@ class ProposalController {
 
     if (!$postId || !$proposalId) return $this->error($response, 'Post ID and Proposal ID required', 400);
 
-    // TODO: use the proposalModel
-    // Bring post owner
-    $stmt = $this->db->prepare("SELECT clientId FROM Posts WHERE postId = :postId");
-    $stmt->execute([':postId' => $postId]);
-    $clientId = $stmt->fetchColumn();
-   // Bring proposal owner
-    $stmt = $this->db->prepare("SELECT freelancerId FROM Proposals WHERE proposalId = :proposalId");
-    $stmt->execute([':proposalId' => $proposalId]);
-    $freelancerId = $stmt->fetchColumn();
-    // Checking
+    // Get post owner
+    $clientId = $this->postModel->getClientId($postId);
+    // Get proposal owner
+    $freelancerId = $this->proposalModel->getProposalOwner($proposalId);
+    
+    // Authorization check
     if ($userId != $clientId && $userId != $freelancerId) return $this->error($response, 'Forbidden', 403);
-    $stmt = $this->db->prepare("DELETE FROM Proposals WHERE proposalId = :proposalId AND postId = :postId");
-    $stmt->execute([
-        ':proposalId' => $proposalId,
-        ':postId' => $postId
-    ]);
+    
+    $rowCount = $this->proposalModel->deleteProposal($proposalId, $postId);
 
-    if ($stmt->rowCount() === 0) {
+    if ($rowCount === 0) {
         return $this->error($response, 'Proposal not found', 404);
     }
 
@@ -185,32 +156,21 @@ class ProposalController {
         if (!$proposalId || !$postId) return $this->error($response, 'Proposal ID and Post ID required', 400);
 
         //check post owner
-        $stmt = $this->db->prepare("SELECT clientId FROM Posts WHERE postId = :postId");
-        $stmt->execute([':postId' => $postId]);
-        $clientId = $stmt->fetchColumn();
+        $clientId = $this->postModel->getClientId($postId);
 
         if ($clientId != $_SESSION['userId']) return $this->error($response, 'Forbidden: Not the post owner', 403);
 
-        // TODO: use the proposalModel
-        $stmt = $this->db->prepare("UPDATE proposals SET status = :status WHERE proposalId = :proposalId AND postId = :postId");
-        $stmt->execute([
-            ':status' => $status,
-            ':proposalId' => $proposalId,
-            ':postId' => $postId
-        ]);
+        $rowCount = $this->proposalModel->changeStatus($proposalId, $postId, $status);
 
         if ($status === 'Accepted') {
-            $updatePostAcceptance = $this->db->prepare("UPDATE posts SET isJobAccepted = 1 WHERE postId = :postId");
-            $updatePostAcceptance->execute([':postId' => $postId]);
+            $this->postModel->markJobAccepted($postId);
 
-            $proposalStmt = $this->db->prepare("SELECT freelancerId FROM proposals WHERE proposalId = :proposalId");
-            $proposalStmt->execute([':proposalId' => $proposalId]);
-            $freelancerId = $proposalStmt->fetchColumn();
+            $freelancerId = $this->proposalModel->getProposalOwner($proposalId);
 
             $this->chatModel->newChat($postId, $freelancerId, $clientId);
         }
 
-        if ($stmt->rowCount() === 0) return $this->error($response, 'Proposal not found', 404);
+        if ($rowCount === 0) return $this->error($response, 'Proposal not found', 404);
 
         $response->getBody()->write(json_encode(['success' => true, 'message' => "Proposal $status"]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);

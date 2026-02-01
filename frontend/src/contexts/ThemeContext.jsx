@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  use,
+} from "react";
 
 const AVAILABLE_THEMES = ["light", "dark"];
 
@@ -23,23 +30,28 @@ export function ThemeProvider({ children }) {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+  }, []);
 
-  const setNewTheme = (theme) => {
-    setTheme((prev) => (AVAILABLE_THEMES.includes(theme) ? theme : prev));
-  };
+  const setNewTheme = useCallback((newTheme) => {
+    setTheme((prev) => (AVAILABLE_THEMES.includes(newTheme) ? newTheme : prev));
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setNewTheme }}>
+    <ThemeContext.Provider
+      value={useMemo(
+        () => ({ theme, toggleTheme, setNewTheme }),
+        [theme, toggleTheme, setNewTheme],
+      )}
+    >
       {children}
     </ThemeContext.Provider>
   );
 }
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
+  const context = use(ThemeContext);
   if (!context) throw new Error("useTheme must be used within a ThemeProvider");
 
   return context;

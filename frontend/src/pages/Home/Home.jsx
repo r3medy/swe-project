@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router";
+import { useCallback } from "react";
 
 import "@/pages/Home/Home.css";
 import { useSession } from "@/contexts/SessionContext";
@@ -15,11 +16,17 @@ const Home = () => {
   const { user } = useSession();
   const navigate = useNavigate();
 
-  const handleSearch = (searchTerm) => {
-    if (searchTerm?.trim())
-      navigate(`/wall?q=${encodeURIComponent(searchTerm.trim())}`);
-    else navigate("/wall");
-  };
+  // Stabilized callback (rerender-functional-setstate)
+  const handleSearch = useCallback(
+    (searchTerm) => {
+      if (searchTerm?.trim()) {
+        navigate(`/wall?q=${encodeURIComponent(searchTerm.trim())}`);
+      } else {
+        navigate("/wall");
+      }
+    },
+    [navigate],
+  );
   return (
     <div className="home-page">
       <LightRays

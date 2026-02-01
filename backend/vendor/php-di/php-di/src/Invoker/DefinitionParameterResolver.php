@@ -49,7 +49,6 @@ class DefinitionParameterResolver implements ParameterResolver
                 $resolvedParameters[$key] = $value;
             } else {
                 // Indexed by parameter name
-                // TODO optimize?
                 $reflectionParameters = $reflection->getParameters();
                 foreach ($reflectionParameters as $reflectionParameter) {
                     if ($key === $reflectionParameter->name) {

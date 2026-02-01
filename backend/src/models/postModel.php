@@ -130,4 +130,10 @@ class postModel {
         $stmt = $this->db->query("SELECT clientId FROM posts WHERE postId = $postId");
         return $stmt->fetchColumn();
     }
+
+    public function markJobAccepted($postId) {
+        $stmt = $this->db->prepare("UPDATE posts SET isJobAccepted = 1 WHERE postId = :postId");
+        $stmt->execute([':postId' => $postId]);
+        return $stmt->rowCount();
+    }
 }

@@ -63,15 +63,13 @@ function UsersControlPanel() {
     })
       .then((res) => res.json())
       .then((data) => setUsers(data))
-      .catch((err) => console.log(err))
       .finally(() => setIsLoading(false));
   }, []);
 
   const fetchTags = useCallback(() => {
     fetch("http://localhost:8000/tags")
       .then((res) => res.json())
-      .then((data) => setTags(data))
-      .catch((err) => console.log(err));
+      .then((data) => setTags(data));
   }, []);
 
   const handleEditUser = useCallback((user) => {
@@ -100,8 +98,10 @@ function UsersControlPanel() {
             // Update the local users state with the edited user data
             setUsers((prev) =>
               prev.map((u) =>
-                u.userId === selectedUser.userId ? { ...u, ...editUserForm } : u
-              )
+                u.userId === selectedUser.userId
+                  ? { ...u, ...editUserForm }
+                  : u,
+              ),
             );
             toast.success("User updated successfully");
             setCurrentDrawer(null);
@@ -113,7 +113,7 @@ function UsersControlPanel() {
           toast.error("An error occurred");
         });
     },
-    [selectedUser, editUserForm]
+    [selectedUser, editUserForm],
   );
 
   const handleDeleteUser = useCallback(() => {
@@ -130,7 +130,7 @@ function UsersControlPanel() {
           toast.error(data.message || "Failed to delete user");
         } else {
           setUsers((prev) =>
-            prev.filter((u) => u.userId !== selectedUser.userId)
+            prev.filter((u) => u.userId !== selectedUser.userId),
           );
           toast.success("User deleted successfully");
         }
@@ -195,14 +195,14 @@ function UsersControlPanel() {
           toast.error("An error occurred");
         });
     },
-    [createUserForm, selectedTags, tags, fetchUsers]
+    [createUserForm, selectedTags, tags, fetchUsers],
   );
 
   const handleToggleTag = (tagId) => {
     setSelectedTags((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+        : [...prev, tagId],
     );
   };
 
@@ -260,8 +260,8 @@ function UsersControlPanel() {
                       userInfo.profilePicture
                         ? `http://localhost:8000${userInfo.profilePicture}`
                         : userInfo.gender === "Male"
-                        ? profileImage1
-                        : profileImage3
+                          ? profileImage1
+                          : profileImage3
                     }
                     alt={userInfo.username}
                     loading="lazy"
@@ -287,7 +287,7 @@ function UsersControlPanel() {
                     <Button.Icon
                       onClick={() =>
                         navigate(
-                          `${window.location.origin}/profile/@${userInfo.username}`
+                          `${window.location.origin}/profile/@${userInfo.username}`,
                         )
                       }
                     >

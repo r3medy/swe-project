@@ -25,8 +25,6 @@ import {
 import "./global.css";
 
 /*
-  TODO: Add ability to create an account as an admin
-
   // Login & Signup
   // Home
   // About

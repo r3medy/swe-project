@@ -1,7 +1,7 @@
 export const fetchProfile = async (
   profileQuery,
   setProfile,
-  setBackupProfile
+  setBackupProfile,
 ) => {
   try {
     const response = await fetch(
@@ -12,7 +12,7 @@ export const fetchProfile = async (
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     if (!response.ok) {
       setProfile(null);
@@ -27,7 +27,6 @@ export const fetchProfile = async (
     setBackupProfile(data.user);
     return data.user;
   } catch (err) {
-    console.log(err);
     return null;
   }
 };
@@ -43,9 +42,7 @@ export const fetchTags = async (setTags) => {
     });
     const data = await response.json();
     setTags(data);
-  } catch (err) {
-    console.log(err);
-  }
+  } catch (err) {}
 };
 
 export const fetchSavedPosts = async (setProfile, setBackupProfile) => {
@@ -59,10 +56,10 @@ export const fetchSavedPosts = async (setProfile, setBackupProfile) => {
     });
     const data = await response.json();
     setProfile((prev) =>
-      prev ? { ...prev, savedPosts: data?.savedPosts } : null
+      prev ? { ...prev, savedPosts: data?.savedPosts } : null,
     );
     setBackupProfile((prev) =>
-      prev ? { ...prev, savedPosts: data?.savedPosts } : null
+      prev ? { ...prev, savedPosts: data?.savedPosts } : null,
     );
   } catch (err) {
     console.error(err);
@@ -72,7 +69,7 @@ export const fetchSavedPosts = async (setProfile, setBackupProfile) => {
 export const fetchPosts = async (
   profileQuery,
   setProfile,
-  setBackupProfile
+  setBackupProfile,
 ) => {
   try {
     const response = await fetch(
@@ -83,16 +80,14 @@ export const fetchPosts = async (
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     const data = await response.json();
     setProfile((prev) =>
-      prev ? { ...prev, clientPosts: data?.clientPosts } : null
+      prev ? { ...prev, clientPosts: data?.clientPosts } : null,
     );
     setBackupProfile((prev) =>
-      prev ? { ...prev, clientPosts: data?.clientPosts } : null
+      prev ? { ...prev, clientPosts: data?.clientPosts } : null,
     );
-  } catch (err) {
-    console.log(err);
-  }
+  } catch (err) {}
 };

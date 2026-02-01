@@ -6,7 +6,6 @@ use Psr\Container\ContainerInterface;
 use src\Models\tagModel;
 use src\Models\userModel;
 
-// ? Completed
 class TagController {
     private $db;
     private $tagModel;

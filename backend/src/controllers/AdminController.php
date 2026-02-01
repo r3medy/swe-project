@@ -7,7 +7,6 @@ use src\Models\userModel;
 use src\Models\postModel;
 use src\Models\notificationModel;
 
-// ? Completed
 class AdminController {
     private $db;
     private $userModel;
@@ -84,28 +83,10 @@ class AdminController {
         $userId = $args['userId'];
         $data = $request->getParsedBody();
         
-        $allowedFields = ['firstName', 'lastName', 'username', 'email', 'title', 'country', 'role', 'gender', 'bio'];
-        $updates = [];
-        $params = [':userId' => $userId];
+        $result = $this->userModel->updateUserByAdmin($userId, $data);
         
-        foreach ($allowedFields as $field) {
-            if (isset($data[$field])) {
-                $updates[] = "$field = :$field";
-                $params[":$field"] = $data[$field];
-            }
-        }
-        
-        if (empty($updates)) {
-            $response->getBody()->write(json_encode(["status" => 400, "message" => "No fields to update"]));
-            return $response->withStatus(400);
-        }
-        
-        $sql = "UPDATE users SET " . implode(", ", $updates) . " WHERE userId = :userId";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        
-        $response->getBody()->write(json_encode(["status" => 200, "message" => "User updated successfully"]));
-        return $response->withStatus(200);
+        $response->getBody()->write(json_encode($result));
+        return $response->withStatus($result['status']);
     }
 
     private function requireAdmin($me, $response) {

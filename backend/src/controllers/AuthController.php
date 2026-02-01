@@ -5,7 +5,6 @@ namespace src\Controllers;
 use Psr\Container\ContainerInterface;
 use src\Models\userModel;
 
-// ? Completed
 class AuthController {
     private $db;
     private $userModel;

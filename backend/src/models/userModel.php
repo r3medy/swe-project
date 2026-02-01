@@ -203,6 +203,30 @@ class userModel {
         return ["status" => 500, "message" => "Failed to delete user"];
     }
 
+    // Update user by admin
+    public function updateUserByAdmin($userId, $data) {
+        $allowedFields = ['firstName', 'lastName', 'username', 'email', 'title', 'country', 'role', 'gender', 'bio'];
+        $updates = [];
+        $params = [':userId' => $userId];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $updates[] = "$field = :$field";
+                $params[":$field"] = $data[$field];
+            }
+        }
+        
+        if (empty($updates)) {
+            return ["status" => 400, "message" => "No fields to update"];
+        }
+        
+        $sql = "UPDATE users SET " . implode(", ", $updates) . " WHERE userId = :userId";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        
+        return ["status" => 200, "message" => "User updated successfully"];
+    }
+
     // Helper methods
     // Infer login method
     private function inferLoginMethod($logincreds) {

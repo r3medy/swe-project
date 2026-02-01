@@ -5,7 +5,6 @@ namespace src\Controllers;
 use Psr\Container\ContainerInterface;
 use src\Models\notificationModel;
 
-// ? Completed
 class NotificationsController {
     private $db;
     private $notificationModel;
