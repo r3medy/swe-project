@@ -1,3 +1,4 @@
+import { assetUrl } from "@/config";
 import profileImage1 from "@/assets/profilepictures/1.png";
 import profileImage3 from "@/assets/profilepictures/3.png";
 
@@ -8,7 +9,7 @@ export const getOtherParticipant = (chat, user) => {
 
 export const getAvatarUrl = (participant) => {
   if (participant?.profilePicture) {
-    return `http://localhost:8000/${participant.profilePicture}`;
+    return assetUrl(`/${participant.profilePicture}`);
   }
   // Fallback to gender-based image
   if (participant?.gender === "Female") {

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 import { firstStepSchema, secondStepSchema } from "@/models/onboarding.zod";
 import { useSession } from "@/contexts/SessionContext";
+import { API_BASE_URL } from "@/config";
 import { Button, Input, SmallText, Select } from "@/components";
 
 import illustration1 from "@/assets/illustrations/designer-desk.svg";
@@ -141,7 +142,7 @@ const Onboarding = () => {
   if (!location?.state) return null;
 
   const fetchRegister = async (userInfo) => {
-    const response = await fetch("http://localhost:8000/auth/register", {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -307,8 +308,8 @@ const Onboarding = () => {
                     interests.includes(subInterest)
                       ? setInterests(
                           interests.filter(
-                            (interest) => interest !== subInterest
-                          )
+                            (interest) => interest !== subInterest,
+                          ),
                         )
                       : setInterests([...interests, subInterest]);
                   }}
@@ -339,28 +340,28 @@ const Onboarding = () => {
         currentStep === 1
           ? illustration1
           : currentStep === 2
-          ? illustration2
-          : currentStep === 3
-          ? illustration3
-          : illustration4
+            ? illustration2
+            : currentStep === 3
+              ? illustration3
+              : illustration4
       }
       title={
         currentStep === 1
           ? "Who are you?"
           : currentStep === 2
-          ? "What do you do?"
-          : currentStep === 3
-          ? "What are your interests?"
-          : "Get ready to rumble!"
+            ? "What do you do?"
+            : currentStep === 3
+              ? "What are your interests?"
+              : "Get ready to rumble!"
       }
       subtitle={
         currentStep === 1
           ? "Tell us a little bit about yourself"
           : currentStep === 2
-          ? "Tell us what you do"
-          : currentStep === 3
-          ? "Tell us what you like, select at least 1 interests"
-          : "Let's get going!"
+            ? "Tell us what you do"
+            : currentStep === 3
+              ? "Tell us what you like, select at least 1 interests"
+              : "Let's get going!"
       }
       form={Forms[currentStep - 1]}
       currentStep={currentStep}

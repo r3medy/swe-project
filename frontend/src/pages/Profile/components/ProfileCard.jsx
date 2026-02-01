@@ -8,6 +8,7 @@ import {
 } from "react-icons/lu";
 import ReactCountryFlag from "react-country-flag";
 import { Tooltip, Button, SmallText } from "@/components";
+import { assetUrl } from "@/config";
 import { handleShareProfile, handleRemoveTag } from "../Extras/handlers";
 import PostCard from "./PostCard";
 import profileImage1 from "@/assets/profilepictures/1.png";
@@ -28,7 +29,7 @@ const ProfileCard = ({
             <img
               src={
                 profile.profilePicture
-                  ? `http://localhost:8000${profile.profilePicture}`
+                  ? assetUrl(profile.profilePicture)
                   : profile.gender === "Male"
                     ? profileImage1
                     : profileImage3

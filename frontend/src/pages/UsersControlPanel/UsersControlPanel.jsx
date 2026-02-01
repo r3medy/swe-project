@@ -10,6 +10,7 @@ import profileImage3 from "@/assets/profilepictures/3.png";
 
 import { useSession } from "@/contexts/SessionContext";
 import { createUserSchema } from "@/models/createuser.zod";
+import { API_BASE_URL, assetUrl } from "@/config";
 import {
   Navigation,
   Status,
@@ -54,7 +55,7 @@ function UsersControlPanel() {
 
   const fetchUsers = useCallback(() => {
     setIsLoading(true);
-    fetch("http://localhost:8000/admin/users", {
+    fetch(`${API_BASE_URL}/admin/users`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -67,7 +68,7 @@ function UsersControlPanel() {
   }, []);
 
   const fetchTags = useCallback(() => {
-    fetch("http://localhost:8000/tags")
+    fetch(`${API_BASE_URL}/tags`)
       .then((res) => res.json())
       .then((data) => setTags(data));
   }, []);
@@ -82,7 +83,7 @@ function UsersControlPanel() {
       e.preventDefault();
       if (!selectedUser) return;
 
-      fetch(`http://localhost:8000/admin/users/${selectedUser.userId}`, {
+      fetch(`${API_BASE_URL}/admin/users/${selectedUser.userId}`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -120,7 +121,7 @@ function UsersControlPanel() {
     if (!selectedUser) return;
     setCurrentDrawer(null);
 
-    fetch(`http://localhost:8000/admin/users/${selectedUser.userId}`, {
+    fetch(`${API_BASE_URL}/admin/users/${selectedUser.userId}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -152,7 +153,7 @@ function UsersControlPanel() {
         return;
       }
 
-      fetch("http://localhost:8000/admin/users", {
+      fetch(`${API_BASE_URL}/admin/users`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -258,7 +259,7 @@ function UsersControlPanel() {
                   <img
                     src={
                       userInfo.profilePicture
-                        ? `http://localhost:8000${userInfo.profilePicture}`
+                        ? assetUrl(userInfo.profilePicture)
                         : userInfo.gender === "Male"
                           ? profileImage1
                           : profileImage3

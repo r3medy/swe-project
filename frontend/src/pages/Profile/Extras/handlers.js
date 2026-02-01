@@ -1,8 +1,9 @@
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/config";
 
 export const handleApplyChanges = (changes, setIsLoading, setChanges) => {
   setIsLoading(true);
-  fetch("http://localhost:8000/profile", {
+  fetch(`${API_BASE_URL}/profile`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -34,7 +35,7 @@ export const handleCancelChanges = (setProfile, backupProfile, setChanges) => {
 export const handleShareProfile = (e, profile) => {
   e.preventDefault();
   navigator.clipboard.writeText(
-    `${window.location.origin}/profile/@${profile.username}`
+    `${window.location.origin}/profile/@${profile.username}`,
   );
   toast.success("Profile link copied to clipboard");
 };
@@ -51,10 +52,10 @@ export const handleAddTag = (
   profile,
   setProfile,
   setChanges,
-  setDrawerOpen
+  setDrawerOpen,
 ) => {
   const selectedTag = tags.find(
-    (tag) => tag.tagName === selectRef.current.value
+    (tag) => tag.tagName === selectRef.current.value,
   );
   if (selectedTag) {
     setProfile({
@@ -73,7 +74,7 @@ export const handleChangeTitle = (
   profile,
   setProfile,
   setChanges,
-  setDrawerOpen
+  setDrawerOpen,
 ) => {
   setChanges((prev) => [
     ...prev,
@@ -101,7 +102,7 @@ export const handleChangeProfilePicture = (file, setProfile, setIsLoading) => {
   const formData = new FormData();
   formData.append("profilePicture", file);
 
-  fetch("http://localhost:8000/profile/uploadPicture", {
+  fetch(`${API_BASE_URL}/profile/uploadPicture`, {
     method: "POST",
     credentials: "include",
     // Don't set Content-Type header - browser will set it automatically with boundary

@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 
 import { useSession } from "@/contexts/SessionContext";
+import { API_BASE_URL, assetUrl } from "@/config";
 import {
   Navigation,
   Status,
@@ -31,7 +32,7 @@ function Pending() {
   const [isDrawerButtonDisabled, setIsDrawerButtonDisabled] = useState(false);
 
   const fetchPosts = useCallback(() => {
-    fetch("http://localhost:8000/admin/posts", {
+    fetch(`${API_BASE_URL}/admin/posts`, {
       method: "GET",
       credentials: "include",
     })
@@ -49,7 +50,7 @@ function Pending() {
   const handleEditSubmit = (e) => {
     e.preventDefault();
     setIsDrawerButtonDisabled(true);
-    fetch(`http://localhost:8000/posts/${currentPostId}`, {
+    fetch(`${API_BASE_URL}/posts/${currentPostId}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -84,7 +85,7 @@ function Pending() {
   }, []);
 
   const handleUpdateStatus = useCallback((postId, status) => {
-    fetch(`http://localhost:8000/admin/posts/${postId}`, {
+    fetch(`${API_BASE_URL}/admin/posts/${postId}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -145,10 +146,10 @@ function Pending() {
                   <img
                     src={
                       post.profilePicture
-                        ? `http://localhost:8000${post.profilePicture}`
+                        ? assetUrl(post.profilePicture)
                         : user?.gender === "Male"
-                        ? profileImage1
-                        : profileImage3
+                          ? profileImage1
+                          : profileImage3
                     }
                     alt={post.username}
                     loading="lazy"
@@ -306,10 +307,9 @@ function Pending() {
               onClose={() => setOpenedDrawer(null)}
             >
               <img
-                src={
-                  "http://localhost:8000" +
-                  posts.find((p) => p.postId === currentPostId)?.jobThumbnail
-                }
+                src={assetUrl(
+                  posts.find((p) => p.postId === currentPostId)?.jobThumbnail,
+                )}
                 alt="Job Thumbnail"
                 style={{
                   maxWidth: "100%",

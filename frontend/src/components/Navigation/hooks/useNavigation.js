@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { toast } from "react-hot-toast";
-
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE_URL } from "@/config";
 
 /**
  * Custom hook to manage navigation-related state

@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import { toast } from "react-hot-toast";
-
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE_URL } from "@/config";
 
 const DEFAULT_FILTERS = {
   sortBy: "None",

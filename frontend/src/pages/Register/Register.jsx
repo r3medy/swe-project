@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 
 import { useSession } from "@/contexts/SessionContext";
+import { API_BASE_URL } from "@/config";
 import "@/pages/Register/Register.css";
 import { registerSchema } from "@/models/register.zod";
 
@@ -35,7 +36,7 @@ const Register = () => {
   });
 
   const fetchCheckUser = useCallback(async () => {
-    const response = await fetch("http://localhost:8000/auth/checkUser", {
+    const response = await fetch(`${API_BASE_URL}/auth/checkUser`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),

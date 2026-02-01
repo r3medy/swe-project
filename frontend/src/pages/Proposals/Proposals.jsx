@@ -1,6 +1,7 @@
 import "@/pages/Proposals/Proposals.css";
 import { Navigation, SmallText, Status, Tooltip, Button } from "@/components";
 import { useSession } from "@/contexts/SessionContext";
+import { API_BASE_URL, assetUrl } from "@/config";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -16,21 +17,14 @@ function Proposals() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Proposal-related
-  // PUT /proposals/decline/{postId}/{proposalId}
-  // PUT /proposals/accept/{postId}/{proposalId}
-
   const fetchPosts = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:8000/profile/clientPosts/",
-        {
-          method: "GET",
-          credentials: "include",
-        },
-      );
-      const data = await response.json();
-      const clientPosts = data?.clientPosts || [];
+      const response = await fetch(`${API_BASE_URL}/profile/clientPosts/`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const responseData = await response.json();
+      const clientPosts = responseData?.clientPosts || [];
 
       const postsWithProposals = await Promise.all(
         clientPosts.map(async (post) => {
@@ -47,15 +41,13 @@ function Proposals() {
       setIsLoading(false);
     }
   };
+
   const fetchPostProposals = async (postId) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/proposals/${postId}`,
-        {
-          method: "GET",
-          credentials: "include",
-        },
-      );
+      const response = await fetch(`${API_BASE_URL}/proposals/${postId}`, {
+        method: "GET",
+        credentials: "include",
+      });
       const { proposals } = await response.json();
       return proposals || [];
     } catch (error) {
@@ -71,17 +63,19 @@ function Proposals() {
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/proposals/${action}/${postId}/${proposalId}`,
+        `${API_BASE_URL}/proposals/${action}/${postId}/${proposalId}`,
         {
           method: "PUT",
           credentials: "include",
         },
       );
-      const data = await response.json();
-      if (data.success) {
-        toast.success(`${data.message}, You will be redirected to the chat`);
+      const responseData = await response.json();
+      if (responseData.success) {
+        toast.success(
+          `${responseData.message}, You will be redirected to the chat`,
+        );
         navigate(`/chat`);
-      } else throw new Error(data.message);
+      } else throw new Error(responseData.message);
     } catch (error) {
       toast.error(error.message);
     }
@@ -89,7 +83,7 @@ function Proposals() {
 
   useEffect(() => {
     if (!user?.userId || user?.role === "Freelancer") navigate("/");
-  }, [user]);
+  }, [user, navigate]);
 
   useEffect(() => {
     fetchPosts();
@@ -127,7 +121,7 @@ function Proposals() {
                         <img
                           src={
                             proposal.profilePicture
-                              ? `http://localhost:8000/${proposal.profilePicture}`
+                              ? assetUrl(`/${proposal.profilePicture}`)
                               : proposal.gender === "Male"
                                 ? profileImage1
                                 : profileImage3

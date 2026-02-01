@@ -2,8 +2,7 @@ import React, { useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { Drawer, Input, Button } from "@/components";
-
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE_URL } from "@/config";
 
 /**
  * DeleteAccountDrawer - Explicit variant for account deletion

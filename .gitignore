@@ -1,3 +1,12 @@
-# Local Netlify folder
 .netlify
 .vendor
+.agent
+.agents
+/docs
+dev.bat
+
+# Environment files
+.env
+.env.local
+.env.production
+!.env.example

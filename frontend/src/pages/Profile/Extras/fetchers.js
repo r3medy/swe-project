@@ -1,3 +1,5 @@
+import { API_BASE_URL, assetUrl } from "@/config";
+
 export const fetchProfile = async (
   profileQuery,
   setProfile,
@@ -5,7 +7,7 @@ export const fetchProfile = async (
 ) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/profile/${profileQuery ?? ""}`,
+      `${API_BASE_URL}/profile/${profileQuery ?? ""}`,
       {
         method: "GET",
         credentials: "include",
@@ -27,13 +29,14 @@ export const fetchProfile = async (
     setBackupProfile(data.user);
     return data.user;
   } catch (err) {
+    console.error("Failed to fetch profile:", err);
     return null;
   }
 };
 
 export const fetchTags = async (setTags) => {
   try {
-    const response = await fetch(`http://localhost:8000/tags`, {
+    const response = await fetch(`${API_BASE_URL}/tags`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -42,12 +45,15 @@ export const fetchTags = async (setTags) => {
     });
     const data = await response.json();
     setTags(data);
-  } catch (err) {}
+  } catch (err) {
+    console.error("Failed to fetch tags:", err);
+    setTags([]);
+  }
 };
 
 export const fetchSavedPosts = async (setProfile, setBackupProfile) => {
   try {
-    const response = await fetch(`http://localhost:8000/profile/savedPosts`, {
+    const response = await fetch(`${API_BASE_URL}/profile/savedPosts`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -62,7 +68,7 @@ export const fetchSavedPosts = async (setProfile, setBackupProfile) => {
       prev ? { ...prev, savedPosts: data?.savedPosts } : null,
     );
   } catch (err) {
-    console.error(err);
+    console.error("Failed to fetch saved posts:", err);
   }
 };
 
@@ -73,7 +79,7 @@ export const fetchPosts = async (
 ) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/profile/clientPosts/${profileQuery ?? ""}`,
+      `${API_BASE_URL}/profile/clientPosts/${profileQuery ?? ""}`,
       {
         method: "GET",
         credentials: "include",
@@ -89,5 +95,7 @@ export const fetchPosts = async (
     setBackupProfile((prev) =>
       prev ? { ...prev, clientPosts: data?.clientPosts } : null,
     );
-  } catch (err) {}
+  } catch (err) {
+    console.error("Failed to fetch posts:", err);
+  }
 };

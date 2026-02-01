@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router";
 import { LuBookmark, LuScroll } from "react-icons/lu";
 import { Button, SmallText } from "@/components";
+import { assetUrl } from "@/config";
 
 import profileImage1 from "@/assets/profilepictures/1.png";
 import profileImage3 from "@/assets/profilepictures/3.png";
@@ -17,7 +18,7 @@ const WallPostCard = React.memo(function WallPostCard({
   onOpenProposal,
 }) {
   const profileImage = post.profilePicture
-    ? `http://localhost:8000${post.profilePicture}`
+    ? assetUrl(post.profilePicture)
     : post.gender === "Male"
       ? profileImage1
       : profileImage3;
@@ -51,10 +52,7 @@ const WallPostCard = React.memo(function WallPostCard({
         <h3>{post.jobTitle}</h3>
         <p>{post.jobDescription}</p>
         {post.jobThumbnail && (
-          <img
-            src={`http://localhost:8000${post.jobThumbnail}`}
-            alt="Job thumbnail"
-          />
+          <img src={assetUrl(post.jobThumbnail)} alt="Job thumbnail" />
         )}
         {post.tags.length > 0 && (
           <div className="wall-post-tags">

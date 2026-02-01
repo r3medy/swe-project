@@ -2,8 +2,7 @@ import React, { useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { Drawer, Input, Button } from "@/components";
 import { changePasswordSchema } from "@/models/changepassword.zod";
-
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE_URL } from "@/config";
 
 /**
  * ChangePasswordDrawer - Memoized component for password change drawer

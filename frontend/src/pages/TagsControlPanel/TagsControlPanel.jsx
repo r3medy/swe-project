@@ -9,6 +9,7 @@ import {
   Drawer,
   Input,
 } from "@/components";
+import { API_BASE_URL } from "@/config";
 import { LuPlus, LuTrash, LuBrush } from "react-icons/lu";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -22,7 +23,7 @@ function TagsControlPanel() {
   const fetchTags = useCallback(() => {
     setIsLoading(true);
 
-    fetch("http://localhost:8000/tags")
+    fetch(`${API_BASE_URL}/tags`)
       .then((res) => res.json())
       .then((data) => setTags(data))
       .finally(() => setIsLoading(false));
@@ -30,7 +31,7 @@ function TagsControlPanel() {
 
   const handleDeleteTag = (tagId) => {
     toast.promise(
-      fetch(`http://localhost:8000/tags/${tagId}`, {
+      fetch(`${API_BASE_URL}/tags/${tagId}`, {
         method: "DELETE",
         credentials: "include",
       }).then((res) => {
@@ -42,14 +43,14 @@ function TagsControlPanel() {
         loading: "Deleting tag...",
         success: "Tag deleted successfully",
         error: "Failed to delete tag",
-      }
+      },
     );
   };
   const handleAddTag = () => {
     if (!newTagName || newTagName.length === 0)
       return toast.error("Tag name is required");
     toast.promise(
-      fetch("http://localhost:8000/tags", {
+      fetch(`${API_BASE_URL}/tags`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -66,7 +67,7 @@ function TagsControlPanel() {
         loading: "Adding tag...",
         success: "Tag added successfully",
         error: "Failed to add tag",
-      }
+      },
     );
   };
 

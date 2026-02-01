@@ -6,6 +6,7 @@ import {
   LuX,
 } from "react-icons/lu";
 import { Tooltip, Button, SmallText } from "@/components";
+import { assetUrl } from "@/config";
 import { handleRemoveSavedPost, handleDeletePost } from "../Extras/handlers";
 
 const PostCard = ({ post, setProfile, setChanges, postType, isOwner }) => {
@@ -32,7 +33,7 @@ const PostCard = ({ post, setProfile, setChanges, postType, isOwner }) => {
       <SmallText text={post.description} />
       {post.jobThumbnail && (
         <img
-          src={`http://localhost:8000${post.jobThumbnail}`}
+          src={assetUrl(post.jobThumbnail)}
           alt="Job Thumbnail"
           loading="lazy"
           style={{

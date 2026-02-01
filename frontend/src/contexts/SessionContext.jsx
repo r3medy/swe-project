@@ -6,6 +6,7 @@ import {
   useMemo,
   use,
 } from "react";
+import { API_BASE_URL } from "@/config";
 
 const SessionContext = createContext();
 
@@ -16,7 +17,7 @@ export function SessionProvider({ children }) {
   const checkSession = useCallback(async () => {
     try {
       setIsFetchingSession(true);
-      const response = await fetch("http://localhost:8000/auth/session", {
+      const response = await fetch(`${API_BASE_URL}/auth/session`, {
         method: "GET",
         credentials: "include",
       });
@@ -38,7 +39,7 @@ export function SessionProvider({ children }) {
 
   const login = useCallback(async (credentials) => {
     try {
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -62,7 +63,7 @@ export function SessionProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch("http://localhost:8000/auth/logout", {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

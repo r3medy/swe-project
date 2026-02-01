@@ -3,6 +3,7 @@ import { firstStepSchema, secondStepSchema } from "@/models/newpost.zod";
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router";
 import { Button, Input, SmallText, Select } from "@/components";
+import { API_BASE_URL } from "@/config";
 import { toast } from "react-hot-toast";
 
 import illustration1 from "@/assets/illustrations/business-deal.svg";
@@ -87,7 +88,7 @@ const NewPost = () => {
   const [formErrors, setFormErrors] = useState({});
 
   const fetchTags = async () => {
-    const response = await fetch("http://localhost:8000/tags");
+    const response = await fetch(`${API_BASE_URL}/tags`);
     const data = await response.json();
     setTags(data);
   };
@@ -134,7 +135,7 @@ const NewPost = () => {
     if (thumbnailFile) formData.append("jobThumbnail", thumbnailFile);
 
     try {
-      const res = await fetch("http://localhost:8000/posts", {
+      const res = await fetch(`${API_BASE_URL}/posts`, {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -267,28 +268,28 @@ const NewPost = () => {
         currentStep === 1
           ? illustration1
           : currentStep === 2
-          ? illustration2
-          : currentStep === 3
-          ? illustration3
-          : illustration4
+            ? illustration2
+            : currentStep === 3
+              ? illustration3
+              : illustration4
       }
       title={
         currentStep === 1
           ? "What would you like done?"
           : currentStep === 2
-          ? "How much would you like to pay?"
-          : currentStep === 3
-          ? "What matches your job?"
-          : "Let's finish it!"
+            ? "How much would you like to pay?"
+            : currentStep === 3
+              ? "What matches your job?"
+              : "Let's finish it!"
       }
       subtitle={
         currentStep === 1
           ? "Describe your job post"
           : currentStep === 2
-          ? "Choose the payment method you wanna use"
-          : currentStep === 3
-          ? "Choose the tags that match your job"
-          : "Get it done!"
+            ? "Choose the payment method you wanna use"
+            : currentStep === 3
+              ? "Choose the tags that match your job"
+              : "Get it done!"
       }
       form={Forms[currentStep - 1]}
       currentStep={currentStep}
