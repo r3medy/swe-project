@@ -1,23 +1,15 @@
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { LuX } from "react-icons/lu";
+import { useDrawerVisibility } from "@/components/Drawer/useDrawerVisibility";
 import "@/components/SideDrawer/SideDrawer.css";
 
+/**
+ * Side drawer component (slides in from right).
+ * Uses shared useDrawerVisibility hook to eliminate duplicated logic
+ * with bottom Drawer (state-decouple-implementation).
+ */
 const SideDrawer = ({ isOpen, onClose, title, children }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true);
-      document.body.style.overflow = "hidden";
-    } else {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        document.body.style.overflow = "unset";
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  const isVisible = useDrawerVisibility(isOpen);
 
   if (!isVisible && !isOpen) return null;
 
@@ -33,7 +25,7 @@ const SideDrawer = ({ isOpen, onClose, title, children }) => {
         <div className="drawer-body">{children}</div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 

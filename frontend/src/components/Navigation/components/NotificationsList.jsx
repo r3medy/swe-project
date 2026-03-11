@@ -1,6 +1,7 @@
 import React from "react";
 import { LuBell, LuX } from "react-icons/lu";
-import { Button } from "@/components";
+// (bundle-barrel-imports) Direct import instead of barrel re-export
+import Button from "@/components/Button/Button";
 
 /**
  * NotificationsList component - extracted for re-render optimization
@@ -35,9 +36,10 @@ const NotificationsList = React.memo(function NotificationsList({
             }`}
           >
             <div className="notification-card-content">
-              {!notification.isMarkedRead && (
+              {/* (rendering-conditional-render) Ternary instead of && */}
+              {!notification.isMarkedRead ? (
                 <span className="notification-unread-dot" />
-              )}
+              ) : null}
               <div className="notification-card-text">
                 <p className="notification-message">{notification.content}</p>
                 <span className="notification-time">

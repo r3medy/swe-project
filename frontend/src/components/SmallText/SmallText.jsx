@@ -1,6 +1,5 @@
 import "@/components/SmallText/SmallText.css";
 import { LuTrash, LuMoveRight } from "react-icons/lu";
-import { useState } from "react";
 
 const SmallText = ({ text, children, ...props }) => {
   return (
@@ -34,25 +33,20 @@ const ClickableBadge = ({ text, children, isClicked, ...props }) => {
   );
 };
 
+/**
+ * DestructiveBadge - refactored to use CSS :hover instead of useState
+ * (rerender-move-effect-to-event) Avoid state-driven re-renders for
+ * visual-only hover effects; use CSS instead.
+ */
 const DestructiveBadge = ({ text, children, ...props }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
-    <span
-      className="small-text destructive-badge"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      {...props}
-    >
-      {isHovered ? (
-        <>
-          <LuTrash size={14} /> {text}
-        </>
-      ) : (
-        <>
-          {text} {children}
-        </>
-      )}
+    <span className="small-text destructive-badge" {...props}>
+      <span className="destructive-badge-hover-content">
+        <LuTrash size={14} /> {text}
+      </span>
+      <span className="destructive-badge-default-content">
+        {text} {children}
+      </span>
     </span>
   );
 };

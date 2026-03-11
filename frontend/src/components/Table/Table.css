@@ -48,3 +48,9 @@
   color: color-mix(in srgb, var(--foreground), transparent 20%);
   vertical-align: middle;
 }
+
+.table-empty-cell {
+  text-align: center;
+  padding: 2rem;
+  opacity: 0.5;
+}

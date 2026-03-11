@@ -14,3 +14,7 @@
   font-weight: 500;
   color: var(--foreground);
 }
+
+.status-error-icon {
+  color: #ef4444;
+}

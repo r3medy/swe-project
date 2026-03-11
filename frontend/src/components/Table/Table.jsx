@@ -12,6 +12,7 @@ function Table({ headers, rows, ...props }) {
           </tr>
         </thead>
         <tbody>
+          {/* (rendering-conditional-render) Ternary instead of && */}
           {rows?.length > 0 ? (
             rows.map((row, rowIndex) => (
               <tr key={row.id || rowIndex}>
@@ -26,7 +27,7 @@ function Table({ headers, rows, ...props }) {
             <tr>
               <td
                 colSpan={headers?.length || 1}
-                style={{ textAlign: "center", padding: "2rem", opacity: 0.5 }}
+                className="table-empty-cell"
               >
                 No data available
               </td>

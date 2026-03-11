@@ -1,15 +1,19 @@
 import "./Input.css";
 
-const Input = ({
-  label,
-  name,
-  type,
-  placeholder,
-  value,
-  errors,
-  children,
-  ...props
-}) => {
+/**
+ * Shared error list renderer - hoisted to avoid re-creation
+ * (rendering-hoist-jsx pattern)
+ */
+const ErrorList = ({ errors }) => {
+  if (!errors?.length) return null;
+  return errors.map((err, idx) => (
+    <p key={idx} className="error-text">
+      {err}
+    </p>
+  ));
+};
+
+const Input = ({ label, name, type, placeholder, value, errors, children, ...props }) => {
   return (
     <div className="input">
       <label htmlFor={name}>{label}</label>
@@ -21,29 +25,14 @@ const Input = ({
           value={value}
           {...props}
         />
-        {errors?.length > 0 &&
-          errors.map((err, idx) => {
-            return (
-              <p key={idx} className="error-text">
-                {err}
-              </p>
-            );
-          })}
+        <ErrorList errors={errors} />
         {children}
       </div>
     </div>
   );
 };
 
-const TextArea = ({
-  label,
-  name,
-  placeholder,
-  value,
-  errors,
-  children,
-  ...props
-}) => {
+const TextArea = ({ label, name, placeholder, value, errors, children, ...props }) => {
   return (
     <div className="input">
       <label htmlFor={name}>{label}</label>
@@ -54,14 +43,7 @@ const TextArea = ({
           value={value}
           {...props}
         />
-        {errors?.length > 0 &&
-          errors.map((err, idx) => {
-            return (
-              <p key={idx} className="error-text">
-                {err}
-              </p>
-            );
-          })}
+        <ErrorList errors={errors} />
         {children}
       </div>
     </div>

@@ -1,6 +1,5 @@
-import React from "react";
 import { LuLoaderCircle, LuCircleX } from "react-icons/lu";
-import { SmallText } from "@/components";
+import SmallText from "@/components/SmallText/SmallText";
 import "./Status.css";
 
 const Status = ({ text, subtext, children }) => {
@@ -17,7 +16,7 @@ const Status = ({ text, subtext, children }) => {
 const Error = ({ text, subtext, children }) => {
   return (
     <div className="status-container">
-      <LuCircleX size={48} color="#ef4444" />
+      <LuCircleX size={48} className="status-error-icon" />
       <h1>{text}</h1>
       <SmallText text={subtext} />
       {children}

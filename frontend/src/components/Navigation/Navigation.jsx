@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { Link, useNavigate } from "react-router";
+// (bundle-barrel-imports) Direct imports instead of barrel re-exports
 import {
   LuLoaderCircle,
   LuFlower,
@@ -20,7 +21,9 @@ import {
 } from "react-icons/lu";
 
 import "@/components/Navigation/Navigation.css";
-import { Button, Dropdown, SideDrawer } from "@/components";
+import Button from "@/components/Button/Button";
+import Dropdown from "@/components/Dropdown/Dropdown";
+import SideDrawer from "@/components/SideDrawer/SideDrawer";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigation } from "./hooks/useNavigation";
@@ -34,6 +37,7 @@ import DeleteAccountDrawer from "./components/DeleteAccountDrawer";
  * - Extracted sub-components for drawer variants (patterns-explicit-variants)
  * - Using useCallback for stable event handlers (rerender-functional-setstate)
  * - Memoized derived state via useMemo in useNavigation hook
+ * - Direct imports instead of barrel file (bundle-barrel-imports)
  */
 const Navigation = () => {
   const { theme, toggleTheme } = useTheme();
@@ -109,7 +113,7 @@ const Navigation = () => {
             )}
           </Button.Icon>
 
-          {/* Early return pattern - check conditions explicitly */}
+          {/* (rendering-conditional-render) Explicit ternary for all conditionals */}
           {isFetchingSession ? (
             <LuLoaderCircle size={20} className="spin" />
           ) : !user ? (
@@ -147,17 +151,17 @@ const Navigation = () => {
                   <LuMessageSquareMore size={16} />
                   <Link to="/chat">My Chats</Link>
                 </Dropdown.Item>
-                {user.role !== "Freelancer" && (
+                {user.role !== "Freelancer" ? (
                   <Dropdown.Item>
                     <LuScroll size={16} />
                     <Link to="/proposals">My Proposals</Link>
                   </Dropdown.Item>
-                )}
+                ) : null}
                 <Dropdown.Item>
                   <LuFileText size={16} />
                   <Link to="/terms-and-policies">Terms and Policies</Link>
                 </Dropdown.Item>
-                {user.role === "Admin" && (
+                {user.role === "Admin" ? (
                   <>
                     <hr />
                     <Dropdown.Item>
@@ -173,7 +177,7 @@ const Navigation = () => {
                       <Link to="/tags-control-panel">Tags Control</Link>
                     </Dropdown.Item>
                   </>
-                )}
+                ) : null}
                 <hr />
                 <Dropdown.Item onClick={openChangePassword}>
                   <LuKey size={16} />

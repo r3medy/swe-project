@@ -1,23 +1,15 @@
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { LuX } from "react-icons/lu";
+import { useDrawerVisibility } from "./useDrawerVisibility";
 import "./Drawer.css";
 
+/**
+ * Bottom sheet drawer component.
+ * Uses shared useDrawerVisibility hook to eliminate duplicated logic
+ * with SideDrawer (state-decouple-implementation).
+ */
 const Drawer = ({ isOpen, onClose, title, children }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true);
-      document.body.style.overflow = "hidden";
-    } else {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        document.body.style.overflow = "unset";
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  const isVisible = useDrawerVisibility(isOpen);
 
   if (!isVisible && !isOpen) return null;
 
@@ -39,7 +31,7 @@ const Drawer = ({ isOpen, onClose, title, children }) => {
         <div className="bottom-drawer-body">{children}</div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 

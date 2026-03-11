@@ -19,12 +19,33 @@
   cursor: default;
 }
 
+/* CSS-driven hover content swap (replaces useState hover tracking) */
+.destructive-badge-hover-content {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.destructive-badge-default-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .destructive-badge:hover {
   background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
   border-color: rgba(239, 68, 68, 0.2);
   cursor: pointer;
   opacity: 1;
+}
+
+.destructive-badge:hover .destructive-badge-hover-content {
+  display: inline-flex;
+}
+
+.destructive-badge:hover .destructive-badge-default-content {
+  display: none;
 }
 
 .clickable-badge:hover {

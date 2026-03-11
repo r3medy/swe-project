@@ -1,6 +1,9 @@
 import React, { useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { Drawer, Input, Button } from "@/components";
+// (bundle-barrel-imports) Direct imports instead of barrel re-exports
+import Drawer from "@/components/Drawer/Drawer";
+import Input from "@/components/Input/Input";
+import Button from "@/components/Button/Button";
 import { changePasswordSchema } from "@/models/changepassword.zod";
 import { API_BASE_URL } from "@/config";
 

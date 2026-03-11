@@ -4,14 +4,12 @@ import "./LightRays.css";
 
 // FROM Reactbits.dev
 
+const DEFAULT_COLOR = "#ffffff";
+
 const hexToRgb = (hex) => {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return m
-    ? [
-        parseInt(m[1], 16) / 255,
-        parseInt(m[2], 16) / 255,
-        parseInt(m[3], 16) / 255,
-      ]
+    ? [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255]
     : [1, 1, 1];
 };
 
@@ -71,7 +69,7 @@ const LightRays = ({
         const entry = entries[0];
         setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observerRef.current.observe(containerRef.current);
@@ -144,7 +142,7 @@ uniform float distortion;
 varying vec2 vUv;
 
 float noise(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
 float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord,
@@ -276,16 +274,11 @@ void main() {
           const smoothing = 0.92;
 
           smoothMouseRef.current.x =
-            smoothMouseRef.current.x * smoothing +
-            mouseRef.current.x * (1 - smoothing);
+            smoothMouseRef.current.x * smoothing + mouseRef.current.x * (1 - smoothing);
           smoothMouseRef.current.y =
-            smoothMouseRef.current.y * smoothing +
-            mouseRef.current.y * (1 - smoothing);
+            smoothMouseRef.current.y * smoothing + mouseRef.current.y * (1 - smoothing);
 
-          uniforms.mousePos.value = [
-            smoothMouseRef.current.x,
-            smoothMouseRef.current.y,
-          ];
+          uniforms.mousePos.value = [smoothMouseRef.current.x, smoothMouseRef.current.y];
         }
 
         try {
@@ -312,8 +305,7 @@ void main() {
         if (renderer) {
           try {
             const canvas = renderer.gl.canvas;
-            const loseContextExt =
-              renderer.gl.getExtension("WEBGL_lose_context");
+            const loseContextExt = renderer.gl.getExtension("WEBGL_lose_context");
             if (loseContextExt) {
               loseContextExt.loseContext();
             }
@@ -357,8 +349,7 @@ void main() {
   ]);
 
   useEffect(() => {
-    if (!uniformsRef.current || !containerRef.current || !rendererRef.current)
-      return;
+    if (!uniformsRef.current || !containerRef.current || !rendererRef.current) return;
 
     const u = uniformsRef.current;
     const renderer = rendererRef.current;
@@ -393,6 +384,7 @@ void main() {
     distortion,
   ]);
 
+  // (client-passive-event-listeners) Use passive listener for mousemove
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!containerRef.current || !rendererRef.current) return;
@@ -403,17 +395,12 @@ void main() {
     };
 
     if (followMouse) {
-      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mousemove", handleMouseMove, { passive: true });
       return () => window.removeEventListener("mousemove", handleMouseMove);
     }
   }, [followMouse]);
 
-  return (
-    <div
-      ref={containerRef}
-      className={`light-rays-container ${className}`.trim()}
-    />
-  );
+  return <div ref={containerRef} className={`light-rays-container ${className}`.trim()} />;
 };
 
 export default LightRays;
