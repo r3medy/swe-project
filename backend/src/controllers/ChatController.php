@@ -3,12 +3,9 @@
 namespace src\Controllers;
 
 use Psr\Container\ContainerInterface;
-use src\Core\ApiResponse;
 use src\Models\chatModel;
 
 class ChatController {
-    use ApiResponse;
-
     private $db;
     private $chatModel;
     
@@ -35,11 +32,17 @@ class ChatController {
         if(!$participants) return $this->error($response, 'Chat not found', 404);
         if($participants['clientId'] != $_SESSION['userId'] && $participants['freelancerId'] != $_SESSION['userId']) return $this->error($response, 'Unauthorized', 401);
 
-        $message = trim((string) (($request->getParsedBody() ?? [])['messageContent'] ?? ''));
-        if($message === '') return $this->error($response, 'Message is required', 400);
+        $message = $request->getParsedBody()['messageContent'] ?? null;
+        if(!$message) return $this->error($response, 'Message is required', 400);
         
         $this->chatModel->sendMessage($chatId, $_SESSION['userId'], $message);
         $response->getBody()->write(json_encode(['status' => 200, 'message' => 'Message sent successfully']));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
+
+    private function error($response, $message, $status) {
+        $response->getBody()->write(json_encode(['error' => $message]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
+
 }

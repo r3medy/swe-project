@@ -15,10 +15,6 @@ class WallModel
     // Get posts based on filters
     //-----------------------------
     public function getPostsByFilter($filters) {
-        $page = max(1, (int) ($filters['page'] ?? 1));
-        $limit = min(50, max(1, (int) ($filters['limit'] ?? 20)));
-        $offset = ($page - 1) * $limit;
-
         $query = "SELECT p.*, u.firstName, u.lastName, u.profilePicture, u.gender,
                          GROUP_CONCAT(DISTINCT CONCAT(t.tagId, ':', t.tagName) SEPARATOR ',') as tagList,
                          (SELECT COUNT(*) FROM proposals pr WHERE pr.postId = p.postId) as proposalCount
@@ -58,9 +54,6 @@ class WallModel
 
         $sortClause = $this->getSortClause($filters['sortBy'] ?? null);
         $query .= " " . $sortClause;
-        $query .= " LIMIT ? OFFSET ?";
-        $params[] = $limit;
-        $params[] = $offset;
 
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);

@@ -1,10 +1,10 @@
 import "@/pages/NewPost/NewPost.css";
 import { firstStepSchema, secondStepSchema } from "@/models/newpost.zod";
-import { useSession } from "@/contexts/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router";
-import { Button, SmallText } from "@/components";
+import { Button, Input, SmallText, Select } from "@/components";
+import { API_BASE_URL } from "@/config";
 import { toast } from "react-hot-toast";
-import { get, postForm } from "@/utils/request";
 
 import illustration1 from "@/assets/illustrations/business-deal.svg";
 import illustration2 from "@/assets/illustrations/financial-literacy.svg";
@@ -12,37 +12,7 @@ import illustration3 from "@/assets/illustrations/market-fair.svg";
 import illustration4 from "@/assets/illustrations/insurance.svg";
 
 import { LuArrowLeft, LuArrowRight } from "react-icons/lu";
-import { useCallback, useEffect, useMemo, useState } from "react";
-
-import FirstStepForm from "./components/FirstStepForm";
-import SecondStepForm from "./components/SecondStepForm";
-import ThirdStepForm from "./components/ThirdStepForm";
-import FourthStepForm from "./components/FourthStepForm";
-
-const STEP_VALIDATIONS = [firstStepSchema, secondStepSchema];
-
-const CREATION_STEPS = [
-  {
-    illustration: illustration1,
-    title: "What would you like done?",
-    subtitle: "Describe your job post",
-  },
-  {
-    illustration: illustration2,
-    title: "How much would you like to pay?",
-    subtitle: "Choose the payment method you wanna use",
-  },
-  {
-    illustration: illustration3,
-    title: "What matches your job?",
-    subtitle: "Choose the tags that match your job",
-  },
-  {
-    illustration: illustration4,
-    title: "Let's finish it!",
-    subtitle: "Get it done!",
-  },
-];
+import { useEffect, useState } from "react";
 
 const CreationStep = ({
   illustration,
@@ -53,7 +23,9 @@ const CreationStep = ({
   handleBackstep,
   handleNextstep,
   isLoading,
+  tags,
   selectedTags,
+  setSelectedTags,
 }) => {
   return (
     <div className="post-creation">
@@ -71,7 +43,7 @@ const CreationStep = ({
           disabled={
             isLoading ||
             currentStep === 4 ||
-            (currentStep === 3 && selectedTags.length === 0)
+            (currentStep === 3 && selectedTags.length == 0)
           }
           onClick={handleNextstep}
         >
@@ -115,26 +87,24 @@ const NewPost = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  const fetchTags = useCallback(async () => {
-    try {
-      const data = await get(`/tags`);
-      setTags(data ?? []);
-    } catch {
-      toast.error("Failed to load tags");
-      setTags([]);
-    }
-  }, []);
+  const fetchTags = async () => {
+    const response = await fetch(`${API_BASE_URL}/tags`);
+    const data = await response.json();
+    setTags(data);
+  };
 
   useEffect(() => {
     if (isFetchingSession) return;
     fetchTags();
     if (!user?.userId || user?.role === "Freelancer") navigate("/");
-  }, [fetchTags, user, isFetchingSession, navigate]);
+  }, [user, isFetchingSession]);
 
-  const handleNextstep = useCallback((e) => {
+  const Validations = [firstStepSchema, secondStepSchema];
+
+  const handleNextstep = (e) => {
     e.preventDefault();
     if (currentStep <= 2) {
-      const validation = STEP_VALIDATIONS[currentStep - 1].safeParse(postDetails);
+      const validation = Validations[currentStep - 1].safeParse(postDetails);
       if (!validation.success) {
         setFormErrors(validation.error.flatten().fieldErrors);
         return;
@@ -142,18 +112,16 @@ const NewPost = () => {
     } else if (currentStep === 3 && selectedTags.length === 0)
       return toast.error("Please select at least one tag");
     setCurrentStep((prev) => prev + 1);
-  }, [currentStep, postDetails, selectedTags]);
+  };
 
-  const handleBackstep = useCallback((e) => {
+  const handleBackstep = (e) => {
     e.preventDefault();
     if (currentStep !== 1) setCurrentStep((prev) => prev - 1);
-  }, [currentStep]);
+  };
 
-  const handleChangePostThumbnail = useCallback((file) => {
-    setThumbnailFile(file);
-  }, []);
+  const handleChangePostThumbnail = (file) => setThumbnailFile(file);
 
-  const handleCreation = useCallback(async (e) => {
+  const handleCreation = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -167,78 +135,170 @@ const NewPost = () => {
     if (thumbnailFile) formData.append("jobThumbnail", thumbnailFile);
 
     try {
-      const data = await postForm(`/posts`, formData);
-      if (data?.status === 201) {
+      const res = await fetch(`${API_BASE_URL}/posts`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.status === 201) {
         toast.success("Post created successfully");
         navigate("/");
-      } else {
-        throw new Error(data?.message || "Failed to create post");
-      }
+      } else throw new Error(data.message);
     } catch (e) {
       toast.error(e.message);
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, postDetails, selectedTags, thumbnailFile]);
+  };
 
-  const stepForms = useMemo(
-    () => [
-      <FirstStepForm
-        key="step-1"
-        postDetails={postDetails}
-        setPostDetails={setPostDetails}
-        formErrors={formErrors}
-        handleNextstep={handleNextstep}
-        isLoading={isLoading}
-        handleChangePostThumbnail={handleChangePostThumbnail}
-      />,
-      <SecondStepForm
-        key="step-2"
-        postDetails={postDetails}
-        setPostDetails={setPostDetails}
-        formErrors={formErrors}
-        handleNextstep={handleNextstep}
-        isLoading={isLoading}
-      />,
-      <ThirdStepForm
-        key="step-3"
-        tags={tags}
-        selectedTags={selectedTags}
-        setSelectedTags={setSelectedTags}
-        handleNextstep={handleNextstep}
-        isLoading={isLoading}
-      />,
-      <FourthStepForm
-        key="step-4"
-        handleCreation={handleCreation}
-        isLoading={isLoading}
-      />,
-    ],
-    [
-      formErrors,
-      handleChangePostThumbnail,
-      handleCreation,
-      handleNextstep,
-      isLoading,
-      postDetails,
-      selectedTags,
-      tags,
-    ],
+  const FirstStepForm = (
+    <form>
+      <Input
+        label="Post Thumbnail"
+        type="file"
+        name="postthumbnail"
+        accept="image/jpeg,image/png"
+        onChange={(e) => {
+          if (e.target.files[0]) {
+            handleChangePostThumbnail(e.target.files[0]);
+          }
+        }}
+      />
+      <Input
+        type="text"
+        label="Title"
+        name="title"
+        placeholder="Design a website"
+        value={postDetails.title}
+        required
+        onChange={(e) =>
+          setPostDetails({ ...postDetails, title: e.target.value })
+        }
+        errors={formErrors?.title}
+      />
+      <Input.TextArea
+        label="Description"
+        name="description"
+        placeholder="Describe your job post"
+        value={postDetails.description}
+        required
+        onChange={(e) =>
+          setPostDetails({ ...postDetails, description: e.target.value })
+        }
+        errors={formErrors?.description}
+      />
+      <Button onClick={handleNextstep} disabled={isLoading}>
+        Next Step
+      </Button>
+    </form>
   );
 
-  const step = CREATION_STEPS[currentStep - 1];
+  const SecondStepForm = (
+    <form>
+      <Select
+        label="Payment Method"
+        name="paymentMethod"
+        value={postDetails.paymentMethod}
+        options={["Select payment type", "Fixed", "Hourly"]}
+        required
+        onChange={(e) =>
+          setPostDetails({ ...postDetails, paymentMethod: e.target.value })
+        }
+        errors={formErrors?.paymentMethod}
+      />
+      <Input
+        type="number"
+        label="Payment Amount"
+        name="paymentAmount"
+        placeholder="Enter payment amount"
+        value={postDetails.paymentAmount}
+        step="0.01"
+        min="1"
+        required
+        onChange={(e) =>
+          setPostDetails({ ...postDetails, paymentAmount: e.target.value })
+        }
+        errors={formErrors?.paymentAmount}
+      />
+      <Button onClick={handleNextstep} disabled={isLoading}>
+        Next Step
+      </Button>
+    </form>
+  );
+
+  const ThirdStepForm = (
+    <>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+        {tags.map((tag) => {
+          return (
+            <SmallText.ClickableBadge
+              key={tag.tagId}
+              text={tag.tagName}
+              isClicked={selectedTags.includes(tag.tagId)}
+              onClick={() =>
+                selectedTags.includes(tag.tagId)
+                  ? setSelectedTags(selectedTags.filter((t) => t !== tag.tagId))
+                  : setSelectedTags([...selectedTags, tag.tagId])
+              }
+            />
+          );
+        })}
+      </div>
+      <Button onClick={handleNextstep} disabled={isLoading}>
+        Next Step
+      </Button>
+    </>
+  );
+
+  const FourthStepForm = (
+    <form>
+      <Button onClick={handleCreation} disabled={isLoading}>
+        Finish!
+      </Button>
+    </form>
+  );
+
+  const Forms = [FirstStepForm, SecondStepForm, ThirdStepForm, FourthStepForm];
 
   return (
     <CreationStep
-      illustration={step.illustration}
-      title={step.title}
-      subtitle={step.subtitle}
-      form={stepForms[currentStep - 1]}
+      illustration={
+        currentStep === 1
+          ? illustration1
+          : currentStep === 2
+            ? illustration2
+            : currentStep === 3
+              ? illustration3
+              : illustration4
+      }
+      title={
+        currentStep === 1
+          ? "What would you like done?"
+          : currentStep === 2
+            ? "How much would you like to pay?"
+            : currentStep === 3
+              ? "What matches your job?"
+              : "Let's finish it!"
+      }
+      subtitle={
+        currentStep === 1
+          ? "Describe your job post"
+          : currentStep === 2
+            ? "Choose the payment method you wanna use"
+            : currentStep === 3
+              ? "Choose the tags that match your job"
+              : "Get it done!"
+      }
+      form={Forms[currentStep - 1]}
       currentStep={currentStep}
       handleBackstep={handleBackstep}
       handleNextstep={handleNextstep}
       isLoading={isLoading}
+      tags={tags}
       selectedTags={selectedTags}
+      setSelectedTags={setSelectedTags}
     />
   );
 };

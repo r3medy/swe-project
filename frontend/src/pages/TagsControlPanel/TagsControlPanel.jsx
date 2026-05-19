@@ -6,55 +6,38 @@ import {
   SmallText,
   Tooltip,
   Button,
+  Drawer,
   Input,
-  PaginationControls,
 } from "@/components";
-import { get, post, del } from "@/utils/request";
-import { buildPaginatedPath, hasNextPage } from "@/utils/pagination";
-import { LuPlus, LuTrash } from "react-icons/lu";
+import { API_BASE_URL } from "@/config";
+import { LuPlus, LuTrash, LuBrush } from "react-icons/lu";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-
-const TAGS_PAGE_SIZE = 20;
 
 function TagsControlPanel() {
   const [tags, setTags] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [newTagName, setNewTagName] = useState("");
-  const [page, setPage] = useState(1);
+  const [selectedTag, setSelectedTag] = useState(null);
+  const [newTagName, setNewTagName] = useState();
 
-  const fetchTags = useCallback(async (pageToFetch = 1) => {
-    try {
-      setIsLoading(true);
-      const data = await get(
-        buildPaginatedPath("/tags", {
-          page: pageToFetch,
-          limit: TAGS_PAGE_SIZE,
-        }),
-      );
-      setTags(data);
-      setPage(pageToFetch);
-    } catch {
-      toast.error("Failed to load tags");
-      setTags([]);
-    } finally {
-      setIsLoading(false);
-    }
+  const fetchTags = useCallback(() => {
+    setIsLoading(true);
+
+    fetch(`${API_BASE_URL}/tags`)
+      .then((res) => res.json())
+      .then((data) => setTags(data))
+      .finally(() => setIsLoading(false));
   }, []);
-
-  const handlePageChange = useCallback(
-    (nextPage) => {
-      if (nextPage < 1) return;
-      fetchTags(nextPage);
-    },
-    [fetchTags],
-  );
 
   const handleDeleteTag = (tagId) => {
     toast.promise(
-      del(`/tags/${tagId}`).then((data) => {
-        fetchTags(page);
-        return data;
+      fetch(`${API_BASE_URL}/tags/${tagId}`, {
+        method: "DELETE",
+        credentials: "include",
+      }).then((res) => {
+        if (!res.ok) throw new Error("Failed to delete tag");
+        fetchTags();
+        return res.json();
       }),
       {
         loading: "Deleting tag...",
@@ -67,10 +50,18 @@ function TagsControlPanel() {
     if (!newTagName || newTagName.length === 0)
       return toast.error("Tag name is required");
     toast.promise(
-      post("/tags", { tagName: newTagName }).then((data) => {
-        fetchTags(1);
+      fetch(`${API_BASE_URL}/tags`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tagName: newTagName }),
+      }).then((res) => {
+        if (!res.ok) throw new Error("Failed to add tag");
+        fetchTags();
         setNewTagName("");
-        return data;
+        return res.json();
       }),
       {
         loading: "Adding tag...",
@@ -82,7 +73,7 @@ function TagsControlPanel() {
 
   useEffect(() => {
     fetchTags();
-  }, [fetchTags]);
+  }, []);
 
   return (
     <div className="tags-container">
@@ -90,14 +81,16 @@ function TagsControlPanel() {
       {isLoading && (
         <Status text="Loading" subtext="Please wait while we load the tags" />
       )}
-      {!isLoading && tags.length === 0 && page === 1 && (
+      {!isLoading && tags.length === 0 && (
         <Status.Error text="No tags" subtext="No tags found" />
       )}
-      {!isLoading && (tags.length > 0 || page > 1) && (
+      {!isLoading && tags.length > 0 && (
         <>
           <div className="tags-header">
             <h2>Tags control panel</h2>
-            <SmallText text={`Showing page ${page} of your tags`} />
+            <SmallText
+              text={`Where you could manage your ${tags.length} tags`}
+            />
             <div className="tags-header-input">
               <Input
                 name="add-new-tag"
@@ -122,13 +115,13 @@ function TagsControlPanel() {
               </Tooltip>,
             ])}
           />
-          <PaginationControls
-            page={page}
-            hasNextPage={hasNextPage(tags, TAGS_PAGE_SIZE)}
-            isLoading={isLoading}
-            onPageChange={handlePageChange}
-            label="Tags"
-          />
+          <Drawer
+            isOpen={!!selectedTag}
+            title="Edit Tag"
+            onClose={() => setSelectedTag(null)}
+          >
+            <p>edit tag</p>
+          </Drawer>
         </>
       )}
     </div>

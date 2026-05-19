@@ -1,11 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import { toast } from "react-hot-toast";
-import { get, post } from "@/utils/request";
-import { buildPaginatedPath, hasNextPage } from "@/utils/pagination";
-
-const WALL_PAGE_SIZE = 20;
-const TAGS_FILTER_LIMIT = 50;
+import { API_BASE_URL } from "@/config";
 
 const DEFAULT_FILTERS = {
   sortBy: "None",
@@ -13,13 +9,15 @@ const DEFAULT_FILTERS = {
   tags: [],
 };
 
+/**
+ * Custom hook for Wall page state management
+ * Follows state-decouple-implementation pattern
+ */
 export function useWall() {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [tags, setTags] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [canLoadNextPage, setCanLoadNextPage] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState(DEFAULT_FILTERS);
   const [searchTerm, setSearchTerm] = useState("");
   const [proposalInfo, setProposalInfo] = useState({
@@ -28,6 +26,7 @@ export function useWall() {
   });
   const [openDrawer, setOpenDrawer] = useState(null);
 
+  // Build query params - extracted into a pure function
   const buildQueryParams = useCallback((search, filters) => {
     const params = new URLSearchParams();
     if (search) params.append("searchTerm", search);
@@ -38,70 +37,47 @@ export function useWall() {
   }, []);
 
   const fetchPosts = useCallback(
-    async (search = "", filters = DEFAULT_FILTERS, pageToFetch = 1) => {
+    async (search = "", filters = DEFAULT_FILTERS) => {
       const queryString = buildQueryParams(search, filters);
-      const path = `/wall${queryString ? `?${queryString}` : ""}`;
-      return get(
-        buildPaginatedPath(path, {
-          page: pageToFetch,
-          limit: WALL_PAGE_SIZE,
-        }),
-      );
+      const url = `${API_BASE_URL}/wall${queryString ? `?${queryString}` : ""}`;
+      const res = await fetch(url, { method: "GET", credentials: "include" });
+      return res.json();
     },
     [buildQueryParams],
   );
 
   const fetchTags = useCallback(async () => {
-    return get(buildPaginatedPath("/tags", { page: 1, limit: TAGS_FILTER_LIMIT }));
+    const res = await fetch(`${API_BASE_URL}/tags`);
+    return res.json();
   }, []);
 
-  const loadPosts = useCallback(
-    async ({
-      pageToFetch = 1,
-      search = searchTerm,
-      filters = selectedFilters,
-      errorMessage = "Failed to load posts",
-    } = {}) => {
-      try {
-        setIsLoading(true);
-        const postsData = await fetchPosts(search, filters, pageToFetch);
-        setPosts(postsData);
-        setPage(pageToFetch);
-        setCanLoadNextPage(hasNextPage(postsData, WALL_PAGE_SIZE));
-      } catch (e) {
-        console.error(e);
-        toast.error(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [fetchPosts, searchTerm, selectedFilters],
-  );
-
   const handleSearch = useCallback(async () => {
-    await loadPosts({
-      pageToFetch: 1,
-      search: searchTerm,
-      filters: selectedFilters,
-      errorMessage: "Failed to search posts",
-    });
-  }, [loadPosts, searchTerm, selectedFilters]);
-
-  const handlePageChange = useCallback(async (nextPage) => {
-    if (nextPage < 1) return;
-    await loadPosts({ pageToFetch: nextPage });
-  }, [loadPosts]);
+    try {
+      setIsLoading(true);
+      const postsData = await fetchPosts(searchTerm, selectedFilters);
+      setPosts(postsData);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to search posts");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchPosts, searchTerm, selectedFilters]);
 
   const handleClear = useCallback(async () => {
     setSearchTerm("");
     setSelectedFilters(DEFAULT_FILTERS);
-    await loadPosts({
-      pageToFetch: 1,
-      search: "",
-      filters: DEFAULT_FILTERS,
-      errorMessage: "Failed to clear filters",
-    });
-  }, [loadPosts]);
+    try {
+      setIsLoading(true);
+      const postsData = await fetchPosts("", DEFAULT_FILTERS);
+      setPosts(postsData);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to clear filters");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchPosts]);
 
   const handleSubmitFilters = useCallback(async () => {
     setOpenDrawer(null);
@@ -110,11 +86,15 @@ export function useWall() {
 
   const handleSavePost = useCallback(async (postId) => {
     try {
-      const data = await post(`/posts/${postId}`);
-      if (data?.status === 200) {
+      const res = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.status === 200) {
         toast.success(data.message);
       } else {
-        throw new Error(data?.message || "Failed to save post");
+        throw new Error(data.message);
       }
     } catch (e) {
       toast.error(e.message);
@@ -127,21 +107,29 @@ export function useWall() {
       setOpenDrawer(null);
 
       try {
-        const data = await post(`/proposals/${proposalInfo.postId}`, {
-          description: proposalInfo.description,
-        });
-        if (data?.success) {
+        const res = await fetch(
+          `${API_BASE_URL}/proposals/${proposalInfo.postId}`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ description: proposalInfo.description }),
+          },
+        );
+        const data = await res.json();
+        if (data.success) {
           toast.success(data.message);
         } else {
-          toast.error(data?.message || "Failed to submit proposal");
+          toast.error(data.message);
         }
-      } catch (e) {
-        toast.error(e.message || "Failed to submit proposal");
+      } catch {
+        toast.error("Failed to submit proposal");
       }
     },
     [proposalInfo],
   );
 
+  // Functional setState for filter updates (rerender-functional-setstate)
   const updateFilter = useCallback((key, value) => {
     setSelectedFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
@@ -155,6 +143,7 @@ export function useWall() {
     }));
   }, []);
 
+  // Derived state (rerender-derived-state)
   const hasActiveFilters = useMemo(
     () =>
       selectedFilters.sortBy !== "None" ||
@@ -163,22 +152,23 @@ export function useWall() {
     [selectedFilters],
   );
 
+  // Initial load effect - using Promise.all for parallel fetching (async-parallel)
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         const queryFromUrl = searchParams.get("q") || "";
-        setSearchTerm(queryFromUrl);
+        if (queryFromUrl) {
+          setSearchTerm(queryFromUrl);
+        }
 
         const [tagsData, postsData] = await Promise.all([
           fetchTags(),
-          fetchPosts(queryFromUrl, DEFAULT_FILTERS, 1),
+          fetchPosts(queryFromUrl, DEFAULT_FILTERS),
         ]);
 
         setTags(tagsData);
         setPosts(postsData);
-        setPage(1);
-        setCanLoadNextPage(hasNextPage(postsData, WALL_PAGE_SIZE));
       } catch (e) {
         console.error(e);
         toast.error("Failed to load data");
@@ -194,8 +184,6 @@ export function useWall() {
     isLoading,
     tags,
     posts,
-    page,
-    canLoadNextPage,
     selectedFilters,
     searchTerm,
     setSearchTerm,
@@ -208,7 +196,6 @@ export function useWall() {
     // Actions
     handleSearch,
     handleClear,
-    handlePageChange,
     handleSubmitFilters,
     handleSavePost,
     handleSubmitProposal,

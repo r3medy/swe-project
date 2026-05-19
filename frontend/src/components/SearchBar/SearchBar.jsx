@@ -2,23 +2,15 @@ import { useRef } from "react";
 import { LuSearch } from "react-icons/lu";
 import "@/components/SearchBar/SearchBar.css";
 
-const SearchBar = ({ onSearch, value, onChange, ...props }) => {
+const SearchBar = ({ onSearch, ...props }) => {
   const inputRef = useRef(null);
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter" && onSearch) {
-      onSearch(value ?? e.target.value);
-    }
+    if (e.key === "Enter" && onSearch) onSearch(e.target.value);
   };
 
   const handleIconClick = () => {
-    if (onSearch) {
-      onSearch(value ?? inputRef.current?.value ?? "");
-    }
-  };
-
-  const handleChange = (e) => {
-    if (onChange) onChange(e);
+    if (onSearch && inputRef.current) onSearch(inputRef.current.value);
   };
 
   return (
@@ -28,8 +20,6 @@ const SearchBar = ({ onSearch, value, onChange, ...props }) => {
         type="text"
         placeholder="Enter a name, tag, or what you desire..."
         onKeyDown={handleKeyDown}
-        onChange={handleChange}
-        value={value}
         {...props}
       />
       <LuSearch onClick={handleIconClick} />

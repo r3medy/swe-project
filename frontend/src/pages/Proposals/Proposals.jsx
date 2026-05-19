@@ -1,10 +1,9 @@
 import "@/pages/Proposals/Proposals.css";
 import { Navigation, SmallText, Status, Tooltip, Button } from "@/components";
-import { useSession } from "@/contexts/useSession";
-import { assetUrl } from "@/config";
-import { get, put } from "@/utils/request";
+import { useSession } from "@/contexts/SessionContext";
+import { API_BASE_URL, assetUrl } from "@/config";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
 import { LuCheck, LuX } from "react-icons/lu";
@@ -18,20 +17,13 @@ function Proposals() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchPostProposals = useCallback(async (postId) => {
+  const fetchPosts = async () => {
     try {
-      const { proposals } = await get(`/proposals/${postId}`);
-      return proposals || [];
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-  }, []);
-
-  const fetchPosts = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const responseData = await get("/profile/clientPosts/");
+      const response = await fetch(`${API_BASE_URL}/profile/clientPosts/`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const responseData = await response.json();
       const clientPosts = responseData?.clientPosts || [];
 
       const postsWithProposals = await Promise.all(
@@ -48,28 +40,46 @@ function Proposals() {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchPostProposals]);
+  };
 
-  const handleUpdateProposal = useCallback(
-    async (postId, proposalId, action = "accept") => {
-      try {
-        const responseData = await put(
-          `/proposals/${action}/${postId}/${proposalId}`,
+  const fetchPostProposals = async (postId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/proposals/${postId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const { proposals } = await response.json();
+      return proposals || [];
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
+
+  const handleUpdateProposal = async (
+    postId,
+    proposalId,
+    action = "accept",
+  ) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/proposals/${action}/${postId}/${proposalId}`,
+        {
+          method: "PUT",
+          credentials: "include",
+        },
+      );
+      const responseData = await response.json();
+      if (responseData.success) {
+        toast.success(
+          `${responseData.message}, You will be redirected to the chat`,
         );
-        if (responseData.success) {
-          toast.success(
-            `${responseData.message}, You will be redirected to the chat`,
-          );
-          navigate(`/chat`);
-        } else {
-          throw new Error(responseData.message);
-        }
-      } catch (error) {
-        toast.error(error.message);
-      }
-    },
-    [navigate],
-  );
+        navigate(`/chat`);
+      } else throw new Error(responseData.message);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   useEffect(() => {
     if (!user?.userId || user?.role === "Freelancer") navigate("/");
@@ -77,7 +87,7 @@ function Proposals() {
 
   useEffect(() => {
     fetchPosts();
-  }, [fetchPosts]);
+  }, []);
 
   return (
     <>

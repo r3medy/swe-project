@@ -40,6 +40,12 @@ const Select = ({
   );
 };
 
+/**
+ * SelectCountries - Data-driven country selector variant.
+ * Country data is extracted to a separate module so the static data
+ * isn't re-created in the JSX tree on every render (rendering-hoist-jsx).
+ * Uses ternary instead of && for conditional rendering (rendering-conditional-render).
+ */
 const SelectCountries = (props) => {
   return (
     <Select {...props}>

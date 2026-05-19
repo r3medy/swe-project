@@ -12,13 +12,18 @@ import {
   SideDrawer,
   Status,
   Input,
-  PaginationControls,
 } from "@/components";
-import { useSession } from "@/contexts/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import { useWall } from "./hooks/useWall";
 import WallPostCard from "./components/WallPostCard";
 import FilterContent from "./components/FilterContent";
 
+/**
+ * Wall page - refactored following composition patterns
+ * - Extracted state management to useWall hook (state-decouple-implementation)
+ * - Extracted components for memoization (rerender-memo)
+ * - Using useCallback for stable event handlers
+ */
 function Wall() {
   const { user: me } = useSession();
 
@@ -26,8 +31,6 @@ function Wall() {
     isLoading,
     tags,
     posts,
-    page,
-    canLoadNextPage,
     selectedFilters,
     searchTerm,
     setSearchTerm,
@@ -38,7 +41,6 @@ function Wall() {
     hasActiveFilters,
     handleSearch,
     handleClear,
-    handlePageChange,
     handleSubmitFilters,
     handleSavePost,
     handleSubmitProposal,
@@ -46,6 +48,7 @@ function Wall() {
     toggleTag,
   } = useWall();
 
+  // Stable callbacks using useCallback
   const openFilters = useCallback(
     () => setOpenDrawer("filters"),
     [setOpenDrawer],
@@ -103,6 +106,7 @@ function Wall() {
           )}
         </div>
 
+        {/* Explicit conditional rendering (rendering-conditional-render) */}
         {isLoading ? (
           <Status
             text="Loading..."
@@ -126,15 +130,6 @@ function Wall() {
             subtext="Try adjusting your filters"
           />
         )}
-        {!isLoading && (posts.length > 0 || page > 1) ? (
-          <PaginationControls
-            page={page}
-            hasNextPage={canLoadNextPage}
-            isLoading={isLoading}
-            onPageChange={handlePageChange}
-            label="Wall posts"
-          />
-        ) : null}
       </div>
 
       <SideDrawer

@@ -38,19 +38,6 @@ function Chat() {
     );
   }
 
-  if (!user || !user.userId) {
-    return (
-      <>
-        <Navigation />
-        <div className="chat-page">
-          <div className="chat-container">
-            <Status text="Redirecting..." subtext="You need to be logged in to access chat" />
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <Navigation />

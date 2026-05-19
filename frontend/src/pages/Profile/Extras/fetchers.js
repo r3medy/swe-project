@@ -1,4 +1,4 @@
-import { get } from "@/utils/request";
+import { API_BASE_URL, assetUrl } from "@/config";
 
 export const fetchProfile = async (
   profileQuery,
@@ -6,7 +6,21 @@ export const fetchProfile = async (
   setBackupProfile,
 ) => {
   try {
-    const data = await get(`/profile/${profileQuery ?? ""}`);
+    const response = await fetch(
+      `${API_BASE_URL}/profile/${profileQuery ?? ""}`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    if (!response.ok) {
+      setProfile(null);
+      return null;
+    }
+    const data = await response.json();
     if (!data?.user) {
       setProfile(null);
       return null;
@@ -16,15 +30,21 @@ export const fetchProfile = async (
     return data.user;
   } catch (err) {
     console.error("Failed to fetch profile:", err);
-    setProfile(null);
     return null;
   }
 };
 
 export const fetchTags = async (setTags) => {
   try {
-    const data = await get(`/tags`);
-    setTags(data ?? []);
+    const response = await fetch(`${API_BASE_URL}/tags`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    setTags(data);
   } catch (err) {
     console.error("Failed to fetch tags:", err);
     setTags([]);
@@ -33,7 +53,14 @@ export const fetchTags = async (setTags) => {
 
 export const fetchSavedPosts = async (setProfile, setBackupProfile) => {
   try {
-    const data = await get(`/profile/saved`);
+    const response = await fetch(`${API_BASE_URL}/profile/savedPosts`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
     setProfile((prev) =>
       prev ? { ...prev, savedPosts: data?.savedPosts } : null,
     );
@@ -51,7 +78,17 @@ export const fetchPosts = async (
   setBackupProfile,
 ) => {
   try {
-    const data = await get(`/profile/clientPosts/${profileQuery ?? ""}`);
+    const response = await fetch(
+      `${API_BASE_URL}/profile/clientPosts/${profileQuery ?? ""}`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    const data = await response.json();
     setProfile((prev) =>
       prev ? { ...prev, clientPosts: data?.clientPosts } : null,
     );

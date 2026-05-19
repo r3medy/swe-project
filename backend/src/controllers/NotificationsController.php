@@ -3,12 +3,9 @@
 namespace src\Controllers;
 
 use Psr\Container\ContainerInterface;
-use src\Core\ApiResponse;
 use src\Models\notificationModel;
 
 class NotificationsController {
-    use ApiResponse;
-
     private $db;
     private $notificationModel;
 
@@ -17,12 +14,16 @@ class NotificationsController {
         $this->notificationModel = new notificationModel($this->db);
     }
 
+    private function error($response, $message, $status) {
+        $response->getBody()->write(json_encode(['error' => $message]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
+
     // Get all notifications
     public function getAllNotifications($request, $response) {
         if (!isset($_SESSION['userId'])) return $this->error($response,'Unauthorized',401);
 
-        $query = $request->getQueryParams();
-        $notifications = $this->notificationModel->getAll($_SESSION['userId'], $query['page'] ?? 1, $query['limit'] ?? 50);
+        $notifications = $this->notificationModel->getAll($_SESSION['userId']);
 
         $response->getBody()->write(json_encode(['notifications' => $notifications]));
         return $response->withHeader('Content-Type','application/json')->withStatus(200);

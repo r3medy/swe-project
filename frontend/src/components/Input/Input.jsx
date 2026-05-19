@@ -1,5 +1,9 @@
 import "./Input.css";
 
+/**
+ * Shared error list renderer - hoisted to avoid re-creation
+ * (rendering-hoist-jsx pattern)
+ */
 const ErrorList = ({ errors }) => {
   if (!errors?.length) return null;
   return errors.map((err, idx) => (
@@ -15,7 +19,6 @@ const Input = ({ label, name, type, placeholder, value, errors, children, ...pro
       <label htmlFor={name}>{label}</label>
       <div className="input-wrapper">
         <input
-          id={name}
           name={name}
           type={type}
           placeholder={placeholder}
@@ -35,7 +38,6 @@ const TextArea = ({ label, name, placeholder, value, errors, children, ...props 
       <label htmlFor={name}>{label}</label>
       <div className="input-wrapper">
         <textarea
-          id={name}
           name={name}
           placeholder={placeholder}
           value={value}

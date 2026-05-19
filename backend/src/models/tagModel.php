@@ -44,13 +44,9 @@ class tagModel {
         ]);
     }
 
-    public function getAllTags($page = 1, $limit = 50) {
-        $page = max(1, (int) $page);
-        $limit = min(50, max(1, (int) $limit));
-        $offset = ($page - 1) * $limit;
-
-        $stmt = $this->db->prepare("SELECT * FROM tags ORDER BY tagName ASC LIMIT ? OFFSET ?");
-        $stmt->execute([$limit, $offset]);
+    public function getAllTags() {
+        $stmt = $this->db->prepare("SELECT * FROM tags");
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 }

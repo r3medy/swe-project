@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 
-import { useSession } from "@/contexts/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import { API_BASE_URL } from "@/config";
 import "@/pages/Register/Register.css";
 import { registerSchema } from "@/models/register.zod";

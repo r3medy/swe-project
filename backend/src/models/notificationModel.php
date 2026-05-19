@@ -11,14 +11,10 @@ class notificationModel {
     }
 
     // Get all notifications
-    public function getAll($userId, $page = 1, $limit = 50) {
-       $page = max(1, (int) $page);
-       $limit = min(50, max(1, (int) $limit));
-       $offset = ($page - 1) * $limit;
-
-       $stmt = $this->db->prepare("SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT ? OFFSET ?");
+    public function getAll($userId) {
+       $stmt = $this->db->prepare("SELECT * FROM notifications WHERE userId = :userId ORDER BY createdAt DESC");
        
-       $stmt->execute([$userId, $limit, $offset]);
+       $stmt->execute(['userId' => $userId]);
        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -31,7 +27,7 @@ class notificationModel {
         ");
         $stmt->execute(['userId' => $userId]);
 
-        return $stmt->rowCount();
+        return ["status" => 200, "message" => "Marked all notifications as read"];
     }
 
     // Delete a notification
@@ -44,7 +40,7 @@ class notificationModel {
             'userId' => $userId
         ]);
         
-        return $stmt->rowCount();
+        return ["status" => 200, "message" => "Notification deleted"];
     }
 
     // Add notification

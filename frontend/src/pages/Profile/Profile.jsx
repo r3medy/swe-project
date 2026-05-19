@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
 import toast from "react-hot-toast";
 
 import "./Profile.css";
 
-import { useSession } from "@/contexts/useSession";
+import { useSession } from "@/contexts/SessionContext";
 import { Navigation, Button, Status } from "@/components";
 import {
   fetchProfile,
@@ -48,7 +48,7 @@ const Profile = () => {
           await fetchPosts(profileQuery, setProfile, setBackupProfile);
         if (user && fetchedProfile?.userId == user?.userId)
           await fetchSavedPosts(setProfile, setBackupProfile);
-      } catch {
+      } catch (e) {
         toast.error("An error occured while loading profile");
       } finally {
         setIsLoading(false);
@@ -111,6 +111,7 @@ const Profile = () => {
         tags={tags}
         selectRef={selectRef}
         setIsLoading={setIsLoading}
+        changes={changes}
         backupProfile={backupProfile}
       />
     </>

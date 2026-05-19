@@ -3,13 +3,10 @@
 namespace src\Controllers;
 
 use Psr\Container\ContainerInterface;
-use src\Core\ApiResponse;
 use src\Models\postModel;
 use src\Models\userModel;
 
 class PostController {
-    use ApiResponse;
-
     private $db;
     private $postModel;
     private $userModel;
@@ -23,21 +20,17 @@ class PostController {
     public function updatePost($request, $response, $args) {
         $userId = $_SESSION['userId'] ?? null;
         if (!$userId) {
-            return $this->error($response, 'Unauthorized', 401);
+            $response->getBody()->write(json_encode(['status' => 401, 'message' => 'Unauthorized']));
+            return $response->withStatus(401);
         }
-
         $me = $this->userModel->getUserById($userId);
-        if (!$me) return $this->error($response, 'Unauthorized', 401);
+        if (($me['role'] !== 'Client' || $userId !== $me['userId']) && $me['role'] !== 'Admin') {
+            $response->getBody()->write(json_encode(['status' => 401, 'message' => 'Unauthorized']));
+            return $response->withStatus(401);
+        }
 
         $postId = $args['postId'];
-        $clientId = $this->postModel->getClientId($postId);
-        if (!$clientId) return $this->error($response, 'Post not found', 404);
-
-        if ($me['role'] !== 'Admin' && (int) $clientId !== (int) $userId) {
-            return $this->error($response, 'Forbidden', 403);
-        }
-
-        $data = $request->getParsedBody() ?? [];
+        $data = $request->getParsedBody();
 
         $allowedFields = ['jobTitle', 'jobDescription', 'budget', 'hourlyRate', 'jobType'];
         $updates = [];
@@ -49,15 +42,8 @@ class PostController {
         }
 
         if (empty($updates)) {
-            return $this->error($response, 'No fields to update', 400);
-        }
-        if (isset($updates['jobType']) && !in_array($updates['jobType'], ['Fixed', 'Hourly'], true)) {
-            return $this->error($response, 'Invalid job type', 400);
-        }
-        foreach (['budget', 'hourlyRate'] as $amountField) {
-            if (isset($updates[$amountField]) && $updates[$amountField] !== null && !is_numeric($updates[$amountField])) {
-                return $this->error($response, "$amountField must be numeric", 400);
-            }
+            $response->getBody()->write(json_encode(['status' => 400, 'message' => 'No fields to update']));
+            return $response->withStatus(400);
         }
 
         $this->postModel->editPost($postId, $updates);
@@ -67,18 +53,14 @@ class PostController {
     }
 
     public function createPost($request, $response, $args) {
-        $requestBody = $request->getParsedBody() ?? [];
+        $requestBody = $request->getParsedBody();
         $userId = $_SESSION['userId'] ?? null;
-
-        if(!$userId) {
-            return $this->error($response, 'Unauthorized', 401);
-        }
-
         $me = $this->userModel->getUserById($userId);
-        if (!$me || $me['role'] === 'Freelancer') return $this->error($response, 'Unauthorized', 401);
 
-        $validationError = $this->validatePostDetails($requestBody);
-        if ($validationError) return $this->error($response, $validationError, 400);
+        if(!$userId || $me['role'] === 'Freelancer') {
+            $response->getBody()->write(json_encode(['status' => 401, 'message' => 'Unauthorized']));
+            return $response->withStatus(401);
+        }
 
         $uploadedFiles = $request->getUploadedFiles();
         $thumbnail     = $uploadedFiles['jobThumbnail'] ?? null;
@@ -118,7 +100,8 @@ class PostController {
         if($isPostSaved) $result = $this->postModel->removeSavedPost($userId, $postId);
         else $result = $this->postModel->savePost($userId, $postId);
 
-        return $this->result($response, $result);
+        $response->getBody()->write(json_encode($result));
+        return $response->withStatus($result['status']);
     }
 
     public function savePost($request, $response, $args) {
@@ -156,22 +139,9 @@ class PostController {
         $response->getBody()->write(json_encode(['status'=> 200, 'message'=> 'Post Deleted Successfully']));
         return $response->withStatus(200);
     }
-    private function validatePostDetails($data) {
-        $requiredFields = ['title', 'description', 'paymentMethod', 'paymentAmount'];
-        foreach ($requiredFields as $field) {
-            if (!isset($data[$field]) || trim((string) $data[$field]) === '') {
-                return "$field is required";
-            }
-        }
 
-        if (!in_array($data['paymentMethod'], ['Fixed', 'Hourly'], true)) {
-            return 'Invalid payment method';
-        }
-
-        if (!is_numeric($data['paymentAmount']) || (float) $data['paymentAmount'] <= 0) {
-            return 'Payment amount must be greater than zero';
-        }
-
-        return null;
+    private function error($response, $message, $statusCode) {
+        $response->getBody()->write(json_encode(['status'=> $statusCode, 'message'=> $message]));
+        return $response->withStatus($statusCode);
     }
 }

@@ -4,48 +4,10 @@
   box-sizing: border-box;
 }
 
-/* ============================================================
-   Design Tokens
-   ============================================================ */
 :root {
-  /* Colors */
   --background: #eef1f9;
   --foreground: #08090b;
   --accent: #ff6b53;
-
-  /* Surfaces (derived) */
-  --surface-1: color-mix(in srgb, var(--foreground), transparent 95%);
-  --surface-2: color-mix(in srgb, var(--foreground), transparent 90%);
-  --surface-3: color-mix(in srgb, var(--foreground), transparent 85%);
-
-  /* Typography */
-  --font-body: "Geist", sans-serif;
-  --font-display: "Playfair Display", serif;
-  --font-display-italic: "Playfair Display", serif;
-
-  /* Spacing scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-
-  /* Radius scale */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 2rem;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-
-  /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
 }
 
 .dark {
@@ -54,20 +16,19 @@
   --accent: #ff6b53;
 }
 
-/* ============================================================
-   Base Styles
-   ============================================================ */
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body);
-  transition: background-color var(--transition-slow), color var(--transition-slow);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
   text-decoration: none;
   color: inherit;
-  transition: color var(--transition-base);
+}
+
+a {
+  transition: color 0.2s ease;
 }
 
 a:link,
@@ -76,7 +37,6 @@ a:active {
   color: var(--foreground);
   opacity: 0.75;
 }
-
 a:hover {
   color: var(--foreground);
   opacity: 1;
@@ -86,45 +46,30 @@ hr {
   width: 75%;
   border: 1px solid var(--foreground);
   opacity: 0.1;
-  margin: var(--space-4) auto;
+  margin: 1rem auto;
 }
 
-hr.vertical {
+hr .vertical {
   width: 1px;
   height: 75%;
   transform: rotate(90deg);
 }
 
-/* ============================================================
-   Font Faces
-   ============================================================ */
 @font-face {
-  font-family: "Playfair Display";
-  src: url("./assets/fonts/PlayfairDisplay Variable Italic.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: italic;
-  font-display: swap;
+  font-family: "Playfair Display Italic";
+  src: url("./assets/fonts/PlayfairDisplay\ Variable\ Italic.ttf");
 }
 
 @font-face {
-  font-family: "Playfair Display";
-  src: url("./assets/fonts/PlayfairDisplay Variable Regular.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+  font-family: "Playfair Display Regular";
+  src: url("./assets/fonts/PlayfairDisplay\ Variable\ Regular.ttf");
 }
 
 @font-face {
   font-family: "Geist";
-  src: url("./assets/fonts/Geist Variable.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+  src: url("./assets/fonts/Geist\ Variable.ttf");
 }
 
-/* ============================================================
-   Utilities
-   ============================================================ */
 .spin {
   animation: rotation 1s linear infinite;
 }
@@ -135,18 +80,5 @@ hr.vertical {
   }
   100% {
     transform: rotate(360deg);
-  }
-}
-
-/* ============================================================
-   Accessibility
-   ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 }

@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { Link, useNavigate } from "react-router";
+// (bundle-barrel-imports) Direct imports instead of barrel re-exports
 import {
   LuLoaderCircle,
   LuFlower,
@@ -23,14 +24,21 @@ import "@/components/Navigation/Navigation.css";
 import Button from "@/components/Button/Button";
 import Dropdown from "@/components/Dropdown/Dropdown";
 import SideDrawer from "@/components/SideDrawer/SideDrawer";
-import { useTheme } from "@/contexts/useTheme";
-import { useSession } from "@/contexts/useSession";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useSession } from "@/contexts/SessionContext";
 import { useNavigation } from "./hooks/useNavigation";
 
 import NotificationsList from "./components/NotificationsList";
 import ChangePasswordDrawer from "./components/ChangePasswordDrawer";
 import DeleteAccountDrawer from "./components/DeleteAccountDrawer";
 
+/**
+ * Navigation component - refactored following composition patterns
+ * - Extracted sub-components for drawer variants (patterns-explicit-variants)
+ * - Using useCallback for stable event handlers (rerender-functional-setstate)
+ * - Memoized derived state via useMemo in useNavigation hook
+ * - Direct imports instead of barrel file (bundle-barrel-imports)
+ */
 const Navigation = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, isFetchingSession, logout } = useSession();
@@ -40,10 +48,7 @@ const Navigation = () => {
     currentDrawer,
     setCurrentDrawer,
     notifications,
-    notificationsPage,
-    canLoadNextNotificationsPage,
     hasUnreadNotifications,
-    handleNotificationsPageChange,
     markAllNotificationsRead,
     deleteNotification,
     passwords,
@@ -59,6 +64,7 @@ const Navigation = () => {
     setIsDeleteLoading,
   } = useNavigation();
 
+  // Stable callbacks using useCallback (rerender-functional-setstate)
   const openChangePassword = useCallback(
     () => setCurrentDrawer("change-password"),
     [setCurrentDrawer],
@@ -107,6 +113,7 @@ const Navigation = () => {
             )}
           </Button.Icon>
 
+          {/* (rendering-conditional-render) Explicit ternary for all conditionals */}
           {isFetchingSession ? (
             <LuLoaderCircle size={20} className="spin" />
           ) : !user ? (
@@ -190,6 +197,7 @@ const Navigation = () => {
         </div>
       </div>
 
+      {/* Explicit variant components for drawers */}
       <ChangePasswordDrawer
         isOpen={currentDrawer === "change-password"}
         onClose={closeDrawer}
@@ -220,9 +228,6 @@ const Navigation = () => {
         <div className="notifications-container">
           <NotificationsList
             notifications={notifications}
-            page={notificationsPage}
-            canLoadNextPage={canLoadNextNotificationsPage}
-            onPageChange={handleNotificationsPageChange}
             onMarkAllRead={markAllNotificationsRead}
             onDeleteNotification={deleteNotification}
           />

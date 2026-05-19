@@ -1,7 +1,6 @@
-CREATE DATABASE IF NOT EXISTS swe_project;
 USE swe_project;
--- ---------------------------
-CREATE TABLE IF NOT EXISTS users (
+---------------------------
+CREATE TABLE users (
   userId INT UNSIGNED AUTO_INCREMENT NOT NULL, 
   role   ENUM('Admin', 'Freelancer', 'Client') NOT NULL DEFAULT 'Client', 
   -- User Details
@@ -21,8 +20,8 @@ CREATE TABLE IF NOT EXISTS users (
   -- Constraints
   PRIMARY KEY (userId)
 );
--- ---------------------------
-CREATE TABLE IF NOT EXISTS posts (
+---------------------------
+CREATE TABLE posts (
   -- IDs
   postId     INT UNSIGNED AUTO_INCREMENT NOT NULL, 
   clientId   INT UNSIGNED NOT NULL, 
@@ -42,8 +41,8 @@ CREATE TABLE IF NOT EXISTS posts (
   PRIMARY KEY (postId), 
   CONSTRAINT fk_posts_client FOREIGN KEY (clientId) REFERENCES users(userId) ON DELETE CASCADE
 );
--- ---------------------------
-CREATE TABLE IF NOT EXISTS savedPosts (
+---------------------------
+CREATE TABLE savedPosts (
   -- Primary keys
   userId   INT UNSIGNED NOT NULL, 
   postId   INT UNSIGNED NOT NULL, 
@@ -53,8 +52,8 @@ CREATE TABLE IF NOT EXISTS savedPosts (
   CONSTRAINT fk_saved_users FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE, 
   CONSTRAINT fk_saved_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE
 );
--- ---------------------------
-CREATE TABLE IF NOT EXISTS proposals (
+---------------------------
+CREATE TABLE proposals (
   -- IDs
   proposalId   INT UNSIGNED AUTO_INCREMENT NOT NULL, 
   freelancerId INT UNSIGNED NOT NULL, 
@@ -66,11 +65,10 @@ CREATE TABLE IF NOT EXISTS proposals (
   -- Constraints
   PRIMARY KEY (proposalId), 
   CONSTRAINT fk_proposal_user FOREIGN KEY (freelancerId) REFERENCES users(userId) ON DELETE CASCADE, 
-  CONSTRAINT fk_proposal_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE,
-  UNIQUE KEY unique_proposal_per_post (freelancerId, postId)
+  CONSTRAINT fk_proposal_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE
 );
--- ---------------------------
-CREATE TABLE IF NOT EXISTS chats (
+---------------------------
+CREATE TABLE chats (
   -- IDs
   chatId       INT UNSIGNED AUTO_INCREMENT NOT NULL,
   postId       INT UNSIGNED NOT NULL,
@@ -89,8 +87,8 @@ CREATE TABLE IF NOT EXISTS chats (
 CREATE INDEX idx_chats_client ON chats (clientId);
 CREATE INDEX idx_chats_freelancer ON chats (freelancerId);
 CREATE INDEX idx_chats_post ON chats (postId);
--- ---------------------------
-CREATE TABLE IF NOT EXISTS messages (
+---------------------------
+CREATE TABLE messages (
   -- IDs
   messageId      INT UNSIGNED AUTO_INCREMENT NOT NULL,
   chatId         INT UNSIGNED NOT NULL,
@@ -109,8 +107,8 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE INDEX idx_messages_chat ON messages (chatId);
 CREATE INDEX idx_messages_sender ON messages (senderId);
 CREATE INDEX idx_messages_sentAt ON messages (sentAt);
--- ---------------------------
-CREATE TABLE IF NOT EXISTS tags (
+---------------------------
+CREATE TABLE tags (
   -- IDs
   tagId        INT UNSIGNED AUTO_INCREMENT NOT NULL, 
   -- Tag Info
@@ -119,8 +117,8 @@ CREATE TABLE IF NOT EXISTS tags (
   -- Constraints
   PRIMARY KEY (tagId)
 );
--- ---------------------------
-CREATE TABLE IF NOT EXISTS usertags (
+---------------------------
+CREATE TABLE usertags (
   -- IDs
   userId INT UNSIGNED NOT NULL, 
   tagId  INT UNSIGNED NOT NULL, 
@@ -129,8 +127,8 @@ CREATE TABLE IF NOT EXISTS usertags (
   CONSTRAINT fk_usertags_user FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE, 
   CONSTRAINT fk_usertags_tag FOREIGN KEY (tagId) REFERENCES tags(tagId) ON DELETE CASCADE
 );
--- ---------------------------
-CREATE TABLE IF NOT EXISTS posttags (
+---------------------------
+CREATE TABLE posttags (
   -- IDs
   postId INT UNSIGNED NOT NULL, 
   tagId  INT UNSIGNED NOT NULL, 
@@ -139,8 +137,8 @@ CREATE TABLE IF NOT EXISTS posttags (
   CONSTRAINT fk_posttags_post FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE, 
   CONSTRAINT fk_posttags_tag FOREIGN KEY (tagId) REFERENCES tags(tagId) ON DELETE CASCADE
 );
--- ---------------------------
-CREATE TABLE IF NOT EXISTS notifications (
+---------------------------
+CREATE TABLE notifications (
   -- IDs
   notificationId INT UNSIGNED AUTO_INCREMENT NOT NULL, 
   userId         INT UNSIGNED NOT NULL, 

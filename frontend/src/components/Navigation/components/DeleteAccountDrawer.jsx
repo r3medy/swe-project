@@ -1,11 +1,16 @@
 import React, { useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
+// (bundle-barrel-imports) Direct imports instead of barrel re-exports
 import Drawer from "@/components/Drawer/Drawer";
 import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
-import { del } from "@/utils/request";
+import { API_BASE_URL } from "@/config";
 
+/**
+ * DeleteAccountDrawer - Explicit variant for account deletion
+ * Follows patterns-explicit-variants pattern
+ */
 const DeleteAccountDrawer = React.memo(function DeleteAccountDrawer({
   isOpen,
   onClose,
@@ -23,7 +28,11 @@ const DeleteAccountDrawer = React.memo(function DeleteAccountDrawer({
       setIsLoading(true);
 
       try {
-        const data = await del("/auth/deleteAccount");
+        const res = await fetch(`${API_BASE_URL}/auth/deleteAccount`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        const data = await res.json();
 
         if (data.status === 200) {
           toast.success("Account deleted successfully");
@@ -34,7 +43,7 @@ const DeleteAccountDrawer = React.memo(function DeleteAccountDrawer({
         }
       } catch (err) {
         console.error(err);
-        toast.error(err.message || "An error occurred");
+        toast.error("An error occurred");
       } finally {
         setIsLoading(false);
       }

@@ -14,17 +14,15 @@ function Table({ headers, rows, ...props }) {
         <tbody>
           {/* (rendering-conditional-render) Ternary instead of && */}
           {rows?.length > 0 ? (
-            rows.map((row, rowIndex) => {
-              const rowId = row?.id ?? rowIndex;
-              const cells = Array.isArray(row) ? row : row?.cells ?? [];
-              return (
-                <tr key={rowId}>
-                  {cells.map((cell, cellIndex) => (
-                    <td key={cellIndex}>{cell}</td>
-                  ))}
-                </tr>
-              );
-            })
+            rows.map((row, rowIndex) => (
+              <tr key={row.id || rowIndex}>
+                {Array.isArray(row)
+                  ? row.map((cell, cellIndex) => (
+                      <td key={cellIndex}>{cell}</td>
+                    ))
+                  : null}
+              </tr>
+            ))
           ) : (
             <tr>
               <td

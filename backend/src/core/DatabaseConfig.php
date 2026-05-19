@@ -1,16 +1,9 @@
 <?php
 // Database configuration
-if (!function_exists('database_config_env')) {
-    function database_config_env($key, $default) {
-        $value = getenv($key);
-        return $value === false ? $default : $value;
-    }
-}
-
-$host = database_config_env('DB_HOST', 'localhost:3308');
-$db_name = database_config_env('DB_NAME', 'swe_project');
-$username = database_config_env('DB_USER', 'root');
-$password = database_config_env('DB_PASSWORD', 'yousef20055_');
+$host = 'localhost:3308';
+$db_name = 'swe_project';
+$username = 'root';
+$password = '';
 
 // Database options
 $opts = [

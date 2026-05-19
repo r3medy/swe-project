@@ -33,6 +33,7 @@ return function ($app) {
     $app->group('/profile', function ($group) {
         $group->get('/saved', [ProfileController::class, 'getSavedPosts']);
         $group->get('/clientPosts/[{identifier}]', [ProfileController::class, 'getClientPosts']);
+        $group->get('/savedPosts', [ProfileController::class, 'getSavedPosts']);
         $group->get('/[{identifier}]', [ProfileController::class, 'getProfile']);
         $group->post('', [ProfileController::class, 'updateProfile']);
         $group->post('/uploadPicture', [ProfileController::class, 'updateProfilePicture']);
