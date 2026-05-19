@@ -9,10 +9,6 @@ const SORT_OPTIONS = [
   { value: "Expensive", label: "Expensive first" },
 ];
 
-/**
- * FilterContent - Extracted filter drawer content
- * Follows patterns-children-over-render-props pattern
- */
 const FilterContent = React.memo(function FilterContent({
   selectedFilters,
   tags,

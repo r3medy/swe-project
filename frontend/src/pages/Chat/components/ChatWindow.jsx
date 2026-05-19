@@ -103,7 +103,6 @@ const ChatWindow = React.memo(function ChatWindow({
       </div>
     </div>
   );
-  // End of component
 });
 
 export default ChatWindow;

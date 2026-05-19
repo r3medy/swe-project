@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router";
 import { useCallback } from "react";
 
 import "@/pages/Home/Home.css";
-import { useSession } from "@/contexts/SessionContext";
+import { useSession } from "@/contexts/useSession";
 
 import {
   LightRays,

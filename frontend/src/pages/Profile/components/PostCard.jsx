@@ -19,7 +19,7 @@ const PostCard = ({ post, setProfile, setChanges, postType, isOwner }) => {
             text={postType === "saved" ? "Remove from saved" : "Delete post"}
           >
             <Button.Icon
-              onClick={(e) =>
+              onClick={() =>
                 postType === "saved"
                   ? handleRemoveSavedPost(post.postId, setProfile, setChanges)
                   : handleDeletePost(post.postId, setProfile, setChanges)
@@ -46,7 +46,7 @@ const PostCard = ({ post, setProfile, setChanges, postType, isOwner }) => {
         />
       )}
       <div className="post-footer">
-        {!!post.hourlyRate ? (
+        {post.hourlyRate ? (
           <Tooltip text="Hourly Rate">
             <div className="post-metric">
               <LuTimer />

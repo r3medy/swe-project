@@ -12,18 +12,29 @@ class postModel {
         $this->notificationModel = new notificationModel($this->db);
     }
 
-    public function getPendingPosts() {
-        $query = $this->db->query("SELECT posts.*, users.firstName, users.lastName, users.profilePicture, users.username FROM posts JOIN users ON posts.clientId = users.userId WHERE users.role = 'Client' AND posts.status = 'Pending'");
+    public function getPendingPosts($page = 1, $limit = 50) {
+        $page = max(1, (int) $page);
+        $limit = min(50, max(1, (int) $limit));
+        $offset = ($page - 1) * $limit;
+
+        $query = $this->db->prepare("SELECT posts.*, users.firstName, users.lastName, users.profilePicture, users.username FROM posts JOIN users ON posts.clientId = users.userId WHERE users.role = 'Client' AND posts.status = 'Pending' ORDER BY posts.createdAt DESC LIMIT ? OFFSET ?");
+        $query->execute([$limit, $offset]);
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getPostById($postId) {
+        $stmt = $this->db->prepare("SELECT * FROM posts WHERE postId = :postId");
+        $stmt->execute(['postId' => $postId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function createPost($clientId, $postDetails) {
-        $title         = $postDetails["title"];
-        $description   = $postDetails["description"];
+        $title         = $this->sanitizeText($postDetails["title"]);
+        $description   = $this->sanitizeText($postDetails["description"]);
         $paymentMethod = $postDetails["paymentMethod"] === "Fixed" ? "Fixed" : "Hourly";
         $paymentType   = $paymentMethod === "Fixed" ? "budget" : "hourlyRate";
         $paymentAmount = $postDetails["paymentAmount"];
-        $tags = explode(",", $postDetails["tags"]);
+        $tags = array_filter(explode(",", $postDetails["tags"] ?? ''));
 
         $query = $this->db->prepare("INSERT INTO posts (clientId, jobTitle, jobDescription, jobType, $paymentType, status) VALUES (:clientId, :jobTitle, :jobDescription, :jobType, :$paymentType, 'Pending')");
         $query->execute([
@@ -37,6 +48,8 @@ class postModel {
         $postId = $this->db->lastInsertId();
 
         foreach($tags as $tag) {
+            if (!ctype_digit((string) $tag)) continue;
+
             $stmt = $this->db->prepare('INSERT INTO posttags (postId, tagId) VALUES (:postId, :tagId)');
             $stmt->execute([
                 'postId' => $postId,
@@ -48,9 +61,13 @@ class postModel {
     }
 
     public function setThumbnailForPost($thumbnail, $postId) {
-        $extension  = pathinfo($thumbnail->getClientFilename(), PATHINFO_EXTENSION);
+        $extension  = $this->extensionForMediaType($thumbnail->getClientMediaType());
+        if (!$extension) return ["status" => 400, "message" => "Invalid file type"];
+
         $uploadsDir = __DIR__ . '/../../uploads/';
-        $fileName   = "post_" . $postId . "." . $extension;
+        if (!is_dir($uploadsDir)) mkdir($uploadsDir, 0775, true);
+
+        $fileName   = "post_" . $postId . "_" . bin2hex(random_bytes(8)) . "." . $extension;
         $filePath   = $uploadsDir . $fileName;
         $relativePath = '/uploads/' . $fileName;
 
@@ -81,14 +98,17 @@ class postModel {
     public function editPost($postId, $changes) {        
         foreach($changes as $key => $value) {
             $query = $this->db->prepare("UPDATE posts SET $key = :value WHERE postId = :postId");
-            $query->execute(['value' => $value, 'postId' => $postId]);
+            $query->execute([
+                'value' => is_string($value) ? $this->sanitizeText($value) : $value,
+                'postId' => $postId,
+            ]);
         }
     }
 
     // Accepted, Rejected
     public function updatePostStatus($postId, $status = "Accepted") {
-        $stmt = $this->db->query("SELECT clientId FROM posts WHERE postId = $postId");
-        $clientId = $stmt->fetchColumn();
+        $clientId = $this->getClientId($postId);
+        if (!$clientId) return ["status" => 404, "message" => "Post not found"];
 
         $query = $this->db->prepare("UPDATE posts SET status = :status WHERE postId = :postId");
         $query->execute(['status' => $status, 'postId' => $postId]);
@@ -127,7 +147,8 @@ class postModel {
     }
 
     public function getClientId($postId) {
-        $stmt = $this->db->query("SELECT clientId FROM posts WHERE postId = $postId");
+        $stmt = $this->db->prepare("SELECT clientId FROM posts WHERE postId = :postId");
+        $stmt->execute(['postId' => $postId]);
         return $stmt->fetchColumn();
     }
 
@@ -135,5 +156,16 @@ class postModel {
         $stmt = $this->db->prepare("UPDATE posts SET isJobAccepted = 1 WHERE postId = :postId");
         $stmt->execute([':postId' => $postId]);
         return $stmt->rowCount();
+    }
+
+    private function extensionForMediaType($mediaType) {
+        return [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+        ][$mediaType] ?? null;
+    }
+
+    private function sanitizeText($value) {
+        return trim(strip_tags((string) $value));
     }
 }

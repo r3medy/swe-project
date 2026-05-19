@@ -1,16 +1,11 @@
 import React, { useCallback } from "react";
 import { toast } from "react-hot-toast";
-// (bundle-barrel-imports) Direct imports instead of barrel re-exports
 import Drawer from "@/components/Drawer/Drawer";
 import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
 import { changePasswordSchema } from "@/models/changepassword.zod";
-import { API_BASE_URL } from "@/config";
+import { post } from "@/utils/request";
 
-/**
- * ChangePasswordDrawer - Memoized component for password change drawer
- * Follows patterns-explicit-variants by being a dedicated drawer variant
- */
 const ChangePasswordDrawer = React.memo(function ChangePasswordDrawer({
   isOpen,
   onClose,
@@ -33,13 +28,7 @@ const ChangePasswordDrawer = React.memo(function ChangePasswordDrawer({
 
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_BASE_URL}/auth/changePassword`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(passwords),
-        });
-        const data = await res.json();
+        const data = await post("/auth/changePassword", passwords);
 
         if (data.status === 200) {
           toast.success("Password changed successfully");
@@ -50,7 +39,7 @@ const ChangePasswordDrawer = React.memo(function ChangePasswordDrawer({
         }
       } catch (err) {
         console.error(err);
-        toast.error("An error occurred");
+        toast.error(err.message || "An error occurred");
       } finally {
         setIsLoading(false);
       }
@@ -58,7 +47,6 @@ const ChangePasswordDrawer = React.memo(function ChangePasswordDrawer({
     [passwords, setPasswordErrors, setIsLoading, resetForm, onClose],
   );
 
-  // Using functional setState for stable callbacks (rerender-functional-setstate)
   const handleCurrentPasswordChange = useCallback(
     (e) =>
       setPasswords((prev) => ({ ...prev, currentPassword: e.target.value })),

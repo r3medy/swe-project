@@ -20,8 +20,18 @@ class userModel {
     }
 
     // Getting all users ( Admin )
-    public function getAllUsers() {
-        $query = $this->db->query("SELECT * FROM users");
+    public function getAllUsers($page = 1, $limit = 50) {
+        $page = max(1, (int) $page);
+        $limit = min(50, max(1, (int) $limit));
+        $offset = ($page - 1) * $limit;
+
+        $query = $this->db->prepare("
+            SELECT userId, role, firstName, lastName, email, username, title, country, bio, gender, profilePicture, createdAt
+            FROM users
+            ORDER BY createdAt DESC
+            LIMIT ? OFFSET ?
+        ");
+        $query->execute([$limit, $offset]);
         $users = $query->fetchAll(PDO::FETCH_ASSOC);
         return $users;
     }
@@ -56,10 +66,13 @@ class userModel {
     }
 
     // Register a user
-    public function storeUser($data) {
+    public function storeUser($data, $allowAdmin = false) {
+        $this->validator->reset();
+
         $requiredFields = ['username', 'email', 'password', 'role', 'gender', 'firstName', 'lastName', 'title', 'country', 'bio'];
         foreach($requiredFields as $field) {
-            $this->validator->validate($field, $data[$field] ?? null);
+            $options = $field === 'role' ? ['allowAdmin' => $allowAdmin] : [];
+            $this->validator->validate($field, $data[$field] ?? null, $options);
         }
         
         $validationErrors = $this->validator->errors;
@@ -68,23 +81,26 @@ class userModel {
 
         $stmt = $this->db->prepare("INSERT INTO users (username, email, hashedPassword, role, gender, firstName, lastName, title, country, bio) VALUES (:username, :email, :hashedPassword, :role, :gender, :firstName, :lastName, :title, :country, :bio)");
         $stmt->execute([
-            ':username' => $data["username"],
+            ':username' => $this->sanitizeText($data["username"]),
             ':email' => $data["email"],
-            ':hashedPassword' => password_hash($data["password"], PASSWORD_DEFAULT),
+            ':hashedPassword' => $this->hashPassword($data["password"]),
             ':role' => $data["role"],
             ':gender' => $data["gender"],
-            ':firstName' => $data["firstName"],
-            ':lastName' => $data["lastName"],
-            ':title' => $data["title"],
-            ':country' => $data["country"],
-            ':bio' => $data["bio"]
+            ':firstName' => $this->sanitizeText($data["firstName"]),
+            ':lastName' => $this->sanitizeText($data["lastName"]),
+            ':title' => $this->sanitizeText($data["title"]),
+            ':country' => $this->sanitizeText($data["country"]),
+            ':bio' => $this->sanitizeText($data["bio"])
         ]);
 
         $userId = $this->db->lastInsertId();
 
-        foreach($data['interests'] as $interest) {
+        $interests = $data['interests'] ?? [];
+        if (!is_array($interests)) $interests = [];
+
+        foreach(array_unique($interests) as $interest) {
             $tag = $this->tagModel->findTagByName($interest);
-            $this->tagModel->addTagtoUser($userId, $tag['tagId']);
+            if ($tag) $this->tagModel->addTagtoUser($userId, $tag['tagId']);
         }
 
         return ["status" => 201, "message" => "User created successfully"];
@@ -99,10 +115,12 @@ class userModel {
     // Update the user information
     public function updateUser($changes) {
         foreach($changes as $change) {
+            if (!is_array($change) || empty($change["type"])) continue;
+
             $type = $change["type"];
             switch($type) {
                 case "edit-bio":
-                    $bio = $change["bio"];
+                    $bio = $this->sanitizeText($change["bio"]);
                     $stmt = $this->db->prepare("UPDATE users SET bio = :bio WHERE userId = :userId");
                     $stmt->execute([':bio' => $bio, ':userId' => $this->userId]);
                     break;
@@ -117,7 +135,7 @@ class userModel {
                     $stmt->execute([':userId' => $this->userId, ':tagId' => $tagId]);
                     break;
                 case "change-title":
-                    $title = $change["title"];
+                    $title = $this->sanitizeText($change["title"]);
                     $stmt = $this->db->prepare("UPDATE users SET title = :title WHERE userId = :userId");
                     $stmt->execute([':title' => $title, ':userId' => $this->userId]);
                     break;
@@ -144,7 +162,9 @@ class userModel {
         if(!$user) return ["status" => 404, "message" => "User not found"];
         if(!password_verify($oldPassword, $user['hashedPassword'])) return ["status" => 400, "message" => "Old password is incorrect"];
 
-        $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+        if (!$this->isStrongPassword($newPassword)) return ["status" => 400, "message" => "Password must be at least 8 characters long and include mixed case plus a digit or special character"];
+
+        $newHash = $this->hashPassword($newPassword);
 
         $stmt = $this->db->prepare("UPDATE users SET hashedPassword = :newPass WHERE userId = :id");
         $stmt->execute([
@@ -205,14 +225,44 @@ class userModel {
 
     // Update user by admin
     public function updateUserByAdmin($userId, $data) {
+        if (!$this->getUserById($userId)) return ["status" => 404, "message" => "User not found"];
+
         $allowedFields = ['firstName', 'lastName', 'username', 'email', 'title', 'country', 'role', 'gender', 'bio'];
         $updates = [];
         $params = [':userId' => $userId];
+
+        $this->validator->reset();
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $options = $field === 'role' ? ['allowAdmin' => true] : [];
+                $this->validator->validate($field, $data[$field], $options);
+            }
+        }
+
+        if (count($this->validator->errors) > 0) {
+            return ["status" => 400, "message" => "Validation failed", "errors" => $this->validator->errors];
+        }
+
+        if (isset($data['email'])) {
+            $existing = $this->getUserByEmail($data['email']);
+            if ($existing && (int) $existing['userId'] !== (int) $userId) {
+                return ["status" => 400, "message" => "Email already exists"];
+            }
+        }
+
+        if (isset($data['username'])) {
+            $existing = $this->getUserByUsername($data['username']);
+            if ($existing && (int) $existing['userId'] !== (int) $userId) {
+                return ["status" => 400, "message" => "Username already exists"];
+            }
+        }
         
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {
                 $updates[] = "$field = :$field";
-                $params[":$field"] = $data[$field];
+                $params[":$field"] = in_array($field, ['email', 'role', 'gender'], true)
+                    ? $data[$field]
+                    : $this->sanitizeText($data[$field]);
             }
         }
         
@@ -235,11 +285,37 @@ class userModel {
 
     // Get user from database using any login method
     private function getUserFromDB($loginmethod, $value) {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE $loginmethod = :value");
-        if(str_starts_with($value, "@")) $stmt->execute(['value' => substr($value, 1)]);
+        if ($value === null || $value === '') return false;
+        if (!in_array($loginmethod, ['userId', 'username', 'email'], true)) return false;
+
+        $queries = [
+            'userId' => "SELECT * FROM users WHERE userId = :value",
+            'username' => "SELECT * FROM users WHERE username = :value",
+            'email' => "SELECT * FROM users WHERE email = :value",
+        ];
+
+        $stmt = $this->db->prepare($queries[$loginmethod]);
+        if(str_starts_with((string) $value, "@")) $stmt->execute(['value' => substr((string) $value, 1)]);
         else $stmt->execute(['value' => $value]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $user;
+    }
+
+    private function hashPassword($password) {
+        $algorithm = defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT;
+        return password_hash($password, $algorithm);
+    }
+
+    private function isStrongPassword($password) {
+        return is_string($password)
+            && strlen($password) >= 8
+            && preg_match('/[a-z]/', $password)
+            && preg_match('/[A-Z]/', $password)
+            && preg_match('/[\d\W_]/', $password);
+    }
+
+    private function sanitizeText($value) {
+        return trim(strip_tags((string) $value));
     }
 }

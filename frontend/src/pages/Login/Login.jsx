@@ -9,7 +9,7 @@ import { Button, SmallText, Input } from "@/components";
 
 import { loginSchema } from "@/models/login.zod";
 import { useNavigate } from "react-router";
-import { useSession } from "@/contexts/SessionContext";
+import { useSession } from "@/contexts/useSession";
 
 const Login = () => {
   const { user, login } = useSession();
