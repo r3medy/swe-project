@@ -1,28 +1,23 @@
 import toast from "react-hot-toast";
-import { API_BASE_URL } from "@/config";
+import { post, postForm } from "@/utils/request";
 
 export const handleApplyChanges = (changes, setIsLoading, setChanges) => {
   setIsLoading(true);
-  fetch(`${API_BASE_URL}/profile`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(changes),
-  })
-    .then((res) => res.json())
+  post("/profile", changes)
     .then((data) => {
       if (data.success) {
         toast.success("Profile updated successfully");
         setChanges([]);
-        setIsLoading(false);
         window.location.reload();
+      } else {
+        toast.error(data.message || "Something went wrong");
       }
     })
     .catch((err) => {
       console.error(err);
-      toast.error("Something went wrong");
+      toast.error(err.message || "Something went wrong");
+    })
+    .finally(() => {
       setIsLoading(false);
     });
 };
@@ -102,13 +97,7 @@ export const handleChangeProfilePicture = (file, setProfile, setIsLoading) => {
   const formData = new FormData();
   formData.append("profilePicture", file);
 
-  fetch(`${API_BASE_URL}/profile/uploadPicture`, {
-    method: "POST",
-    credentials: "include",
-    // Don't set Content-Type header - browser will set it automatically with boundary
-    body: formData,
-  })
-    .then((res) => res.json())
+  postForm("/profile/uploadPicture", formData)
     .then((data) => {
       if (data.success) {
         toast.success("Profile picture updated successfully, refreshing page");
@@ -120,7 +109,7 @@ export const handleChangeProfilePicture = (file, setProfile, setIsLoading) => {
     })
     .catch((err) => {
       console.error(err);
-      toast.error("Something went wrong");
+      toast.error(err.message || "Something went wrong");
     })
     .finally(() => {
       setIsLoading(false);

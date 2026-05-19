@@ -40,11 +40,13 @@ class chatModel {
         ]);
         $chats = $chatsQuery->fetchAll(PDO::FETCH_ASSOC);
 
-        // For each chat, fetch its messages
-        $result = [];
-        foreach ($chats as $chat) {
+        $messagesByChat = [];
+        $chatIds = array_column($chats, 'chatId');
+        if (!empty($chatIds)) {
+            $placeholders = implode(',', array_fill(0, count($chatIds), '?'));
             $messagesQuery = $this->db->prepare("
                 SELECT 
+                    m.chatId,
                     m.messageId,
                     m.senderId,
                     m.messageContent,
@@ -55,12 +57,18 @@ class chatModel {
                     u.profilePicture AS senderProfilePicture
                 FROM messages m
                 JOIN users u ON m.senderId = u.userId
-                WHERE m.chatId = :chatId
-                ORDER BY m.sentAt ASC
+                WHERE m.chatId IN ($placeholders)
+                ORDER BY m.chatId ASC, m.sentAt ASC
             ");
-            $messagesQuery->execute(["chatId" => $chat["chatId"]]);
-            $messages = $messagesQuery->fetchAll(PDO::FETCH_ASSOC);
+            $messagesQuery->execute(array_values($chatIds));
 
+            foreach ($messagesQuery->fetchAll(PDO::FETCH_ASSOC) as $message) {
+                $messagesByChat[$message['chatId']][] = $message;
+            }
+        }
+
+        $result = [];
+        foreach ($chats as $chat) {
             $result[] = [
                 "chatId" => $chat["chatId"],
                 "createdAt" => $chat["chatCreatedAt"],
@@ -85,7 +93,7 @@ class chatModel {
                     "profilePicture" => $chat["clientProfilePicture"],
                     "gender" => $chat["clientGender"]
                 ],
-                "messages" => $messages
+                "messages" => $messagesByChat[$chat["chatId"]] ?? []
             ];
         }
 

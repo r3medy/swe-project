@@ -60,6 +60,20 @@ const LightRays = ({
   const cleanupFunctionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   const observerRef = useRef(null);
+  const propsRef = useRef({
+    raysOrigin,
+    raysColor,
+    raysSpeed,
+    lightSpread,
+    rayLength,
+    pulsating,
+    fadeDistance,
+    saturation,
+    followMouse,
+    mouseInfluence,
+    noiseAmount,
+    distortion,
+  });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -221,17 +235,17 @@ void main() {
         rayPos: { value: [0, 0] },
         rayDir: { value: [0, 1] },
 
-        raysColor: { value: hexToRgb(raysColor) },
-        raysSpeed: { value: raysSpeed },
-        lightSpread: { value: lightSpread },
-        rayLength: { value: rayLength },
-        pulsating: { value: pulsating ? 1.0 : 0.0 },
-        fadeDistance: { value: fadeDistance },
-        saturation: { value: saturation },
+        raysColor: { value: hexToRgb(propsRef.current.raysColor) },
+        raysSpeed: { value: propsRef.current.raysSpeed },
+        lightSpread: { value: propsRef.current.lightSpread },
+        rayLength: { value: propsRef.current.rayLength },
+        pulsating: { value: propsRef.current.pulsating ? 1.0 : 0.0 },
+        fadeDistance: { value: propsRef.current.fadeDistance },
+        saturation: { value: propsRef.current.saturation },
         mousePos: { value: [0.5, 0.5] },
-        mouseInfluence: { value: mouseInfluence },
-        noiseAmount: { value: noiseAmount },
-        distortion: { value: distortion },
+        mouseInfluence: { value: propsRef.current.mouseInfluence },
+        noiseAmount: { value: propsRef.current.noiseAmount },
+        distortion: { value: propsRef.current.distortion },
       };
       uniformsRef.current = uniforms;
 
@@ -258,7 +272,7 @@ void main() {
 
         uniforms.iResolution.value = [w, h];
 
-        const { anchor, dir } = getAnchorAndDir(raysOrigin, w, h);
+        const { anchor, dir } = getAnchorAndDir(propsRef.current.raysOrigin, w, h);
         uniforms.rayPos.value = anchor;
         uniforms.rayDir.value = dir;
       };
@@ -270,7 +284,8 @@ void main() {
 
         uniforms.iTime.value = t * 0.001;
 
-        if (followMouse && mouseInfluence > 0.0) {
+        const currentProps = propsRef.current;
+        if (currentProps.followMouse && currentProps.mouseInfluence > 0.0) {
           const smoothing = 0.92;
 
           smoothMouseRef.current.x =
@@ -332,21 +347,7 @@ void main() {
         cleanupFunctionRef.current = null;
       }
     };
-  }, [
-    isVisible,
-    raysOrigin,
-    raysColor,
-    raysSpeed,
-    lightSpread,
-    rayLength,
-    pulsating,
-    fadeDistance,
-    saturation,
-    followMouse,
-    mouseInfluence,
-    noiseAmount,
-    distortion,
-  ]);
+  }, [isVisible]);
 
   useEffect(() => {
     if (!uniformsRef.current || !containerRef.current || !rendererRef.current) return;
@@ -370,6 +371,21 @@ void main() {
     const { anchor, dir } = getAnchorAndDir(raysOrigin, wCSS * dpr, hCSS * dpr);
     u.rayPos.value = anchor;
     u.rayDir.value = dir;
+
+    propsRef.current = {
+      raysOrigin,
+      raysColor,
+      raysSpeed,
+      lightSpread,
+      rayLength,
+      pulsating,
+      fadeDistance,
+      saturation,
+      followMouse,
+      mouseInfluence,
+      noiseAmount,
+      distortion,
+    };
   }, [
     raysColor,
     raysSpeed,
@@ -379,6 +395,7 @@ void main() {
     pulsating,
     fadeDistance,
     saturation,
+    followMouse,
     mouseInfluence,
     noiseAmount,
     distortion,

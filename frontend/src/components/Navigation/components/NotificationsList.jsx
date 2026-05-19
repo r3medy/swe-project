@@ -1,24 +1,33 @@
 import React from "react";
 import { LuBell, LuX } from "react-icons/lu";
-// (bundle-barrel-imports) Direct import instead of barrel re-export
 import Button from "@/components/Button/Button";
+import PaginationControls from "@/components/PaginationControls/PaginationControls";
 
-/**
- * NotificationsList component - extracted for re-render optimization
- * Uses React.memo to prevent unnecessary re-renders
- */
 const NotificationsList = React.memo(function NotificationsList({
   notifications,
+  page,
+  canLoadNextPage,
+  onPageChange,
   onMarkAllRead,
   onDeleteNotification,
 }) {
   if (!notifications?.length) {
     return (
-      <div className="notifications-empty">
-        <LuBell size={48} className="notifications-empty-icon" />
-        <p>No notifications yet</p>
-        <span>You're all caught up!</span>
-      </div>
+      <>
+        <div className="notifications-empty">
+          <LuBell size={48} className="notifications-empty-icon" />
+          <p>No notifications yet</p>
+          <span>You're all caught up!</span>
+        </div>
+        {page > 1 ? (
+          <PaginationControls
+            page={page}
+            hasNextPage={canLoadNextPage}
+            onPageChange={onPageChange}
+            label="Notifications"
+          />
+        ) : null}
+      </>
     );
   }
 
@@ -36,7 +45,6 @@ const NotificationsList = React.memo(function NotificationsList({
             }`}
           >
             <div className="notification-card-content">
-              {/* (rendering-conditional-render) Ternary instead of && */}
               {!notification.isMarkedRead ? (
                 <span className="notification-unread-dot" />
               ) : null}
@@ -59,6 +67,12 @@ const NotificationsList = React.memo(function NotificationsList({
           </div>
         ))}
       </div>
+      <PaginationControls
+        page={page}
+        hasNextPage={canLoadNextPage}
+        onPageChange={onPageChange}
+        label="Notifications"
+      />
     </>
   );
 });

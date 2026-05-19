@@ -7,10 +7,6 @@ import { assetUrl } from "@/config";
 import profileImage1 from "@/assets/profilepictures/1.png";
 import profileImage3 from "@/assets/profilepictures/3.png";
 
-/**
- * WallPostCard - Memoized component for individual post display
- * Follows rerender-memo pattern for optimization
- */
 const WallPostCard = React.memo(function WallPostCard({
   post,
   user,

@@ -1,16 +1,15 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { toast } from "react-hot-toast";
-import { API_BASE_URL } from "@/config";
+import { get, post, del } from "@/utils/request";
+import { buildPaginatedPath, hasNextPage } from "@/utils/pagination";
 
-/**
- * Custom hook to manage navigation-related state
- * Follows state-decouple-implementation pattern
- */
+const NOTIFICATIONS_PAGE_SIZE = 20;
+
 export function useNavigation() {
   const [currentDrawer, setCurrentDrawer] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [notificationsPage, setNotificationsPage] = useState(1);
 
-  // Password change state
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
@@ -23,7 +22,6 @@ export function useNavigation() {
   });
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
-  // Delete account state
   const [deleteAccountConfirmation, setDeleteAccountConfirmation] =
     useState("");
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -41,27 +39,33 @@ export function useNavigation() {
     });
   }, []);
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (pageToFetch = 1) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/notifications`, {
-        method: "GET",
-        credentials: "include",
-      });
-      const data = await res.json();
+      const data = await get(
+        buildPaginatedPath("/notifications", {
+          page: pageToFetch,
+          limit: NOTIFICATIONS_PAGE_SIZE,
+        }),
+      );
       setNotifications(data.notifications || []);
+      setNotificationsPage(pageToFetch);
     } catch (err) {
       console.error(err);
       toast.error("An error occurred fetching notifications");
     }
   }, []);
 
+  const handleNotificationsPageChange = useCallback(
+    (nextPage) => {
+      if (nextPage < 1) return;
+      fetchNotifications(nextPage);
+    },
+    [fetchNotifications],
+  );
+
   const markAllNotificationsRead = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/notifications/markallread`, {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await res.json();
+      const data = await post("/notifications/markallread");
       if (data.success) {
         setNotifications((prev) =>
           prev.map((n) => ({ ...n, isMarkedRead: 1 })),
@@ -75,14 +79,7 @@ export function useNavigation() {
 
   const deleteNotification = useCallback(async (notificationId) => {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/notifications/${notificationId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
-      const data = await res.json();
+      const data = await del(`/notifications/${notificationId}`);
       if (data.success) {
         setNotifications((prev) =>
           prev.filter((n) => n.notificationId !== notificationId),
@@ -94,14 +91,13 @@ export function useNavigation() {
     }
   }, []);
 
-  // Derived state - notifications that are unread
   const hasUnreadNotifications = useMemo(
     () => notifications?.some((n) => !n.isMarkedRead),
     [notifications],
   );
 
   useEffect(() => {
-    fetchNotifications();
+    fetchNotifications(1);
   }, [fetchNotifications]);
 
   return {
@@ -111,7 +107,13 @@ export function useNavigation() {
 
     // Notifications
     notifications,
+    notificationsPage,
+    canLoadNextNotificationsPage: hasNextPage(
+      notifications,
+      NOTIFICATIONS_PAGE_SIZE,
+    ),
     hasUnreadNotifications,
+    handleNotificationsPageChange,
     markAllNotificationsRead,
     deleteNotification,
 

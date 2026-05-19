@@ -1,6 +1,25 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useSession } from "@/contexts/SessionContext";
-import { API_BASE_URL } from "@/config";
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "@/contexts/useSession";
+import { get, post } from "@/utils/request";
+
+/**
+ * Lightweight comparison of two chat arrays.
+ * Compares length, chatId ordering, and updatedAt timestamps
+ * to avoid expensive JSON.stringify on every poll.
+ */
+const chatsEqual = (a, b) => {
+  if (a === b) return true;
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const ca = a[i];
+    const cb = b[i];
+    if (ca.chatId !== cb.chatId) return false;
+    if (ca.updatedAt !== cb.updatedAt) return false;
+    if (ca.lastMessageAt !== cb.lastMessageAt) return false;
+  }
+  return true;
+};
 
 export const useChat = () => {
   const { user, isFetchingSession } = useSession();
@@ -9,20 +28,14 @@ export const useChat = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Memoized selected chat derived from chats array
   const selectedChat = chats.find((c) => c.chatId === selectedChatId) || null;
 
   const fetchChats = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/chats`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch chats");
-      const data = await res.json();
+      const data = await get("/chats");
 
       setChats((prevChats) => {
-        // Simple optimization to avoid re-renders if data matches
-        if (JSON.stringify(prevChats) === JSON.stringify(data)) {
+        if (chatsEqual(prevChats, data)) {
           return prevChats;
         }
         return data;
@@ -40,10 +53,8 @@ export const useChat = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Initial fetch
     fetchChats();
 
-    // Poll every 3 seconds
     const interval = setInterval(fetchChats, 3000);
     return () => clearInterval(interval);
   }, [fetchChats, user]);
@@ -53,15 +64,10 @@ export const useChat = () => {
       if (!messageContent.trim() || !selectedChatId) return false;
 
       try {
-        const res = await fetch(`${API_BASE_URL}/chats/${selectedChatId}`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messageContent: messageContent.trim() }),
+        await post(`/chats/${selectedChatId}`, {
+          messageContent: messageContent.trim(),
         });
-
-        if (!res.ok) throw new Error("Failed to send message");
-        await fetchChats(); // Refresh chat immediately
+        await fetchChats();
         return true;
       } catch (err) {
         console.error("Error sending message:", err);

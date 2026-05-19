@@ -1,4 +1,4 @@
-button {
+.button-base {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -14,7 +14,7 @@ button {
   gap: 0.5rem;
 }
 
-button:disabled {
+.button-base:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

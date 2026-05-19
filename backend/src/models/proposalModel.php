@@ -24,6 +24,21 @@ class ProposalModel {
         ]);
     }
 
+    public function hasProposal($freelancerId, $postId) {
+        $stmt = $this->db->prepare("
+            SELECT 1 FROM proposals
+            WHERE freelancerId = :freelancerId AND postId = :postId
+            LIMIT 1
+        ");
+
+        $stmt->execute([
+            ':freelancerId' => $freelancerId,
+            ':postId' => $postId
+        ]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
     // GET proposals for post
     public function getProposalsByPost($postId) {
         $stmt = $this->db->prepare("

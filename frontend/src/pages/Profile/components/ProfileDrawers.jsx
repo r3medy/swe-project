@@ -14,7 +14,6 @@ const ProfileDrawers = ({
   tags,
   selectRef,
   setIsLoading,
-  changes,
   backupProfile,
 }) => {
   const handleBioChange = (e) => {

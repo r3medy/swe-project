@@ -20,14 +20,15 @@
 
 .hero-text-primary {
   color: var(--foreground);
-  font-family: "Playfair Display Regular", serif;
+  font-family: var(--font-display);
   font-size: 4rem;
   font-weight: 400;
 }
 
 .hero-text-secondary {
   color: var(--foreground);
-  font-family: "Playfair Display Italic", serif;
+  font-family: var(--font-display-italic);
+  font-style: italic;
   font-size: 4rem;
   font-weight: 400;
 }

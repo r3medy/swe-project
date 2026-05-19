@@ -3,9 +3,13 @@
 namespace src\Controllers;
 
 use Psr\Container\ContainerInterface;
+use src\Core\ApiResponse;
+use src\Core\AuditLogger;
 use src\Models\userModel;
 
 class AuthController {
+    use ApiResponse;
+
     private $db;
     private $userModel;
 
@@ -15,37 +19,38 @@ class AuthController {
     }
 
     public function register($request, $response) {
-        $requestBody = $request->getParsedBody();
+        $requestBody = $request->getParsedBody() ?? [];
         
         // Check if user already exists
         $existingUser = $this->userModel->getUser($requestBody['email'] ?? $requestBody['username'] ?? '', true);
         
         if ($existingUser) {
-            $response->getBody()->write(json_encode(["message" => "User already exists"]));
-            return $response->withStatus(409);
+            AuditLogger::log('auth.register.duplicate', ['identifier' => $requestBody['email'] ?? $requestBody['username'] ?? null]);
+            return $this->error($response, 'User already exists', 409);
         }
 
         // Save in database
         $result = $this->userModel->storeUser($requestBody);
 
         if ($result['status'] === 400) {
+            AuditLogger::log('auth.register.failed', ['identifier' => $requestBody['email'] ?? $requestBody['username'] ?? null]);
             $response->getBody()->write(json_encode([
-                "message" => $result['message'],
-                "data" => $result['errors'] ?? null
+                'error' => ['code' => 400, 'message' => $result['message']],
+                'data' => $result['errors'] ?? null,
             ]));
-            return $response->withStatus(400);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         $response->getBody()->write(json_encode(["message" => "User registered successfully"]));
+        AuditLogger::log('auth.register.success', ['identifier' => $requestBody['email'] ?? $requestBody['username'] ?? null]);
         return $response->withStatus(201);
     }
 
     public function login($request, $response) {
-        $requestBody = $request->getParsedBody();
+        $requestBody = $request->getParsedBody() ?? [];
 
         if (!isset($requestBody['usernameoremail']) || !isset($requestBody['password'])) {
-            $response->getBody()->write(json_encode(["message" => "Invalid username or email and password"]));
-            return $response->withStatus(400);
+            return $this->error($response, 'Invalid username or email and password', 400);
         }
 
         $usernameoremail = $requestBody['usernameoremail'];
@@ -55,20 +60,23 @@ class AuthController {
         $user = $this->userModel->getUser($usernameoremail, false);
 
         if (!$user) {
-            $response->getBody()->write(json_encode(["message" => "User not found"]));
-            return $response->withStatus(404);
+            AuditLogger::log('auth.login.failed', ['identifier' => $usernameoremail, 'reason' => 'not_found']);
+            return $this->error($response, 'User not found', 404);
         }
 
         if (!password_verify($password, $user['hashedPassword'])) {
-            $response->getBody()->write(json_encode(["message" => "Invalid username or email and password"]));
-            return $response->withStatus(401);
+            AuditLogger::log('auth.login.failed', ['identifier' => $usernameoremail, 'reason' => 'invalid_password']);
+            return $this->error($response, 'Invalid username or email and password', 401);
         }
 
         session_regenerate_id(true);
         $_SESSION['userId'] = $user['userId'];
+        $_SESSION['role'] = $user['role'];
+        AuditLogger::log('auth.login.success', ['targetUserId' => $user['userId']]);
 
         $response->getBody()->write(json_encode([
             "message" => "Login successful",
+            "csrfToken" => $_SESSION['csrfToken'] ?? null,
             "user" => [
                 "userId" => $user['userId'],
                 "username" => $user['username'],
@@ -82,29 +90,27 @@ class AuthController {
     public function changePassword($request, $response) {
         $userId = $_SESSION['userId'] ?? null;
         if (!$userId) {
-            $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+            return $this->error($response, 'Unauthorized', 401);
         }
 
-        $data = $request->getParsedBody();
+        $data = $request->getParsedBody() ?? [];
         $oldPassword = $data['currentPassword'] ?? '';
         $newPassword = $data['newPassword'] ?? '';
 
         if (empty($oldPassword) || empty($newPassword)) {
-            $response->getBody()->write(json_encode(['error' => 'Both fields are required']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return $this->error($response, 'Both fields are required', 400);
+        }
+        if (!$this->isStrongPassword($newPassword)) {
+            return $this->error($response, 'Password must be at least 8 characters long and include mixed case plus a digit or special character', 400);
         }
 
         $result = $this->userModel->changePassword($oldPassword, $newPassword);
 
-        $response->getBody()->write(json_encode([
-            'status' => $result['status'],
-            'message' => $result['message']
-        ]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($result['status']);
+        return $this->result($response, $result);
     }
 
     public function logout($request, $response) {
+        AuditLogger::log('auth.logout');
         $this->deleteSession();
 
         $response->getBody()->write(json_encode(["message" => "Logout successful"]));
@@ -113,19 +119,19 @@ class AuthController {
 
     public function getSession($request, $response) {
         if (!isset($_SESSION['userId'])) {
-            $response->getBody()->write(json_encode(["message" => "No active session"]));
-            return $response->withStatus(401);
+            return $this->error($response, 'No active session', 401);
         }
 
         $user = $this->userModel->getUserById($_SESSION['userId'], true);
 
         if (!$user) {
-            $response->getBody()->write(json_encode(["message" => "No active session"]));
-            return $response->withStatus(401);
+            $this->deleteSession();
+            return $this->error($response, 'No active session', 401);
         }
 
         $response->getBody()->write(json_encode([
             "message" => "Session active",
+            "csrfToken" => $_SESSION['csrfToken'] ?? null,
             "data" => $user
         ]));
         return $response->withStatus(200);
@@ -134,34 +140,27 @@ class AuthController {
     public function deleteAccount($request, $response) {
         $userId = $_SESSION['userId'] ?? null;
         if (!$userId) {
-            $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+            return $this->error($response, 'Unauthorized', 401);
         }
 
         $result = $this->userModel->deleteUser($userId);
         if ($result['status'] === 200) $this->deleteSession();
 
-        $response->getBody()->write(json_encode([
-            'status' => $result['status'],
-            'message' => $result['message']
-        ]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($result['status']);
+        return $this->result($response, $result);
     }
 
     public function checkUser($request, $response) {
-        $requestBody = $request->getParsedBody();
+        $requestBody = $request->getParsedBody() ?? [];
         $loginValue = $requestBody['usernameoremail'] ?? $requestBody['username'] ?? $requestBody['email'] ?? null;
 
         if (!$loginValue) {
-            $response->getBody()->write(json_encode(["message" => "No credentials provided", "data" => null]));
-            return $response->withStatus(400);
+            return $this->error($response, 'No credentials provided', 400);
         }
 
         $user = $this->userModel->getUser($loginValue, true);
 
         if (!$user) {
-            $response->getBody()->write(json_encode(["message" => "User not found", "data" => null]));
-            return $response->withStatus(404);
+            return $this->error($response, 'User not found', 404);
         }
 
         $response->getBody()->write(json_encode([
@@ -193,6 +192,14 @@ class AuthController {
                 $params["httponly"]
             );
         }
+    }
+
+    private function isStrongPassword($password) {
+        return is_string($password)
+            && strlen($password) >= 8
+            && preg_match('/[a-z]/', $password)
+            && preg_match('/[A-Z]/', $password)
+            && preg_match('/[\d\W_]/', $password);
     }
 }
 

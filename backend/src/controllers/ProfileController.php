@@ -3,9 +3,12 @@
 namespace src\Controllers;
 
 use Psr\Container\ContainerInterface;
+use src\Core\ApiResponse;
 use src\Models\userModel;
 
 class ProfileController {
+    use ApiResponse;
+
     private $db;
     private $userModel;
 
@@ -22,6 +25,7 @@ class ProfileController {
         $user = $this->userModel->getUser($identifier ?? $_SESSION['userId']);
 
         if (!$user) return $this->error($response, 'User not found', 404);
+        unset($user['email']);
 
         // Get user tags
         $user['tags'] = $this->userModel->getUserTags($user['userId']);
@@ -59,7 +63,9 @@ class ProfileController {
     public function updateProfile($request, $response) {
         if (!isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
         
-        $actions = $request->getParsedBody();
+        $actions = $request->getParsedBody() ?? [];
+        if (!is_array($actions)) return $this->error($response, 'Invalid profile update payload', 400);
+
         $this->userModel->updateUser($actions);
 
         $response->getBody()->write(json_encode(['success' => true]));
@@ -67,22 +73,25 @@ class ProfileController {
     }
 
     public function updateProfilePicture($request, $response) {
-        $me = $this->userModel->getUser($_SESSION['userId']);
-        if(!isset($_SESSION['userId']) && $me['role'] !== 'Admin') return $this->error($response, 'Unauthorized', 401);
+        if(!isset($_SESSION['userId'])) return $this->error($response, 'Unauthorized', 401);
+
+        $me = $this->userModel->getUserById($_SESSION['userId']);
+        if(!$me) return $this->error($response, 'Unauthorized', 401);
         
         $uploadedFiles = $request->getUploadedFiles();
         $uploadedFile  = $uploadedFiles['profilePicture'] ?? null;
-        $allowedTypes  = ['image/jpeg', 'image/png'];
+        $allowedTypes  = ['image/jpeg' => 'jpg', 'image/png' => 'png'];
         $maxFileSize   = 2.5 * 1024 * 1024; // 2.5 MB
         $uploadsDir    = __DIR__ . '/../../uploads/';
 
         if(!$uploadedFile) return $this->error($response, 'No file uploaded', 400);
         if($uploadedFile->getError() !== UPLOAD_ERR_OK) return $this->error($response, 'File upload failed', 400);
-        if(!in_array($uploadedFile->getClientMediaType(), $allowedTypes)) return $this->error($response, 'Invalid file type, only JPEG and PNG are allowed', 400);
+        $extension = $allowedTypes[$uploadedFile->getClientMediaType()] ?? null;
+        if(!$extension) return $this->error($response, 'Invalid file type, only JPEG and PNG are allowed', 400);
         if($uploadedFile->getSize() > $maxFileSize) return $this->error($response, 'File size exceeds the limit of 2.5MB', 400);
+        if(!is_dir($uploadsDir)) mkdir($uploadsDir, 0775, true);
 
-        $ext = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-        $filename = $_SESSION['userId'] . '.' . $ext;
+        $filename = 'profile_' . $_SESSION['userId'] . '_' . bin2hex(random_bytes(8)) . '.' . $extension;
 
         $filePath = $uploadsDir . $filename;
         $uploadedFile->moveTo($filePath);
@@ -94,13 +103,9 @@ class ProfileController {
 
         $response->getBody()->write(json_encode([
             'success' => true,
-            'profilePicture' => $relativePath
+            'profilePicture' => $relativePath,
+            'url' => $relativePath
         ]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
-    }
-
-    private function error($response, $message, $status) {
-        $response->getBody()->write(json_encode(['error' => $message]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 }
